@@ -1,9 +1,20 @@
 # Data Dictionary – WA Major Resources Projects
 
-## Dataset
-- **Source:** WA Open Data Portal – Major Resources Projects
-- **Download date:** 16 May 2026
-- **Snapshot year:** 2023–24
+## Purpose
+This document describes the structure, meaning, and data quality characteristics of the
+Major Resources Projects dataset used in the WA Mining Operations Dashboard. It serves
+as a reference for data analysts, BI developers, and stakeholders reviewing the project.
+
+## Overview
+| Attribute | Detail |
+| :--- | :--- |
+| Source | WA Open Data Portal – Major Resources Projects |
+| Download date | 16 May 2026 |
+| Snapshot year | 2023–24 |
+| Total fields | 19 |
+| Primary key | SITE_CODE (unique per site) |
+| Relationship | Multiple sites map to one project (PROJ_CODE) |
+
 
 ## Fields
 

@@ -1,5 +1,10 @@
-# Ignore raw CSV data (too large, downloadable from source)
+# WA Mining Operations Dashboard – Git Ignore Rules
+# ------------------------------------------------
+
+# Raw CSV data (too large, downloadable from source)
+# The Major_Resource_Projects.csv is ~5MB+ and available publicly from
+# the WA Open Data Portal. This keeps the repo lightweight and fast to clone.
 DATABASES/*.csv
 
-# Ignore OS generated files
+# OS generated files
 .DS_Store

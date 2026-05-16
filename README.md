@@ -15,12 +15,13 @@ Stakeholders in WA's resources sector rely on static reports to monitor project 
 
 ## Repo Structure
 WA_Mining/
-├── DATABASES/ # Raw data downloaded separatedly from WA Open Data Portal
-├── DOCUMENTS/ # BA artifacts, metadata, license
-├── SQL/ # Schema and business queries
-├── POWER_BI/ # Dashboard screenshots
-└── README.md
-
+    |-DATABASES/ # Raw data downloaded separatedly from WA Open Data Portal, description files regarding the dataset are in this directory.
+    |- DOCUMENTS/ # BA artifacts, metadata, license
+    |- SQL/ # Schema and business queries
+    |- POWER_BI/ # Dashboard screenshots
+    |- README.md  
+    |- .gitignore 
+    |- data_dictionary 
 
 ## Key Context (WA 2023–24)
 - 138 principal mining projects – the highest on record since 2014–15.
