@@ -15,7 +15,7 @@ Stakeholders in WA's resources sector rely on static reports to monitor project 
 
 ## Repo Structure
 WA_Mining/
-├── DATABASES/ # Raw data (Major_Resource_Projects.csv)
+├── DATABASES/ # Raw data downloaded separatedly from WA Open Data Portal
 ├── DOCUMENTS/ # BA artifacts, metadata, license
 ├── SQL/ # Schema and business queries
 ├── POWER_BI/ # Dashboard screenshots
