@@ -1,0 +1,5 @@
+# Ignore raw CSV data (too large, downloadable from source)
+DATABASES/*.csv
+
+# Ignore OS generated files
+.DS_Store

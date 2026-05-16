@@ -1,19 +1,36 @@
 # WA Mining Operations Dashboard
 
-This project analyses Western Australia’s public Major Resources Projects dataset to understand how major mining and resources projects are distributed by commodity, region, status, and capital investment.
-gov
-+1
+## Project Overview
+This project analyses Western Australia's public **Major Resources Projects** dataset to understand how major mining and resources projects are distributed by commodity, region, status, and company.
 
-The goal is to demonstrate business analysis, SQL, and Power BI skills in the context of Perth’s mining sector by:
+## Business Problem
+Stakeholders in WA's resources sector rely on static reports to monitor project pipelines. This dashboard consolidates project data into an interactive view that answers key portfolio questions.
 
-Defining stakeholder needs and core questions.
+## Tech Stack
+- **Notion** – documentation, requirements, case study
+- **SQL (SQLite)** – data modeling and queries
+- **Power BI** – dashboard and visual analytics
+- **GitHub** – code, queries, and documentation
+- **Jira** – user stories and task tracking
 
-Building a simple data model (projects table).
+## Repo Structure
+WA_Mining/
+├── DATABASES/ # Raw data (Major_Resource_Projects.csv)
+├── DOCUMENTS/ # BA artifacts, metadata, license
+├── SQL/ # Schema and business queries
+├── POWER_BI/ # Dashboard screenshots
+└── README.md
 
-Writing SQL queries to answer portfolio‑level questions.
 
-Creating a Power BI dashboard with overview and investment pages.
+## Key Context (WA 2023–24)
+- 138 principal mining projects – the highest on record since 2014–15.
+- 49 gold, 36 iron ore, 11 nickel, 7 lithium projects.
+- 16 major mineral processing operations and 20 petroleum projects across 50 fields.
 
-Documenting requirements, assumptions, and insights in a BA‑style case study.
+## Data Source
+- WA Open Data Portal – [Major Resources Projects](https://data.wa.gov.au)
+- WA Govt – [Western Australia's Principal Resource Projects](https://www.wa.gov.au/organisation/department-of-mines-petroleum-and-exploration/western-australias-principal-resource-projects)
 
-Tech stack: Notion, SQL, Power BI, GitHub, Jira.
+## Links
+- [Notion Case Study](https://www.notion.so/WA-Mining-Operations-Dashboard-Business-Analyst-Portfolio-Project-35fd7e4273f0809ba6cecc2f77d9aa5f)
+- [WA 7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202)
