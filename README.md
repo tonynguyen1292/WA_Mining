@@ -35,3 +35,15 @@ WA_Mining/
 ## Links
 - [Notion Case Study](https://www.notion.so/WA-Mining-Operations-Dashboard-Business-Analyst-Portfolio-Project-35fd7e4273f0809ba6cecc2f77d9aa5f)
 - [WA 7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202)
+
+## Power BI Dashboard 
+The Power BI dashboard consists of **two pages** designed for quick exploration and regional drill-down.
+**Page 1: Overview**
+
+Purpose: Provide a high-level snapshot of the entire WA major resource portfolio
+![alt text](<Overview Dashboard - Screenshot - 18052026.png>)
+
+**Page 2: Regional and Operational View**
+
+Purpose: Enable deeper exploration by region, project, and site type
+![alt text](<Regional and Overview - Screenshot - 18052026.png>)
