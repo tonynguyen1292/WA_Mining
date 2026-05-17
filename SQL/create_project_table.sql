@@ -1,0 +1,20 @@
+CREATE TABLE projects (
+  project_id INTEGER PRIMARY KEY,
+  site_code TEXT,
+  short_title TEXT,
+  title TEXT,
+  site_type TEXT,
+  sub_type TEXT,
+  stage TEXT,
+  project_code TEXT,
+  project_name TEXT,
+  longitude REAL,
+  latitude REAL,
+  commodities TEXT,
+  commodity_group TEXT,
+  target_group_name TEXT,
+  active_flag TEXT,
+  development_region TEXT,
+  lga_name TEXT,
+  extract_date TEXT
+);
