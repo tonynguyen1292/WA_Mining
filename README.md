@@ -47,3 +47,27 @@ Purpose: Provide a high-level snapshot of the entire WA major resource portfolio
 
 Purpose: Enable deeper exploration by region, project, and site type
 ![alt text](<Regional and Overview - Screenshot - 18052026.png>)
+
+## Key Insights
+
+- **Commodity Concentration:** Gold projects represent ~47% of the mining portfolio (65 of 139 projects), creating significant price exposure that stakeholders should monitor.
+- **Regional Clustering:** Projects concentrate in the Pilbara (iron ore), Goldfields (gold, lithium), and Mid West (nickel, mineral sands), informing infrastructure and logistics planning.
+- **Pipeline Growth:** 139 mining projects in 2024-25 is the highest on record since 2014-15, signaling strong capital deployment despite near-term commodity headwinds.
+- **Value Chain Visibility:** Separating Mine, Infrastructure, and Deposit site types enables stakeholders to assess whether downstream capacity is keeping pace with upstream development.
+
+## Data Modeling Decisions
+
+- **Grain:** Site-level modeling chosen to preserve operational asset granularity; multiple sites can map to a single project code.
+- **Schema:** Single flat table in Import mode — no star schema required given snapshot data grain.
+- **Primary commodity dimension:** `TARGET_GROUP_NAME` used over raw `COMMODITIES` field (complex multi-value list).
+- **DAX measures** replicate SQL `portfolio_summary` logic using COUNT/CASE patterns ported to Power BI DAX.
+- **Slicers:** Commodity, Region, Stage, and Company configured for interactive cross-filtering.
+
+## Challenges and Fixes
+
+| Challenge | Fix |
+|---|---|
+| Mixed asset types (mining, processing, petroleum) in single source | Segmented via `TARGET_GROUP_NAME` and `SITE_TYPE`; documented in data dictionary |
+| Multi-commodity fields with pipe-delimited lists | Used cleaned `TARGET_GROUP_NAME` single-value dimension |
+| Region/LGA names with inconsistent suffixes (e.g., "SHIRE OF") | Power Query text transformations + manual mapping |
+| Site-to-project duplicate counting | DISTINCTCOUNT for projects, COUNTROWS for sites — both measures exposed in KPI cards |
