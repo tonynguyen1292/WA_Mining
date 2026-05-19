@@ -23,8 +23,8 @@ WA_Mining/
     |- .gitignore 
     |- data_dictionary 
 
-## Key Context (WA 2023–24)
-- 138 principal mining projects – the highest on record since 2014–15.
+## Key Context (WA 2024–25)
+- 139 principal mining projects – the highest on record since 2014–15.
 - 49 gold, 36 iron ore, 11 nickel, 7 lithium projects.
 - 16 major mineral processing operations and 20 petroleum projects across 50 fields.
 
