@@ -15,13 +15,31 @@ Stakeholders in WA's resources sector rely on static reports to monitor project 
 
 ## Repo Structure
 WA_Mining/
-    |-DATABASES/ # Raw data downloaded separatedly from WA Open Data Portal, description files regarding the dataset are in this directory.
-    |- DOCUMENTS/ # BA artifacts, metadata, license
-    |- SQL/ # Schema and business queries
-    |- POWER_BI/ # Dashboard screenshots
-    |- README.md  
-    |- .gitignore 
-    |- data_dictionary 
+├── README.md
+├── .gitignore
+├── DATA/
+│   ├── raw/
+│   │   └── Major_Resource_Projects.csv
+│   ├── cleaned/
+│   │   └── wa_mining_sites_cleaned.csv
+│   └── README_DATA.md
+├── DOCUMENTS/
+│   ├── METADATA
+        └── MINEDEX_Major_Resource_Projects_Map_DataDictionary_GDA2020.pdf
+        └── MINEDEX_Major_Resource_Projects_Map_Metadata_GDA2020
+    ├── Licence_CCBY4.pdf
+├── SQL/
+│   ├── 01_create_raw_table.sql
+│   ├── 02_create_clean_table.sql
+│   ├── 03_insert_cleaned_data.sql
+│   ├── 04_create_sumamary_view.sql
+│   └── 05_portfolio_summary.sql
+├── POWER_BI/
+│   ├── wa_mining_dashboard_v1.pbix
+│   └── screenshots/
+│       ├── dashboard-overview.png
+│       └── dashboard-regional-analysis.png
+└── data_dictionary.md
 
 ## Key Context (WA 2024–25)
 - 139 principal mining projects – the highest on record since 2014–15.
@@ -35,18 +53,19 @@ WA_Mining/
 ## Links
 - [Notion Case Study](https://www.notion.so/WA-Mining-Operations-Dashboard-Business-Analyst-Portfolio-Project-35fd7e4273f0809ba6cecc2f77d9aa5f)
 - [WA 7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202)
+- [WA Mining Portfolio - Instructions](https://www.notion.so/WA-Mining-Portfolio-Instructions-363d7e4273f08052844def6827925a8c)
 
 ## Power BI Dashboard 
 The Power BI dashboard consists of **two pages** designed for quick exploration and regional drill-down.
 **Page 1: Overview**
 
 Purpose: Provide a high-level snapshot of the entire WA major resource portfolio
-![alt text](<Overview Dashboard - Screenshot - 18052026.png>)
+![alt text](dashboard_overview.png)
 
 **Page 2: Regional and Operational View**
 
 Purpose: Enable deeper exploration by region, project, and site type
-![alt text](<Regional and Overview - Screenshot - 18052026.png>)
+![alt text](dashboard_regional_analysis.png)
 
 ## Key Insights
 
@@ -62,6 +81,17 @@ Purpose: Enable deeper exploration by region, project, and site type
 - **Primary commodity dimension:** `TARGET_GROUP_NAME` used over raw `COMMODITIES` field (complex multi-value list).
 - **DAX measures** replicate SQL `portfolio_summary` logic using COUNT/CASE patterns ported to Power BI DAX.
 - **Slicers:** Commodity, Region, Stage, and Company configured for interactive cross-filtering.
+
+## Reproducibility Path (showed in WA Mining Portfolio - Instructions)
+1. Install PostgreSQL.
+
+2. Create a database called wa_mining.
+
+3. Load the raw CSV.
+
+4. Run SQL scripts in order.
+
+5. Open the Power BI file and refresh the connection.
 
 ## Challenges and Fixes
 
