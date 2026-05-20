@@ -8,7 +8,7 @@ Stakeholders in WA's resources sector rely on static reports to monitor project 
 
 ## Tech Stack
 - **Notion** – documentation, requirements, case study
-- **SQL (SQLite)** – data modeling and queries
+- **PostgreSQL + SQL** – data modeling and queries
 - **Power BI** – dashboard and visual analytics
 - **GitHub** – code, queries, and documentation
 - **Jira** – user stories and task tracking
