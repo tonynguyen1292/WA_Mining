@@ -17,7 +17,7 @@ Stakeholders in WA's resources sector rely on static reports to monitor project 
 WA_Mining/
 ├── README.md
 ├── .gitignore
-├── DATA/
+├── DATABASES/
 │   ├── raw/
 │   │   └── Major_Resource_Projects.csv
 │   ├── cleaned/
