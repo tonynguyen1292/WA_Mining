@@ -60,12 +60,12 @@ The Power BI dashboard consists of **two pages** designed for quick exploratio
 **Page 1: Overview**
 
 Purpose: Provide a high-level snapshot of the entire WA major resource portfolio
-![alt text](dashboard_overview.png)
+(![alt text](image.png))
 
 **Page 2: Regional and Operational View**
 
 Purpose: Enable deeper exploration by region, project, and site type
-![alt text](dashboard_regional_analysis.png)
+![alt text](image-1.png)
 
 wa_mining_dashboard_v2.pbix is the final version of the dashboard as it updates the name of developement_region and lga_name without the suffixes.
 
