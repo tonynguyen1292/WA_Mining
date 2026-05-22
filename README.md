@@ -22,10 +22,10 @@ WA_Mining/
 │   │   └── Major_Resource_Projects.csv
 │   └── README_DATA.md
 ├── DOCUMENTS/
-│   ├── METADATA
-        └── MINEDEX_Major_Resource_Projects_Map_DataDictionary_GDA2020.pdf
-        └── MINEDEX_Major_Resource_Projects_Map_Metadata_GDA2020
-    ├── Licence_CCBY4.pdf
+│   ├── METADATA/
+│   │   ├── MINEDEX_Major_Resource_Projects_Map_DataDictionary_GDA2020.pdf
+│   │   ├── MINEDEX_Major_Resource_Projects_Map_Metadata_GDA2020
+│   │   └── Licence_CCBY4.pdf
 ├── SQL/
 │   ├── 01_create_raw_table.sql
 │   ├── 02_create_clean_table.sql
@@ -34,7 +34,7 @@ WA_Mining/
 │   └── 05_portfolio_summary.sql
 ├── POWER_BI/
 │   ├── wa_mining_dashboard_v1.pbix
-    ├── wa_mining_dashboard_v2.pbix
+│   ├── wa_mining_dashboard_v2.pbix
 │   └── screenshots/
 │       ├── dashboard-overview.png
 │       └── dashboard-regional-analysis.png
@@ -60,7 +60,7 @@ The Power BI dashboard consists of **two pages** designed for quick exploratio
 **Page 1: Overview**
 
 Purpose: Provide a high-level snapshot of the entire WA major resource portfolio
-(![alt text](image.png))
+![alt text](image.png)
 
 **Page 2: Regional and Operational View**
 
