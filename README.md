@@ -13,7 +13,9 @@ Stakeholders in WA's resources sector rely on static reports to monitor project 
 - **GitHub** – code, queries, and documentation
 - **Jira** – user stories and task tracking
 
-## Repo Structure
+## Repository Structure
+
+```text
 WA_Mining/
 ├── README.md
 ├── .gitignore
@@ -22,10 +24,10 @@ WA_Mining/
 │   │   └── Major_Resource_Projects.csv
 │   └── README_DATA.md
 ├── DOCUMENTS/
-│   ├── METADATA/
-│   │   ├── MINEDEX_Major_Resource_Projects_Map_DataDictionary_GDA2020.pdf
-│   │   ├── MINEDEX_Major_Resource_Projects_Map_Metadata_GDA2020
-│   │   └── Licence_CCBY4.pdf
+│   └── METADATA/
+│       ├── MINEDEX_Major_Resource_Projects_Map_DataDictionary_GDA2020.pdf
+│       ├── MINEDEX_Major_Resource_Projects_Map_Metadata_GDA2020
+│       └── Licence_CCBY4.pdf
 ├── SQL/
 │   ├── 01_create_raw_table.sql
 │   ├── 02_create_clean_table.sql
@@ -39,6 +41,7 @@ WA_Mining/
 │       ├── dashboard-overview.png
 │       └── dashboard-regional-analysis.png
 └── data_dictionary.md
+```
 
 ## Key Context (WA 2024–25)
 - 139 principal mining projects – the highest on record since 2014–15.
