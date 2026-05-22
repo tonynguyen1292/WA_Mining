@@ -20,8 +20,6 @@ WA_Mining/
 ├── DATABASES/
 │   ├── raw/
 │   │   └── Major_Resource_Projects.csv
-│   ├── cleaned/
-│   │   └── wa_mining_sites_cleaned.csv
 │   └── README_DATA.md
 ├── DOCUMENTS/
 │   ├── METADATA
@@ -32,7 +30,7 @@ WA_Mining/
 │   ├── 01_create_raw_table.sql
 │   ├── 02_create_clean_table.sql
 │   ├── 03_insert_cleaned_data.sql
-│   ├── 04_create_sumamary_view.sql
+│   ├── 04_create_summary_view.sql
 │   └── 05_portfolio_summary.sql
 ├── POWER_BI/
 │   ├── wa_mining_dashboard_v1.pbix
@@ -49,6 +47,7 @@ WA_Mining/
 ## Data Source
 - WA Open Data Portal – [Major Resources Projects](https://data.wa.gov.au)
 - WA Govt – [Western Australia's Principal Resource Projects](https://www.wa.gov.au/organisation/department-of-mines-petroleum-and-exploration/western-australias-principal-resource-projects)
+- The PostgreSQL database is the primary working environment for this project. The raw CSV and SQL scripts are the source of truth for reproducing the analytical model.
 
 ## Links
 - [Notion Case Study](https://www.notion.so/WA-Mining-Operations-Dashboard-Business-Analyst-Portfolio-Project-35fd7e4273f0809ba6cecc2f77d9aa5f)

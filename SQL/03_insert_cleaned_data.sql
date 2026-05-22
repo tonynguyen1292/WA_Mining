@@ -18,13 +18,21 @@ SELECT
     TRIM(sitecode) AS site_code,
     TRIM(projcode) AS project_code,
     TRIM(projecttitle) AS project_title,
-    TRIM(sitetype) AS site_type,
-    TRIM(subtype) AS subtype,
+    TRIM(INITCAP(sitetype)) AS site_type,
+    TRIM(INITCAP(subtype)) AS subtype,
     TRIM(INITCAP(stage)) AS stage,  -- Standardize to Title Case
-    TRIM(targetgroupname) AS target_group_name,
-    TRIM(commoditygroupname) AS commodity_group_name,
-    TRIM(developmentregion) AS development_region,
-    TRIM(lganame) AS lga_name,
+    TRIM(INITCAP(targetgroupname)) AS target_group_name,
+    TRIM(INITCAP(commoditygroupname)) AS commodity_group_name,
+    TRIM(INITCAP(REPLACE(developmentregion, ', Development Region', ''))) AS development_region,
+     CASE
+        WHEN lganame ILIKE '%, SHIRE OF' THEN
+            'Shire Of ' || TRIM(INITCAP(REPLACE(lganame, ', SHIRE OF', '')))
+        WHEN lganame ILIKE '%, CITY OF' THEN
+            'City Of ' || TRIM(INITCAP(REPLACE(lganame, ', CITY OF', '')))
+        WHEN lganame ILIKE '%, TOWN OF' THEN
+            'Town Of ' || TRIM(INITCAP(REPLACE(lganame, ', TOWN OF', '')))
+        ELSE TRIM(INITCAP(lganame))
+    END AS lga_name,
     longitude,
     latitude,
     TRIM(activeflag) AS active_flag
