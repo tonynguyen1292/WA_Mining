@@ -34,6 +34,7 @@ WA_Mining/
 │   └── 05_portfolio_summary.sql
 ├── POWER_BI/
 │   ├── wa_mining_dashboard_v1.pbix
+    ├── wa_mining_dashboard_v2.pbix
 │   └── screenshots/
 │       ├── dashboard-overview.png
 │       └── dashboard-regional-analysis.png
@@ -65,6 +66,8 @@ Purpose: Provide a high-level snapshot of the entire WA major resource portfolio
 
 Purpose: Enable deeper exploration by region, project, and site type
 ![alt text](dashboard_regional_analysis.png)
+
+wa_mining_dashboard_v2.pbix is the final version of the dashboard as it updates the name of developement_region and lga_name without the suffixes.
 
 ## Key Insights
 
