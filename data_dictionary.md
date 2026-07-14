@@ -11,7 +11,7 @@ as a reference for data analysts, BI developers, and stakeholders reviewing the 
 | Source | WA Open Data Portal – Major Resources Projects |
 | Download date | 16 May 2026 |
 | Snapshot year | 2023–24 |
-| Total fields | 19 |
+| Total fields | 34 raw columns in the source CSV; 19 documented below (geographic/map-only columns such as EASTING, NORTHING, MGA_ZONE, and MAP_SHEET_* are out of scope for the reporting model and omitted here) |
 | Primary key | SITE_CODE (unique per site) |
 | Relationship | Multiple sites map to one project (PROJ_CODE) |
 
@@ -25,9 +25,9 @@ as a reference for data analysts, BI developers, and stakeholders reviewing the 
 | SHORT_TITLE | Abbreviated site name | Fortnum |
 | PROJ_CODE | Project identifier linking multiple sites to one project | J00772 |
 | PROJECT_TITLE | Project-level name | Karlawinda Gold |
-| SITE_TYPE | High-level classification of the site | Mine, Infrastructure, Other |
+| SITE_TYPE | High-level classification of the site | Mine, Infrastructure, Deposit, Other |
 | SUB_TYPE | Detailed type within the site | Openpit, Decline, Power Plant, Port |
-| STAGE | Project development and operating status | Operating, Proposed, Under Development, Care and Maintenance |
+| STAGE | Project development and operating status | Operating, Proposed, Care and Maintenance, Undeveloped, Under Development, Shut |
 | COMMODITIES | Detailed commodity codes produced | Fe, Au Ag, REE Ce La Nd Sm Gd Eu Y Pr Dy Tb Er Ho Tm Yb |
 | COMMODITY_GROUP_NAME | Broad commodity group | Precious metal, Steel alloy metal, Industrial mineral |
 | TARGET_GROUP_NAME | Cleaned commodity category used in maps and reporting | GOLD, IRON ORE, NICKEL, POTASH, HEAVY MINERAL SANDS |

@@ -2,9 +2,12 @@
 # ------------------------------------------------
 
 # Raw CSV data (too large, downloadable from source)
-# The Major_Resource_Projects.csv is ~5MB+ and available publicly from
-# the WA Open Data Portal. This keeps the repo lightweight and fast to clone.
-DATABASES/*.csv
+# The Major_Resource_Projects.csv is available publicly from the DMIRS
+# Data and Software Centre (see DATABASES/README_database.md). This keeps
+# the repo lightweight and fast to clone.
+# NOTE: previous pattern "DATABASES/*.csv" did not match this nested path
+# and silently failed to exclude the file — fixed below.
+DATABASES/raw/*.csv
 
 # OS generated files
 .DS_Store
