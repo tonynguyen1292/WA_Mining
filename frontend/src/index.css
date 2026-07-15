@@ -153,7 +153,8 @@ a {
 }
 
 .empty-note,
-.error-note {
+.error-note,
+.loading-note {
   color: var(--muted);
   font-size: 13.5px;
   padding: 12px 0;
@@ -163,15 +164,21 @@ a {
   color: #b3261e;
 }
 
+.is-refreshing {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
 .sites-table-wrap {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 6px;
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .sites-table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   font-size: 13.5px;
 }
@@ -269,4 +276,40 @@ a {
 
 .detail-row dd {
   margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .page {
+    padding: 20px 16px;
+  }
+
+  .app-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .app-header nav {
+    gap: 14px;
+  }
+
+  .page h1 {
+    font-size: 21px;
+  }
+
+  .kpi-value {
+    font-size: 22px;
+  }
+
+  .detail-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 10px 0;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 }

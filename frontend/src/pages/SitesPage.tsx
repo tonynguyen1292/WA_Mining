@@ -2,34 +2,42 @@ import { useEffect, useState } from "react";
 import { fetchSites } from "../api/client";
 import FilterBar from "../components/FilterBar";
 import SitesTable from "../components/SitesTable";
+import useDebouncedValue from "../hooks/useDebouncedValue";
 import type { Site, SiteFilters } from "../types/site";
 
 const PAGE_SIZE = 25;
 
 export default function SitesPage() {
   const [filters, setFilters] = useState<SiteFilters>({});
+  const debouncedFilters = useDebouncedValue(filters);
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<Site[]>([]);
   const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setIsLoading(true);
+    setError(null);
 
-    fetchSites(filters, page, PAGE_SIZE)
+    fetchSites(debouncedFilters, page, PAGE_SIZE)
       .then((data) => {
         if (cancelled) return;
         setItems(data.items);
         setTotal(data.total);
       })
       .catch(() => {
-        if (!cancelled) setError("Could not load sites.");
+        if (!cancelled) setError("Could not load sites. Is the API running?");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [filters, page]);
+  }, [debouncedFilters, page]);
 
   function handleFiltersChange(next: SiteFilters) {
     setFilters(next);
@@ -45,7 +53,14 @@ export default function SitesPage() {
 
       {error && <p className="error-note">{error}</p>}
 
-      <SitesTable items={items} total={total} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} />
+      <SitesTable
+        items={items}
+        total={total}
+        page={page}
+        pageSize={PAGE_SIZE}
+        onPageChange={setPage}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

@@ -5,6 +5,8 @@ import type { FilterOptions, SiteFilters } from "../types/site";
 interface FilterBarProps {
   filters: SiteFilters;
   onChange: (filters: SiteFilters) => void;
+  /** /api/kpis doesn't support free-text search, so hide it on pages backed by that endpoint. */
+  showSearch?: boolean;
 }
 
 const EMPTY_OPTIONS: FilterOptions = {
@@ -14,7 +16,7 @@ const EMPTY_OPTIONS: FilterOptions = {
   site_types: [],
 };
 
-export default function FilterBar({ filters, onChange }: FilterBarProps) {
+export default function FilterBar({ filters, onChange, showSearch = true }: FilterBarProps) {
   const [options, setOptions] = useState<FilterOptions>(EMPTY_OPTIONS);
 
   useEffect(() => {
@@ -29,13 +31,15 @@ export default function FilterBar({ filters, onChange }: FilterBarProps) {
 
   return (
     <div className="filter-bar">
-      <input
-        type="text"
-        placeholder="Search site, project, or code..."
-        value={filters.search ?? ""}
-        onChange={(e) => set("search", e.target.value)}
-        className="filter-search"
-      />
+      {showSearch && (
+        <input
+          type="text"
+          placeholder="Search site, project, or code..."
+          value={filters.search ?? ""}
+          onChange={(e) => set("search", e.target.value)}
+          className="filter-search"
+        />
+      )}
 
       <select value={filters.commodity ?? ""} onChange={(e) => set("commodity", e.target.value)}>
         <option value="">All commodities</option>

@@ -1,5 +1,7 @@
 # WA Mining Portfolio — Data Pipeline & Full-Stack Application
 
+[![CI](https://github.com/tonynguyen1292/WA_Mining/actions/workflows/ci.yml/badge.svg)](https://github.com/tonynguyen1292/WA_Mining/actions/workflows/ci.yml)
+
 A PostgreSQL-backed system for Western Australia's public Major Resources Projects dataset (MINEDEX): a SQL data pipeline that cleans and models the raw government export, and a FastAPI + React application built on top of it for exploring the portfolio interactively. A Power BI dashboard remains available as an alternative reporting surface on the same data.
 
 ## Project Overview
@@ -103,6 +105,24 @@ Open http://localhost:5173 — the Dashboard should load with KPI cards (421 tot
 | `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
 | `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |
 
+## Production / Deployment
+
+`docker-compose.yml` (used above) is for local development: it bind-mounts `backend/` for hot reload and runs `uvicorn --reload`. For a production-like build — no source mounts, no reload, the frontend built and served as static assets through nginx — use `docker-compose.prod.yml` instead:
+
+```
+docker compose -f docker-compose.prod.yml up --build
+docker compose -f docker-compose.prod.yml exec backend python -m app.db.seed
+```
+
+- Frontend (nginx, static build): http://localhost:8080
+- Backend API: http://localhost:8000
+
+Differences from the dev compose file: the backend runs without `--reload`; the frontend is a multi-stage build (`frontend/Dockerfile`) — `npm run build` in a `node` stage, then served by `nginx` (`frontend/nginx.conf` handles the SPA fallback so client-side routes like `/sites/S0001538` don't 404 on a hard refresh); and Postgres isn't exposed to the host. This is still a single-host Compose setup, not a cloud deployment — see Future Improvements for what's not covered (managed DB, secrets, TLS, horizontal scaling).
+
+### CI
+
+`.github/workflows/ci.yml` runs on every push/PR to `main`: backend lint (`ruff`) + compile check, and frontend typecheck + build (`tsc -b && vite build`). Both must pass before merging.
+
 ## System / Workflow Summary
 
 This is the original SQL pipeline. It's kept as the documented, reusable source of truth for the cleaning rules — `backend/app/db/seed.py` ports this same logic (TRIM / INITCAP / region+LGA suffix handling) directly into the application's seed step, so the two stay conceptually in sync. Power BI remains a valid alternative reporting surface on the same database.
@@ -136,7 +156,8 @@ The PostgreSQL database (`wa_mining`) is the source of truth for the analytical 
 - **FastAPI + SQLAlchemy** — read-only API over the cleaned portfolio data (`backend/`)
 - **React + TypeScript + Vite** — dashboard, sites explorer, and site detail pages (`frontend/`)
 - **Recharts** — portfolio breakdown charts
-- **Docker Compose** — local Postgres + backend for development
+- **Docker Compose** — local dev (`docker-compose.yml`) and a production-like build (`docker-compose.prod.yml`, nginx-served frontend)
+- **GitHub Actions** — CI: backend lint/compile, frontend typecheck/build
 - **Power BI + DAX** — dashboard and interactive reporting (legacy/reference reporting surface)
 - **Git / GitHub** — version control and documentation
 - **Notion** — supplementary planning docs and task tracking from early project stages (see *Further Reading*; not part of the technical pipeline)
@@ -148,7 +169,9 @@ WA_Mining/
 ├── README.md
 ├── data_dictionary.md
 ├── .gitignore
-├── docker-compose.yml                 # Postgres + backend for local dev
+├── docker-compose.yml                 # Postgres + backend, local dev (hot reload)
+├── docker-compose.prod.yml            # full stack, production-like build (nginx frontend)
+├── .github/workflows/ci.yml           # backend lint/compile + frontend typecheck/build
 ├── image.png                          # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── image-1.png                        # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── backend/                           # FastAPI app (Phase 1-2: API + DB seed pipeline)
@@ -161,7 +184,9 @@ WA_Mining/
 │   │   ├── services/                  # query logic (filters, KPI aggregation)
 │   │   └── db/seed.py                 # loads + cleans the CSV into `sites`
 │   ├── requirements.txt
+│   ├── requirements-dev.txt           # + ruff, for CI/local linting
 │   ├── Dockerfile
+│   ├── .dockerignore
 │   ├── .env.example
 │   └── README.md                      # backend-specific setup, structure, endpoints
 ├── frontend/                          # React + TypeScript app (Phase 3)
@@ -170,8 +195,12 @@ WA_Mining/
 │   │   ├── api/client.ts              # typed fetch wrapper over the backend API
 │   │   ├── pages/                     # DashboardPage, SitesPage, SiteDetailPage
 │   │   ├── components/                # FilterBar, KpiCard, SitesTable, charts/
+│   │   ├── hooks/useDebouncedValue.ts
 │   │   └── types/site.ts
 │   ├── package.json
+│   ├── Dockerfile                     # multi-stage: build (node) -> serve (nginx)
+│   ├── nginx.conf                     # SPA fallback for client-side routing
+│   ├── .dockerignore
 │   ├── .env.example
 │   └── README.md                      # frontend-specific setup, structure, scripts
 ├── DATABASES/
@@ -259,7 +288,9 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 
 ## Future Improvements
 
-- Phase 4 (polish/deployment readiness): loading/empty/error state refinement, responsive layout pass, containerize the frontend for production (Dockerfile + nginx), CI.
+- Not yet covered by `docker-compose.prod.yml`: managed/cloud database, secrets management, TLS, horizontal scaling, and CD (CI currently only lints/builds — it doesn't deploy anywhere).
+- Filter state and pagination aren't synced to the URL, so filtered/paginated links aren't shareable.
+- No automated tests yet (backend or frontend) — CI currently catches lint/type/compile errors, not behavioral regressions.
 - `backend/app/models/site.py` adds `title` and `short_title` to the original `SQL/02` clean-table schema (present in the raw CSV/`staging_sites` but previously dropped) — needed as the human-readable site name for any UI.
 - Reconcile `DATABASES/README_database.md` (says the CSV isn't stored in the repo) with the fact that a snapshot currently is — either remove the tracked CSV (`.gitignore` now correctly excludes future changes to it) or update the doc to reflect that a snapshot is intentionally kept.
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql` itself still only buckets 4 of 6 stages — left as-is since that file is kept for reference/lineage, not actively used by the app.

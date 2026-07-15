@@ -1,0 +1,50 @@
+# Production-like stack: built images only, no source volume mounts / hot
+# reload, and Postgres isn't exposed to the host. For local dev, use
+# docker-compose.yml instead.
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up --build
+#   docker compose -f docker-compose.prod.yml exec backend python -m app.db.seed
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: wa_mining
+      POSTGRES_PASSWORD: wa_mining
+      POSTGRES_DB: wa_mining
+    volumes:
+      - pg_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wa_mining"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://wa_mining:wa_mining@db:5432/wa_mining
+      CORS_ORIGINS: http://localhost:8080
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./DATABASES:/workspace/DATABASES:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pg_data_prod:

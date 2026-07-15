@@ -7,9 +7,17 @@ interface SitesTableProps {
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
 
-export default function SitesTable({ items, total, page, pageSize, onPageChange }: SitesTableProps) {
+export default function SitesTable({
+  items,
+  total,
+  page,
+  pageSize,
+  onPageChange,
+  isLoading = false,
+}: SitesTableProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
@@ -26,7 +34,13 @@ export default function SitesTable({ items, total, page, pageSize, onPageChange 
           </tr>
         </thead>
         <tbody>
-          {items.length === 0 ? (
+          {isLoading && items.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="loading-note">
+                Loading sites…
+              </td>
+            </tr>
+          ) : items.length === 0 ? (
             <tr>
               <td colSpan={6} className="empty-note">
                 No sites match the current filters.

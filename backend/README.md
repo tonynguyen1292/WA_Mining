@@ -25,9 +25,13 @@ backend/
 │   └── db/
 │       └── seed.py             # loads + cleans the CSV into `sites`
 ├── requirements.txt
+├── requirements-dev.txt        # + ruff, for CI/local linting
 ├── Dockerfile
+├── .dockerignore
 └── .env.example
 ```
+
+`Dockerfile` runs `uvicorn --reload` by default (used as-is by the root `docker-compose.yml` for local dev). The root `docker-compose.prod.yml` overrides the command to drop `--reload` — see the [root README](../README.md#production--deployment).
 
 ## Running
 
@@ -70,6 +74,15 @@ docker compose exec backend python -m app.db.seed
 | GET | `/api/kpis` | Portfolio totals + breakdowns by stage/site type/commodity/region. Same filter params as `/api/sites` (minus `search`) |
 | GET | `/api/meta/filters` | Distinct values for each filterable field, for populating dropdowns |
 
+## Linting
+
+```
+pip install -r requirements-dev.txt
+ruff check app
+```
+
+Runs in CI on every push/PR (`.github/workflows/ci.yml`), alongside a `python -m compileall` check.
+
 ## Known scope limits
 
-No auth, no write endpoints beyond the seed script, no tests yet (see root README's Future Improvements for what's planned in Phase 4).
+No auth, no write endpoints beyond the seed script, no automated tests yet (see the root README's Future Improvements).
