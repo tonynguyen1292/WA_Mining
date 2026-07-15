@@ -42,7 +42,7 @@ The PostgreSQL database (`wa_mining`) is the source of truth for the analytical 
 - **PostgreSQL + SQL** — data loading, cleaning, and modeling (staging → clean → views)
 - **Power BI + DAX** — dashboard and interactive reporting
 - **Git / GitHub** — version control and documentation
-- **Notion / Jira** — supplementary planning docs and task tracking from early project stages (see *Further Reading*; not part of the technical pipeline)
+- **Notion** — supplementary planning docs and task tracking from early project stages (see *Further Reading*; not part of the technical pipeline)
 
 ## Repository Structure
 
