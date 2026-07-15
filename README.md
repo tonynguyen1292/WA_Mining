@@ -100,7 +100,7 @@ Open http://localhost:5173 — the Dashboard should load with KPI cards (421 tot
 | Endpoint | Purpose |
 |---|---|
 | `GET /health` | Liveness check |
-| `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type`, `search` |
+| `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type` (each repeatable for multi-select, e.g. `?region=Pilbara&region=Kimberley`), `search` |
 | `GET /api/sites/{site_code}` | Single site detail |
 | `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
 | `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |
@@ -288,7 +288,7 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 
 ## Future Improvements
 
-- Not yet covered by `docker-compose.prod.yml`: managed/cloud database, secrets management, TLS, horizontal scaling, and CD (CI currently only lints/builds — it doesn't deploy anywhere).
+- Not yet covered by `docker-compose.prod.yml` or the AWS deployment: TLS/custom domain, horizontal scaling, and full CD (CI currently only lints/builds — deployment is manual; see [Cloud Deployment (AWS)](#cloud-deployment-aws)).
 - Filter state and pagination aren't synced to the URL, so filtered/paginated links aren't shareable.
 - No automated tests yet (backend or frontend) — CI currently catches lint/type/compile errors, not behavioral regressions.
 - `backend/app/models/site.py` adds `title` and `short_title` to the original `SQL/02` clean-table schema (present in the raw CSV/`staging_sites` but previously dropped) — needed as the human-readable site name for any UI.

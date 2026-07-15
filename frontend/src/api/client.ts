@@ -8,14 +8,18 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-async function apiGet<T>(
-  path: string,
-  params?: Record<string, string | number | undefined>
-): Promise<T> {
+type QueryValue = string | number | string[] | undefined;
+
+async function apiGet<T>(path: string, params?: Record<string, QueryValue>): Promise<T> {
   const url = new URL(path, API_BASE_URL);
   if (params) {
     for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== "") {
+      if (value === undefined || value === "") continue;
+      if (Array.isArray(value)) {
+        // Repeated query params (?commodity=Gold&commodity=Nickel), matching
+        // FastAPI's list[str] | None = Query(...) parsing on the backend.
+        for (const item of value) url.searchParams.append(key, item);
+      } else {
         url.searchParams.set(key, String(value));
       }
     }

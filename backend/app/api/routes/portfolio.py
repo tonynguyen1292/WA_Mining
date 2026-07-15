@@ -10,10 +10,10 @@ router = APIRouter(prefix="/api/kpis", tags=["kpis"])
 
 @router.get("", response_model=KpiSummary)
 def get_kpis(
-    commodity: str | None = Query(None, description="Filter by target_group_name"),
-    region: str | None = Query(None, description="Filter by development_region"),
-    stage: str | None = Query(None, description="Filter by stage"),
-    site_type: str | None = Query(None, description="Filter by site_type"),
+    commodity: list[str] | None = Query(None, description="Filter by target_group_name (repeatable)"),
+    region: list[str] | None = Query(None, description="Filter by development_region (repeatable)"),
+    stage: list[str] | None = Query(None, description="Filter by stage (repeatable)"),
+    site_type: list[str] | None = Query(None, description="Filter by site_type (repeatable)"),
     db: Session = Depends(get_db),
 ) -> KpiSummary:
     return portfolio_service.get_kpis(

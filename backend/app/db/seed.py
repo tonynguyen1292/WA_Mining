@@ -12,12 +12,15 @@ Usage (from backend/, with DATABASE_URL configured):
 """
 
 import csv
+from collections import Counter
 from pathlib import Path
 
-from sqlalchemy import delete
+from sqlalchemy import delete, func, select
 
 from app.core.database import Base, SessionLocal, engine
 from app.models.site import Site
+
+MIN_EXPECTED_ROWS = 100  # sanity floor; the known-good snapshot has 421
 
 # backend/app/db/seed.py -> backend/app -> backend -> repo root
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -104,6 +107,29 @@ def _load_rows() -> list[Site]:
     return rows
 
 
+def _validate_rows(rows: list[Site]) -> None:
+    """Fail fast on data problems rather than silently loading a bad snapshot.
+
+    Duplicate site_code is checked here (not left to the DB) because a
+    primary-key violation mid-insert would abort the whole transaction with
+    a much less useful error than naming the offending codes up front.
+    """
+    if len(rows) < MIN_EXPECTED_ROWS:
+        raise ValueError(
+            f"Only parsed {len(rows)} rows from {CSV_PATH.name}, expected at least "
+            f"{MIN_EXPECTED_ROWS}. Refusing to seed -- check the CSV isn't truncated "
+            "or malformed."
+        )
+
+    site_codes = [row.site_code for row in rows]
+    duplicates = [code for code, count in Counter(site_codes).items() if count > 1]
+    if duplicates:
+        raise ValueError(
+            f"Found {len(duplicates)} duplicate SITE_CODE value(s) in the CSV, "
+            f"e.g. {duplicates[:5]}. site_code is the primary key and must be unique."
+        )
+
+
 def seed() -> None:
     if not CSV_PATH.exists():
         raise FileNotFoundError(
@@ -113,12 +139,20 @@ def seed() -> None:
 
     Base.metadata.create_all(bind=engine)
     rows = _load_rows()
+    _validate_rows(rows)
 
     db = SessionLocal()
     try:
         db.execute(delete(Site))  # idempotent: safe to re-run on a fresh CSV drop
         db.add_all(rows)
         db.commit()
+
+        actual_count = db.scalar(select(func.count()).select_from(Site)) or 0
+        if actual_count != len(rows):
+            raise RuntimeError(
+                f"Post-insert row count ({actual_count}) doesn't match rows loaded "
+                f"({len(rows)}) -- the DB may be in an inconsistent state."
+            )
     finally:
         db.close()
 

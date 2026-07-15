@@ -18,7 +18,8 @@ frontend/
 │   │   ├── SitesPage.tsx      # filterable, paginated sites table
 │   │   └── SiteDetailPage.tsx # single site's full record
 │   ├── components/
-│   │   ├── FilterBar.tsx      # commodity/region/stage/site_type/search controls (search hidden on Dashboard)
+│   │   ├── FilterBar.tsx      # search + 4 MultiSelect controls (search hidden on Dashboard)
+│   │   ├── MultiSelect.tsx    # checkbox-panel multi-select dropdown, shared by all 4 filter fields
 │   │   ├── KpiCard.tsx
 │   │   ├── SitesTable.tsx
 │   │   └── charts/
@@ -53,6 +54,7 @@ App: http://localhost:5173. Requires the backend API to be running (see the [roo
 ## Notes
 
 - Filter state and pagination are held in component state, not yet synced to the URL — sharing a filtered/paginated link isn't possible yet (see root README's Future Improvements).
+- Commodity/region/stage/site type are all multi-select (`MultiSelect`, a checkbox dropdown panel) — `SiteFilters` holds each as `string[]`, and `api/client.ts` serializes them as repeated query params (`?region=Pilbara&region=Kimberley`) matching the backend's `list[str] | None = Query(...)` parsing. Native `<select multiple>` was deliberately not used — no visual selected-state without ctrl/cmd-click, and it eats vertical space.
 - Charts use [Recharts](https://recharts.org/); `BreakdownChart` is intentionally generic (title + data + color) rather than one component per chart, since the three charts are structurally identical.
 - Filter changes are debounced 300ms (`useDebouncedValue`) before refetching, so typing in the search box doesn't fire a request per keystroke.
 - `/api/kpis` doesn't accept a `search` filter, so `FilterBar`'s search input is hidden on the Dashboard (`showSearch={false}`) — it's only shown on the Sites page, where it actually does something.

@@ -18,20 +18,20 @@ from app.models.site import Site
 def _apply_filters(
     stmt,
     *,
-    commodity: str | None,
-    region: str | None,
-    stage: str | None,
-    site_type: str | None,
+    commodity: list[str] | None,
+    region: list[str] | None,
+    stage: list[str] | None,
+    site_type: list[str] | None,
     search: str | None,
 ):
     if commodity:
-        stmt = stmt.where(Site.target_group_name == commodity)
+        stmt = stmt.where(Site.target_group_name.in_(commodity))
     if region:
-        stmt = stmt.where(Site.development_region == region)
+        stmt = stmt.where(Site.development_region.in_(region))
     if stage:
-        stmt = stmt.where(Site.stage == stage)
+        stmt = stmt.where(Site.stage.in_(stage))
     if site_type:
-        stmt = stmt.where(Site.site_type == site_type)
+        stmt = stmt.where(Site.site_type.in_(site_type))
     if search:
         like = f"%{search}%"
         stmt = stmt.where(
@@ -45,10 +45,10 @@ def _apply_filters(
 def list_sites(
     db: Session,
     *,
-    commodity: str | None = None,
-    region: str | None = None,
-    stage: str | None = None,
-    site_type: str | None = None,
+    commodity: list[str] | None = None,
+    region: list[str] | None = None,
+    stage: list[str] | None = None,
+    site_type: list[str] | None = None,
     search: str | None = None,
     page: int = 1,
     page_size: int = 25,
@@ -80,10 +80,10 @@ def get_site(db: Session, site_code: str) -> Site | None:
 def get_kpis(
     db: Session,
     *,
-    commodity: str | None = None,
-    region: str | None = None,
-    stage: str | None = None,
-    site_type: str | None = None,
+    commodity: list[str] | None = None,
+    region: list[str] | None = None,
+    stage: list[str] | None = None,
+    site_type: list[str] | None = None,
 ) -> dict:
     base_stmt = _apply_filters(
         select(Site),

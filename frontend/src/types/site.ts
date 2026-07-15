@@ -45,9 +45,9 @@ export interface FilterOptions {
 }
 
 export interface SiteFilters {
-  commodity?: string;
-  region?: string;
-  stage?: string;
-  site_type?: string;
+  commodity?: string[];
+  region?: string[];
+  stage?: string[];
+  site_type?: string[];
   search?: string;
 }

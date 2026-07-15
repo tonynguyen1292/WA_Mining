@@ -10,10 +10,12 @@ router = APIRouter(prefix="/api/sites", tags=["sites"])
 
 @router.get("", response_model=SiteListResponse)
 def list_sites(
-    commodity: str | None = Query(None, description="Filter by target_group_name"),
-    region: str | None = Query(None, description="Filter by development_region"),
-    stage: str | None = Query(None, description="Filter by stage"),
-    site_type: str | None = Query(None, description="Filter by site_type"),
+    commodity: list[str] | None = Query(
+        None, description="Filter by target_group_name (repeat param for multiple, e.g. ?commodity=Gold&commodity=Nickel)"
+    ),
+    region: list[str] | None = Query(None, description="Filter by development_region (repeatable)"),
+    stage: list[str] | None = Query(None, description="Filter by stage (repeatable)"),
+    site_type: list[str] | None = Query(None, description="Filter by site_type (repeatable)"),
     search: str | None = Query(None, description="Free-text match on title / project / site code"),
     page: int = Query(1, ge=1),
     page_size: int = Query(25, ge=1, le=200),

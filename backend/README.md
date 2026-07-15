@@ -58,6 +58,8 @@ Interactive API docs: http://localhost:8000/docs
 
 `app/db/seed.py` reads `DATABASES/raw/Major_Resource_Projects.csv` directly and applies the same cleaning rules as `SQL/01_create_raw_table.sql` through `SQL/03_insert_cleaned_data.sql` (trimming, title-casing, region/LGA suffix handling), ported into Python. It intentionally skips the two-phase `staging_sites` → `sites` load the SQL pipeline uses — the CSV is read and cleaned in one pass. Re-running it is safe; it clears and reloads `sites` each time.
 
+Before inserting, it validates the parsed rows and refuses to seed if something looks wrong, rather than silently loading bad data: fewer than 100 parsed rows (likely a truncated/malformed CSV), or any duplicate `SITE_CODE` (the primary key). After inserting, it re-counts `sites` and errors if the count doesn't match what was loaded.
+
 ```
 python -m app.db.seed
 # or, if the stack is running under Docker Compose:
@@ -66,10 +68,12 @@ docker compose exec backend python -m app.db.seed
 
 ## Endpoints
 
+Filters (`commodity`, `region`, `stage`, `site_type`) accept multiple values by repeating the query parameter — e.g. `?commodity=Gold&commodity=Nickel&region=Pilbara` matches sites that are (Gold OR Nickel) commodity AND in the Pilbara region. A single value still works the same way it always did (`?stage=Operating`).
+
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/health` | Liveness check |
-| GET | `/api/sites` | Paginated list. Query params: `commodity`, `region`, `stage`, `site_type`, `search`, `page`, `page_size` |
+| GET | `/api/sites` | Paginated list. Query params: `commodity`, `region`, `stage`, `site_type` (each repeatable), `search`, `page`, `page_size` |
 | GET | `/api/sites/{site_code}` | Single site detail; 404 if not found |
 | GET | `/api/kpis` | Portfolio totals + breakdowns by stage/site type/commodity/region. Same filter params as `/api/sites` (minus `search`) |
 | GET | `/api/meta/filters` | Distinct values for each filterable field, for populating dropdowns |
