@@ -11,3 +11,16 @@ DATABASES/raw/*.csv
 
 # OS generated files
 .DS_Store
+
+# Backend (FastAPI)
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.env
+
+# Frontend (React + Vite)
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/*.tsbuildinfo
+

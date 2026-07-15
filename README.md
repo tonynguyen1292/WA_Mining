@@ -1,10 +1,13 @@
-# WA Mining Projects — Data Pipeline & Reporting System
+# WA Mining Portfolio — Data Pipeline & Full-Stack Application
 
-A PostgreSQL/SQL data pipeline that cleans and models Western Australia's public Major Resources Projects dataset (MINEDEX), with a Power BI reporting layer on top of it.
+A PostgreSQL-backed system for Western Australia's public Major Resources Projects dataset (MINEDEX): a SQL data pipeline that cleans and models the raw government export, and a FastAPI + React application built on top of it for exploring the portfolio interactively. A Power BI dashboard remains available as an alternative reporting surface on the same data.
 
 ## Project Overview
 
-This project takes a raw government export of WA mining, infrastructure, and petroleum sites and turns it into an analysis-ready data model. The core of the repo is the SQL pipeline (`SQL/01`–`05`): raw load → cleaned/typed table → summary views → portfolio rollup. Power BI connects to the resulting database for visual reporting.
+This project takes a raw government export of WA mining, infrastructure, and petroleum sites and turns it into an analysis-ready data model, then exposes it two ways:
+
+- **The app** (`backend/` + `frontend/`) — a live, filterable dashboard and sites explorer. This is the primary, actively developed interface. See [Getting Started](#getting-started).
+- **The original SQL pipeline + Power BI** (`SQL/`, `POWER_BI/`) — the pipeline that established the cleaning rules the app now reuses, and a static dashboard on the same rules. Kept as reference/lineage documentation. See [System / Workflow Summary](#system--workflow-summary).
 
 The CSV snapshot currently included in this repo (`DATABASES/raw/Major_Resource_Projects.csv`) contains 421 site records across 356 distinct projects.
 
@@ -12,7 +15,97 @@ The CSV snapshot currently included in this repo (`DATABASES/raw/Major_Resource_
 
 The source dataset is a flat CSV with data-quality issues typical of a raw government export: inconsistent region/LGA labels (suffixes like ", SHIRE OF"), two overlapping status encodings (`STAGE` and `SYMBOL_STATUS`), and a site-vs-project grain mismatch — a single project can have multiple sites (mine, processing plant, port), so naive counting double-counts projects. Before any reporting is possible, the data has to be cleaned and modeled with an explicit grain decision. That's what the SQL layer in this repo does.
 
+## Getting Started
+
+The project is evolving from a SQL + Power BI analytics project into a runnable full-stack application (FastAPI + PostgreSQL + React). **Phases 1–3 are implemented: backend foundation, database + seed pipeline, and the React frontend.** Component-level detail lives in [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md); this section is the fastest path to a running app.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running, not just installed) — or a local PostgreSQL install if you'd rather skip Docker (see Step 2's native option)
+- [Node.js](https://nodejs.org/) 18+ and npm, for the frontend
+
+### Step 1 — Clone and enter the repo
+
+```
+git clone https://github.com/tonynguyen1292/WA_Mining
+cd WA_Mining
+```
+
+### Step 2 — Start PostgreSQL + the backend API
+
+```
+docker compose up --build
+```
+
+This builds the FastAPI image and starts two containers: `db` (Postgres 16) and `backend` (the API, with hot reload). First run pulls the base images, so it can take a minute or two.
+
+<details>
+<summary>Prefer no Docker? Native backend setup</summary>
+
+```
+createdb wa_mining
+cd backend
+python -m venv .venv && .venv\Scripts\activate   # or source .venv/bin/activate on macOS/Linux
+pip install -r requirements.txt
+cp .env.example .env   # edit DATABASE_URL if your local Postgres differs
+uvicorn app.main:app --reload
+```
+Run the seed command in Step 3 with plain `python -m app.db.seed` instead of the `docker compose exec` form.
+</details>
+
+### Step 3 — Seed the database
+
+In a second terminal, with the stack from Step 2 still running:
+
+```
+docker compose exec backend python -m app.db.seed
+```
+
+This loads `DATABASES/raw/Major_Resource_Projects.csv`, applies the same cleaning rules as `SQL/01`–`03` (ported to `backend/app/db/seed.py`), and populates the `sites` table. It's safe to re-run — it clears and reloads `sites` each time. You should see `Seeded 421 sites from Major_Resource_Projects.csv`.
+
+### Step 4 — Verify the backend
+
+Open http://localhost:8000/docs — you should see the interactive Swagger UI listing `health`, `sites`, `kpis`, and `meta` endpoints. Try `GET /api/kpis` and confirm `total_sites` is `421`.
+
+### Step 5 — Start the frontend
+
+In a third terminal:
+
+```
+cd frontend
+npm install
+cp .env.example .env   # VITE_API_BASE_URL defaults to http://localhost:8000, matching Step 2
+npm run dev
+```
+
+### Step 6 — Verify the app
+
+Open http://localhost:5173 — the Dashboard should load with KPI cards (421 total sites, 356 total projects) and three breakdown charts (stage/commodity/region). From there:
+- **Sites** in the nav bar → a filterable, paginated table of all 421 sites
+- Click any site → its full detail page
+
+### Troubleshooting
+
+| Symptom | Likely cause |
+|---|---|
+| `docker compose up` fails to connect / hangs | Docker Desktop isn't running — start it and wait for "Engine running" before retrying |
+| Backend starts but `/api/sites` returns an empty list | Seed step (Step 3) hasn't been run yet, or hasn't finished |
+| Frontend loads but shows no data / network errors in console | Backend isn't running, or `frontend/.env`'s `VITE_API_BASE_URL` doesn't match where the API is actually listening |
+| `docker compose exec backend python -m app.db.seed` can't find the CSV | You're not running it from the repo root, or `DATABASES/raw/Major_Resource_Projects.csv` isn't present — see `DATABASES/README_database.md` |
+
+### Key endpoints
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /health` | Liveness check |
+| `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type`, `search` |
+| `GET /api/sites/{site_code}` | Single site detail |
+| `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
+| `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |
+
 ## System / Workflow Summary
+
+This is the original SQL pipeline. It's kept as the documented, reusable source of truth for the cleaning rules — `backend/app/db/seed.py` ports this same logic (TRIM / INITCAP / region+LGA suffix handling) directly into the application's seed step, so the two stay conceptually in sync. Power BI remains a valid alternative reporting surface on the same database.
 
 ```
 Major_Resource_Projects.csv (DATABASES/raw/)
@@ -33,14 +126,18 @@ SQL/05_portfolio_summary.sql   →  portfolio_summary rollup table
 Power BI (POWER_BI/wa_mining_dashboard_v2.pbix)
 ```
 
-`SQL/run_all.sql` runs the full sequence above in one pass — see *Setup / How to Run*.
+`SQL/run_all.sql` runs the full sequence above in one pass — see *Setup / How to Run (legacy SQL + Power BI)* below.
 
 The PostgreSQL database (`wa_mining`) is the source of truth for the analytical model; Power BI connects to it and replicates part of the `portfolio_summary` logic in DAX for interactive slicing (see *Key Engineering Decisions*).
 
 ## Tech Stack
 
-- **PostgreSQL + SQL** — data loading, cleaning, and modeling (staging → clean → views)
-- **Power BI + DAX** — dashboard and interactive reporting
+- **PostgreSQL** — system of record, both for the original SQL pipeline and the FastAPI app's `sites` table
+- **FastAPI + SQLAlchemy** — read-only API over the cleaned portfolio data (`backend/`)
+- **React + TypeScript + Vite** — dashboard, sites explorer, and site detail pages (`frontend/`)
+- **Recharts** — portfolio breakdown charts
+- **Docker Compose** — local Postgres + backend for development
+- **Power BI + DAX** — dashboard and interactive reporting (legacy/reference reporting surface)
 - **Git / GitHub** — version control and documentation
 - **Notion** — supplementary planning docs and task tracking from early project stages (see *Further Reading*; not part of the technical pipeline)
 
@@ -51,8 +148,32 @@ WA_Mining/
 ├── README.md
 ├── data_dictionary.md
 ├── .gitignore
+├── docker-compose.yml                 # Postgres + backend for local dev
 ├── image.png                          # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── image-1.png                        # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
+├── backend/                           # FastAPI app (Phase 1-2: API + DB seed pipeline)
+│   ├── app/
+│   │   ├── main.py                    # app entrypoint, router registration
+│   │   ├── core/                      # config, DB engine/session
+│   │   ├── models/                    # SQLAlchemy models (Site)
+│   │   ├── schemas/                   # Pydantic request/response types
+│   │   ├── api/routes/                # health, sites, kpis, meta endpoints
+│   │   ├── services/                  # query logic (filters, KPI aggregation)
+│   │   └── db/seed.py                 # loads + cleans the CSV into `sites`
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   ├── .env.example
+│   └── README.md                      # backend-specific setup, structure, endpoints
+├── frontend/                          # React + TypeScript app (Phase 3)
+│   ├── src/
+│   │   ├── main.tsx, App.tsx          # entrypoint, routing, nav
+│   │   ├── api/client.ts              # typed fetch wrapper over the backend API
+│   │   ├── pages/                     # DashboardPage, SitesPage, SiteDetailPage
+│   │   ├── components/                # FilterBar, KpiCard, SitesTable, charts/
+│   │   └── types/site.ts
+│   ├── package.json
+│   ├── .env.example
+│   └── README.md                      # frontend-specific setup, structure, scripts
 ├── DATABASES/
 │   ├── README_database.md             # explains where to download the CSV from
 │   └── raw/
@@ -62,14 +183,14 @@ WA_Mining/
 │   └── METADATA/
 │       ├── MINEDEX_Major_Resource_Projects_Map_DataDictionary_GDA2020.pdf
 │       └── MINEDEX_Major_Resource_Projects_Map_Metadata_GDA2020.pdf
-├── SQL/
+├── SQL/                                # legacy/reference pipeline — logic ported into backend/app/db/seed.py
 │   ├── 01_create_raw_table.sql
 │   ├── 02_create_clean_table.sql
 │   ├── 03_insert_cleaned_data.sql
 │   ├── 04_create_summary_view.sql
 │   ├── 05_portfolio_summary.sql
 │   └── run_all.sql
-└── POWER_BI/
+└── POWER_BI/                           # legacy/reference reporting surface
     ├── wa_mining_dashboard_v1.pbix     # superseded by v2, kept for now (see Future Improvements)
     ├── wa_mining_dashboard_v2.pbix     # current version
     └── screenshots/
@@ -77,7 +198,9 @@ WA_Mining/
         └── dashboard_regional_analysis.png
 ```
 
-## Setup / How to Run
+## Setup / How to Run (legacy SQL + Power BI)
+
+This runs the original pipeline standalone, without the app — useful if you only want the Power BI dashboard, or want to inspect the SQL directly. For the app, see [Getting Started](#getting-started) above.
 
 1. Install PostgreSQL locally.
 2. Create the database and run the full pipeline:
@@ -136,12 +259,13 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 
 ## Future Improvements
 
+- Phase 4 (polish/deployment readiness): loading/empty/error state refinement, responsive layout pass, containerize the frontend for production (Dockerfile + nginx), CI.
+- `backend/app/models/site.py` adds `title` and `short_title` to the original `SQL/02` clean-table schema (present in the raw CSV/`staging_sites` but previously dropped) — needed as the human-readable site name for any UI.
 - Reconcile `DATABASES/README_database.md` (says the CSV isn't stored in the repo) with the fact that a snapshot currently is — either remove the tracked CSV (`.gitignore` now correctly excludes future changes to it) or update the doc to reflect that a snapshot is intentionally kept.
-- Fix the `STAGE` bucketing gap in `05_portfolio_summary.sql` so `Undeveloped` and `Shut` sites are counted in the per-stage breakdown, not just in `total_sites`.
+- The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql` itself still only buckets 4 of 6 stages — left as-is since that file is kept for reference/lineage, not actively used by the app.
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
 - Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `POWER_BI/screenshots/`.
 - Add basic data-validation checks after load (row counts, null checks on primary keys) rather than relying on manual review.
-- Consider a `docker-compose` setup for PostgreSQL to reduce local setup steps.
 
 ## Further Reading (optional, external)
 

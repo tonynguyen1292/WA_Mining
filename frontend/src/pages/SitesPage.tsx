@@ -1,0 +1,51 @@
+import { useEffect, useState } from "react";
+import { fetchSites } from "../api/client";
+import FilterBar from "../components/FilterBar";
+import SitesTable from "../components/SitesTable";
+import type { Site, SiteFilters } from "../types/site";
+
+const PAGE_SIZE = 25;
+
+export default function SitesPage() {
+  const [filters, setFilters] = useState<SiteFilters>({});
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState<Site[]>([]);
+  const [total, setTotal] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchSites(filters, page, PAGE_SIZE)
+      .then((data) => {
+        if (cancelled) return;
+        setItems(data.items);
+        setTotal(data.total);
+      })
+      .catch(() => {
+        if (!cancelled) setError("Could not load sites.");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [filters, page]);
+
+  function handleFiltersChange(next: SiteFilters) {
+    setFilters(next);
+    setPage(1); // reset paging whenever the filter set changes
+  }
+
+  return (
+    <div className="page">
+      <h1>Sites</h1>
+      <p className="page-subtitle">Browse and search all {total || ""} sites in the portfolio.</p>
+
+      <FilterBar filters={filters} onChange={handleFiltersChange} />
+
+      {error && <p className="error-note">{error}</p>}
+
+      <SitesTable items={items} total={total} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} />
+    </div>
+  );
+}
