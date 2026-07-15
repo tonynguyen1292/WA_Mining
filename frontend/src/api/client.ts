@@ -6,7 +6,13 @@ import type {
   SiteListResponse,
 } from "../types/site";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+// VITE_API_BASE_URL is baked in at build time. An explicit value (dev's
+// .env, or a prod build arg pointing at a different origin) always wins.
+// Left unset: dev server falls back to the documented local backend port;
+// a production build falls back to same-origin (nginx proxies /api there).
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? "http://localhost:8000" : window.location.origin);
 
 type QueryValue = string | number | string[] | undefined;
 

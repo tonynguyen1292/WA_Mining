@@ -114,14 +114,17 @@ docker compose -f docker-compose.prod.yml up --build
 docker compose -f docker-compose.prod.yml exec backend python -m app.db.seed
 ```
 
-- Frontend (nginx, static build): http://localhost:8080
-- Backend API: http://localhost:8000
+- App (nginx, static build + reverse-proxied API): http://localhost:8080
 
-Differences from the dev compose file: the backend runs without `--reload`; the frontend is a multi-stage build (`frontend/Dockerfile`) — `npm run build` in a `node` stage, then served by `nginx` (`frontend/nginx.conf` handles the SPA fallback so client-side routes like `/sites/S0001538` don't 404 on a hard refresh); and Postgres isn't exposed to the host. This is still a single-host Compose setup, not a cloud deployment — see Future Improvements for what's not covered (managed DB, secrets, TLS, horizontal scaling).
+Differences from the dev compose file: the backend runs without `--reload` and **has no host port mapping at all** — `frontend/nginx.conf` reverse-proxies `/api`, `/health`, `/docs`, and `/openapi.json` to the backend over the internal Compose network, so nginx (port 8080 locally, port 80 in the cloud) is the only thing reachable from outside the stack; the frontend is a multi-stage build (`frontend/Dockerfile`) — `npm run build` in a `node` stage, then served by `nginx` (which also handles the SPA fallback so client-side routes like `/sites/S0001538` don't 404 on a hard refresh); and Postgres isn't exposed to the host either. This is still a single-host Compose setup, not a multi-node cloud deployment — see Future Improvements for what's not covered (TLS, horizontal scaling, automated CD).
 
 ### CI
 
 `.github/workflows/ci.yml` runs on every push/PR to `main`: backend lint (`ruff`) + compile check, and frontend typecheck + build (`tsc -b && vite build`). Both must pass before merging.
+
+### Cloud Deployment (AWS)
+
+[DEPLOYMENT.md](DEPLOYMENT.md) is a step-by-step runbook for deploying this same `docker-compose.prod.yml` stack to a single free-tier-eligible AWS EC2 instance — architecture, an explicit cost/billing gate (checked before creating anything), launch/configure/deploy/verify steps, and teardown. **Not yet executed** — it requires AWS credentials this environment doesn't have configured.
 
 ## System / Workflow Summary
 
@@ -168,6 +171,9 @@ The PostgreSQL database (`wa_mining`) is the source of truth for the analytical 
 WA_Mining/
 ├── README.md
 ├── data_dictionary.md
+├── DEPLOYMENT.md                      # AWS EC2 deployment runbook (not yet executed)
+├── JIRA_BACKLOG.md                    # proposed Epic/Story/Subtask backlog plan
+├── jira_backlog_import.csv            # same plan, formatted for Jira's CSV importer
 ├── .gitignore
 ├── docker-compose.yml                 # Postgres + backend, local dev (hot reload)
 ├── docker-compose.prod.yml            # full stack, production-like build (nginx frontend)
@@ -296,7 +302,7 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql` itself still only buckets 4 of 6 stages — left as-is since that file is kept for reference/lineage, not actively used by the app.
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
 - Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `POWER_BI/screenshots/`.
-- Add basic data-validation checks after load (row counts, null checks on primary keys) rather than relying on manual review.
+- Project tracking: [JIRA_BACKLOG.md](JIRA_BACKLOG.md) has a proposed Epic/Story/Subtask breakdown (plus an importable CSV) — not yet created in Jira itself, pending access to the actual project.
 
 ## Further Reading (optional, external)
 

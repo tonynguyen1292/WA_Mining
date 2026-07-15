@@ -29,7 +29,7 @@ frontend/
 ├── package.json
 ├── vite.config.ts
 ├── Dockerfile                 # multi-stage: build (node) -> serve (nginx), for production
-├── nginx.conf                 # SPA fallback so client-side routes survive a hard refresh
+├── nginx.conf                 # SPA fallback + reverse-proxies /api, /health, /docs to the backend
 └── .env.example
 ```
 
@@ -60,3 +60,4 @@ App: http://localhost:5173. Requires the backend API to be running (see the [roo
 - `/api/kpis` doesn't accept a `search` filter, so `FilterBar`'s search input is hidden on the Dashboard (`showSearch={false}`) — it's only shown on the Sites page, where it actually does something.
 - No component library — plain CSS in `src/index.css`, kept deliberately minimal, with a responsive pass for narrow viewports (`@media (max-width: 720px)` in `index.css`).
 - Production build is served via nginx (`Dockerfile` + `nginx.conf`) — see the [root README](../README.md#production--deployment).
+- `api/client.ts`'s `API_BASE_URL` resolves in this order: an explicit `VITE_API_BASE_URL` (dev's `.env`, or a prod build arg) always wins; otherwise the dev server falls back to `http://localhost:8000`, while a production build falls back to `window.location.origin` — i.e. same-origin, since nginx now proxies `/api` itself. This distinction uses Vite's `import.meta.env.DEV`/`PROD`, not a truthiness check, because a prod build arg explicitly set to `""` (the `docker-compose.prod.yml` default) is otherwise indistinguishable from "unset" once Vite bakes it into the bundle.
