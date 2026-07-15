@@ -163,7 +163,8 @@ The PostgreSQL database (`wa_mining`) is the source of truth for the analytical 
 - **GitHub Actions** — CI: backend lint/compile, frontend typecheck/build
 - **Power BI + DAX** — dashboard and interactive reporting (legacy/reference reporting surface)
 - **Git / GitHub** — version control and documentation
-- **Notion** — supplementary planning docs and task tracking from early project stages (see *Further Reading*; not part of the technical pipeline)
+- **Jira** — active backlog and sprint tracking (see *Further Reading*)
+- **Notion** — early-stage planning docs, superseded by the Jira backlog (see *Further Reading*)
 
 ## Repository Structure
 
@@ -302,12 +303,15 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql` itself still only buckets 4 of 6 stages — left as-is since that file is kept for reference/lineage, not actively used by the app.
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
 - Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `POWER_BI/screenshots/`.
-- Project tracking: [JIRA_BACKLOG.md](JIRA_BACKLOG.md) documents the Epic/Story/Subtask breakdown (plus the importable CSV used to create it) — live in the WMDP2 Jira project, organized into 3 sprints.
 
 ## Further Reading (optional, external)
 
-Supplementary planning documents from earlier project stages — not required to understand the technical pipeline:
+Not required to run or understand the app or pipeline — external context for anyone tracking the project's progress or its earlier framing.
 
+**Current:**
+- [WMDP2 — Jira Backlog](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/boards/73/backlog) — the live sprint board (41 issues: 5 Epics, 19 Stories, 17 Subtasks, across 3 sprints). [JIRA_BACKLOG.md](JIRA_BACKLOG.md) explains how it's organized and how it got there.
+
+**Historical** — planning docs from when this was scoped as a single-sprint BA/analytics portfolio piece, before it grew into the full-stack app described above. Superseded by this README and the Jira backlog for anything current, kept for the original framing:
 - [Notion Case Study](https://www.notion.so/WA-Mining-Operations-Dashboard-Business-Analyst-Portfolio-Project-35fd7e4273f0809ba6cecc2f77d9aa5f)
 - [7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202)
 - [Portfolio Instructions](https://www.notion.so/WA-Mining-Portfolio-Instructions-363d7e4273f08052844def6827925a8c)
