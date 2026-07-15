@@ -1,8 +1,14 @@
 # Jira Backlog Plan — WMDP2
 
-This is a proposed Epic → Story → Subtask breakdown for the [WMDP2 Jira project](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/summary), organized into sprints, aligned to what's actually in this repository (both what's already built and what's ahead).
+This is the Epic → Story → Subtask breakdown for the [WMDP2 Jira project](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/summary), organized into sprints, aligned to what's actually in this repository (both what's already built and what's ahead).
 
-**Not yet created in Jira.** I don't have authenticated access to this Jira instance (no connected browser session, and I won't log in with a password on your behalf), so this exists as a plan and an importable CSV (`jira_backlog_import.csv`, same directory) rather than live issues. See "How to get this into Jira" at the bottom.
+**Live in Jira** as WMDP2-1 through WMDP2-41 (5 Epics, 19 Stories, 17 Subtasks), imported via `jira_backlog_import.csv` and organized into three real Sprint objects:
+- **WMDP2 Sprint 1** (Platform Foundation) — WMDP2-6, 7, 8, 9
+- **WMDP2 Sprint 2** (Polish, Production Build & CI + Multi-Select Filtering) — WMDP2-10 through 16
+- **WMDP2 Sprint 3** (AWS Cloud Deployment) — WMDP2-17, 18, 19
+- **Backlog** (unscheduled future work) — WMDP2-20 through 24, correctly left without a sprint
+
+Note on the import itself: the CSV importer's own Sprint-name matching didn't work (the sprint names in the CSV didn't match any existing sprint), and its Sub-task import ran on a slower deferred path that looked stalled but wasn't — it finished ~20 minutes later and created a duplicate, unparented copy of every subtask. That duplicate set was deleted, and Sprint assignment was done afterward via bulk-edit instead of the CSV. Worth knowing if you re-run a CSV import against this project.
 
 ## Sprint 1 — Platform Foundation (completed, for the record)
 
@@ -59,10 +65,8 @@ This is a proposed Epic → Story → Subtask breakdown for the [WMDP2 Jira proj
 - Story: Automated test suite — backend (pytest) and frontend (component/integration tests); CI currently only lints/builds
 - Story: Path to managed infrastructure if traffic grows — RDS instead of containerized Postgres, horizontal scaling
 
-## How to get this into Jira
+## How this got into Jira
 
-I can't create these directly (see the access note above). Two options:
+Via **System → External System Import → CSV** (`jira_backlog_import.csv`, same directory), using a `Work item Id` column to make Sub-task → Parent linking resolve reliably (Jira's CSV importer matches `Epic Link` against `Epic Name` by value directly, but `Parent` needs real ID references within the same file, not text matching). Sprint assignment was done as a separate bulk-edit pass afterward, since the importer doesn't create new sprints from a CSV's `Sprint` column values.
 
-1. **Manual entry** — use this document as the source; takes longer but gives you full control over exact wording/estimates.
-2. **CSV import** — `jira_backlog_import.csv` in this same directory is formatted for Jira's CSV importer (**Project settings → Import CSV**, or **System → External System Import → CSV** depending on your Jira plan). Jira's importer requires you to map columns interactively (Issue Type, Summary, Epic Link, Sprint, etc.) — the Epic Link column matches against Epic Name by value during that mapping step, not a real key, since none exist before import. Subtask-to-parent linking via CSV is the least reliable part of Jira's importer and may need manual fixup after import (I recommend checking each Epic's children once the import completes before trusting the CSV blindly).
-3. Alternatively — if you connect a Chrome browser with an active Jira session (or grant Jira API access), I can create these directly through the UI or API instead of via CSV.
+If re-running this CSV against a fresh project: watch for the "Import Work items" step reporting near-complete (e.g. 59%) faster than it's actually finished — the Sub-task rows can process on a slower deferred path and land 15-20 minutes later, which reads as stalled but isn't. Wait for it to fully finish before manually recreating anything, or you'll get duplicates.

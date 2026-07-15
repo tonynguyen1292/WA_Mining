@@ -1,42 +1,42 @@
-Issue Type,Epic Name,Epic Link,Parent,Summary,Description,Sprint,Priority,Status
-Epic,Full-Stack Platform Foundation,,,Full-Stack Platform Foundation,"FastAPI + PostgreSQL + React app built on top of the existing SQL/Power BI pipeline.",,High,Done
-Story,,Full-Stack Platform Foundation,,Backend API foundation,"FastAPI + SQLAlchemy + PostgreSQL; /health, /api/sites, /api/kpis, /api/meta/filters.",Sprint 1 - Platform Foundation,High,Done
-Sub-task,,,Backend API foundation,Set up FastAPI app structure config and DB session,"app/main.py, app/core/config.py, app/core/database.py",Sprint 1 - Platform Foundation,Medium,Done
-Sub-task,,,Backend API foundation,Define Site model and Pydantic schemas,"app/models/site.py, app/schemas/site.py",Sprint 1 - Platform Foundation,Medium,Done
-Sub-task,,,Backend API foundation,Implement filtering and KPI aggregation service layer,"app/services/portfolio_service.py",Sprint 1 - Platform Foundation,Medium,Done
-Story,,Full-Stack Platform Foundation,,Database seed pipeline,"Port SQL/01-03 cleaning rules into Python (app/db/seed.py), no staging table needed.",Sprint 1 - Platform Foundation,High,Done
-Sub-task,,,Database seed pipeline,Port TRIM INITCAP region and LGA cleaning rules from SQL to seed.py,"Mirrors SQL/01_create_raw_table.sql through SQL/03_insert_cleaned_data.sql.",Sprint 1 - Platform Foundation,Medium,Done
-Sub-task,,,Database seed pipeline,Add title and short_title back into the schema for UI display,"Present in raw CSV/staging_sites but dropped by the original SQL/02 clean table.",Sprint 1 - Platform Foundation,Medium,Done
-Story,,Full-Stack Platform Foundation,,React frontend - Dashboard Sites and Site detail,"Dashboard (KPIs + charts), Sites (filter + paginate), Site detail page.",Sprint 1 - Platform Foundation,High,Done
-Sub-task,,,React frontend - Dashboard Sites and Site detail,Dashboard page with KPI cards and breakdown charts,"DashboardPage.tsx, BreakdownChart.tsx",Sprint 1 - Platform Foundation,Medium,Done
-Sub-task,,,React frontend - Dashboard Sites and Site detail,Sites page with filter bar and paginated table,"SitesPage.tsx, SitesTable.tsx",Sprint 1 - Platform Foundation,Medium,Done
-Sub-task,,,React frontend - Dashboard Sites and Site detail,Site detail page,"SiteDetailPage.tsx",Sprint 1 - Platform Foundation,Medium,Done
-Story,,Full-Stack Platform Foundation,,Local dev environment with Docker Compose,"docker-compose.yml: Postgres + backend with hot reload.",Sprint 1 - Platform Foundation,Medium,Done
-Epic,Production Readiness,,,Production Readiness,"Polish, production Docker build, and CI.",,High,Done
-Story,,Production Readiness,,Loading empty and error states,"Dashboard and Sites pages, debounced filter changes.",Sprint 2 - Polish Production CI,Medium,Done
-Story,,Production Readiness,,Responsive layout pass,"Mobile and tablet breakpoints verified at 375px and desktop widths.",Sprint 2 - Polish Production CI,Medium,Done
-Story,,Production Readiness,,Production Docker build,"Multi-stage frontend build (node then nginx), docker-compose.prod.yml.",Sprint 2 - Polish Production CI,High,Done
-Story,,Production Readiness,,CI pipeline,"Backend ruff and compile check, frontend typecheck and build, on push and PR to main.",Sprint 2 - Polish Production CI,High,Done
-Epic,Multi-Select Filtering,,,Multi-Select Filtering,"Filter by multiple commodities regions stages and site types at once instead of one at a time.",,High,Done
-Story,,Multi-Select Filtering,,Backend multi-value filters,"/api/sites and /api/kpis accept repeated query params and filter with IN.",Sprint 2 - Polish Production CI,High,Done
-Story,,Multi-Select Filtering,,Frontend MultiSelect component,"Checkbox-dropdown component wired into FilterBar for all four filter fields.",Sprint 2 - Polish Production CI,High,Done
-Story,,Multi-Select Filtering,,Seed script data validation,"Row-count floor, duplicate SITE_CODE check, post-insert count verification.",Sprint 2 - Polish Production CI,Medium,Done
-Epic,AWS Cloud Deployment,,,AWS Cloud Deployment,"Deploy the app to a single free-tier EC2 instance running docker-compose.prod.yml.",,High,In Progress
-Story,,AWS Cloud Deployment,,Harden the app for public deployment,"nginx reverse proxy, no public backend port, deployment runbook.",Sprint 3 - AWS Deployment,High,Done
-Sub-task,,,Harden the app for public deployment,Add nginx reverse proxy for api health and docs,"frontend/nginx.conf proxies to backend:8000 over the internal Compose network.",Sprint 3 - AWS Deployment,Medium,Done
-Sub-task,,,Harden the app for public deployment,Remove backend public port mapping in docker-compose.prod.yml,"Only nginx is reachable from the host now.",Sprint 3 - AWS Deployment,Medium,Done
-Sub-task,,,Harden the app for public deployment,Write deployment runbook,"DEPLOYMENT.md: architecture, cost gate, step-by-step, teardown.",Sprint 3 - AWS Deployment,Medium,Done
-Story,,AWS Cloud Deployment,,Provision AWS infrastructure,"EC2 instance, security group, Docker install.",Sprint 3 - AWS Deployment,High,To Do
-Sub-task,,,Provision AWS infrastructure,Confirm Free Tier eligibility and set a $1 budget alert,"AWS Billing console, before creating any resource.",Sprint 3 - AWS Deployment,High,To Do
-Sub-task,,,Provision AWS infrastructure,Launch EC2 instance with locked-down security group,"t2.micro or t3.micro; SSH from my IP only, HTTP from anywhere.",Sprint 3 - AWS Deployment,High,To Do
-Sub-task,,,Provision AWS infrastructure,Install Docker and Compose plugin on the instance,"See DEPLOYMENT.md Step 2.",Sprint 3 - AWS Deployment,Medium,To Do
-Story,,AWS Cloud Deployment,,Deploy and verify on EC2,"Clone repo, build, seed, verify endpoints.",Sprint 3 - AWS Deployment,High,To Do
-Sub-task,,,Deploy and verify on EC2,Clone repo and set VITE_API_BASE_URL and CORS_ORIGINS,"See DEPLOYMENT.md Step 3.",Sprint 3 - AWS Deployment,Medium,To Do
-Sub-task,,,Deploy and verify on EC2,Build and start docker-compose.prod.yml and seed the database,"See DEPLOYMENT.md Step 4.",Sprint 3 - AWS Deployment,High,To Do
-Sub-task,,,Deploy and verify on EC2,Verify Dashboard health and docs endpoints at the public IP,"See DEPLOYMENT.md Step 5.",Sprint 3 - AWS Deployment,Medium,To Do
-Epic,Post-Deployment Hardening,,,Post-Deployment Hardening,"Everything not covered by the first AWS deployment pass.",,Low,Backlog
-Story,,Post-Deployment Hardening,,TLS and custom domain,"Let's Encrypt via certbot in the nginx container.",Backlog,Medium,To Do
-Story,,Post-Deployment Hardening,,Automated CD,"Deploy to EC2 on push to main, replacing the manual runbook.",Backlog,Medium,To Do
-Story,,Post-Deployment Hardening,,URL-synced filters and pagination,"Shareable filtered and paginated links.",Backlog,Low,To Do
-Story,,Post-Deployment Hardening,,Automated test suite,"pytest for backend, component and integration tests for frontend.",Backlog,Medium,To Do
-Story,,Post-Deployment Hardening,,Path to managed infrastructure,"RDS instead of containerized Postgres, horizontal scaling, if traffic grows.",Backlog,Low,To Do
+Issue Id,Issue Type,Epic Name,Epic Link,Parent,Summary,Description,Sprint,Priority,Status
+1,Epic,Full-Stack Platform Foundation,,,Full-Stack Platform Foundation,"FastAPI + PostgreSQL + React app built on top of the existing SQL/Power BI pipeline.",,High,Done
+2,Story,,Full-Stack Platform Foundation,,Backend API foundation,"FastAPI + SQLAlchemy + PostgreSQL; /health, /api/sites, /api/kpis, /api/meta/filters.",Sprint 1 - Platform Foundation,High,Done
+3,Sub-task,,,2,Set up FastAPI app structure config and DB session,"app/main.py, app/core/config.py, app/core/database.py",Sprint 1 - Platform Foundation,Medium,Done
+4,Sub-task,,,2,Define Site model and Pydantic schemas,"app/models/site.py, app/schemas/site.py",Sprint 1 - Platform Foundation,Medium,Done
+5,Sub-task,,,2,Implement filtering and KPI aggregation service layer,"app/services/portfolio_service.py",Sprint 1 - Platform Foundation,Medium,Done
+6,Story,,Full-Stack Platform Foundation,,Database seed pipeline,"Port SQL/01-03 cleaning rules into Python (app/db/seed.py), no staging table needed.",Sprint 1 - Platform Foundation,High,Done
+7,Sub-task,,,6,Port TRIM INITCAP region and LGA cleaning rules from SQL to seed.py,"Mirrors SQL/01_create_raw_table.sql through SQL/03_insert_cleaned_data.sql.",Sprint 1 - Platform Foundation,Medium,Done
+8,Sub-task,,,6,Add title and short_title back into the schema for UI display,"Present in raw CSV/staging_sites but dropped by the original SQL/02 clean table.",Sprint 1 - Platform Foundation,Medium,Done
+9,Story,,Full-Stack Platform Foundation,,React frontend - Dashboard Sites and Site detail,"Dashboard (KPIs + charts), Sites (filter + paginate), Site detail page.",Sprint 1 - Platform Foundation,High,Done
+10,Sub-task,,,9,Dashboard page with KPI cards and breakdown charts,"DashboardPage.tsx, BreakdownChart.tsx",Sprint 1 - Platform Foundation,Medium,Done
+11,Sub-task,,,9,Sites page with filter bar and paginated table,"SitesPage.tsx, SitesTable.tsx",Sprint 1 - Platform Foundation,Medium,Done
+12,Sub-task,,,9,Site detail page,"SiteDetailPage.tsx",Sprint 1 - Platform Foundation,Medium,Done
+13,Story,,Full-Stack Platform Foundation,,Local dev environment with Docker Compose,"docker-compose.yml: Postgres + backend with hot reload.",Sprint 1 - Platform Foundation,Medium,Done
+14,Epic,Production Readiness,,,Production Readiness,"Polish, production Docker build, and CI.",,High,Done
+15,Story,,Production Readiness,,Loading empty and error states,"Dashboard and Sites pages, debounced filter changes.",Sprint 2 - Polish Production CI,Medium,Done
+16,Story,,Production Readiness,,Responsive layout pass,"Mobile and tablet breakpoints verified at 375px and desktop widths.",Sprint 2 - Polish Production CI,Medium,Done
+17,Story,,Production Readiness,,Production Docker build,"Multi-stage frontend build (node then nginx), docker-compose.prod.yml.",Sprint 2 - Polish Production CI,High,Done
+18,Story,,Production Readiness,,CI pipeline,"Backend ruff and compile check, frontend typecheck and build, on push and PR to main.",Sprint 2 - Polish Production CI,High,Done
+19,Epic,Multi-Select Filtering,,,Multi-Select Filtering,"Filter by multiple commodities regions stages and site types at once instead of one at a time.",,High,Done
+20,Story,,Multi-Select Filtering,,Backend multi-value filters,"/api/sites and /api/kpis accept repeated query params and filter with IN.",Sprint 2 - Polish Production CI,High,Done
+21,Story,,Multi-Select Filtering,,Frontend MultiSelect component,"Checkbox-dropdown component wired into FilterBar for all four filter fields.",Sprint 2 - Polish Production CI,High,Done
+22,Story,,Multi-Select Filtering,,Seed script data validation,"Row-count floor, duplicate SITE_CODE check, post-insert count verification.",Sprint 2 - Polish Production CI,Medium,Done
+23,Epic,AWS Cloud Deployment,,,AWS Cloud Deployment,"Deploy the app to a single free-tier EC2 instance running docker-compose.prod.yml.",,High,In Progress
+24,Story,,AWS Cloud Deployment,,Harden the app for public deployment,"nginx reverse proxy, no public backend port, deployment runbook.",Sprint 3 - AWS Deployment,High,Done
+25,Sub-task,,,24,Add nginx reverse proxy for api health and docs,"frontend/nginx.conf proxies to backend:8000 over the internal Compose network.",Sprint 3 - AWS Deployment,Medium,Done
+26,Sub-task,,,24,Remove backend public port mapping in docker-compose.prod.yml,"Only nginx is reachable from the host now.",Sprint 3 - AWS Deployment,Medium,Done
+27,Sub-task,,,24,Write deployment runbook,"DEPLOYMENT.md: architecture, cost gate, step-by-step, teardown.",Sprint 3 - AWS Deployment,Medium,Done
+28,Story,,AWS Cloud Deployment,,Provision AWS infrastructure,"EC2 instance, security group, Docker install.",Sprint 3 - AWS Deployment,High,To Do
+29,Sub-task,,,28,Confirm Free Tier eligibility and set a $1 budget alert,"AWS Billing console, before creating any resource.",Sprint 3 - AWS Deployment,High,To Do
+30,Sub-task,,,28,Launch EC2 instance with locked-down security group,"t2.micro or t3.micro; SSH from my IP only, HTTP from anywhere.",Sprint 3 - AWS Deployment,High,To Do
+31,Sub-task,,,28,Install Docker and Compose plugin on the instance,"See DEPLOYMENT.md Step 2.",Sprint 3 - AWS Deployment,Medium,To Do
+32,Story,,AWS Cloud Deployment,,Deploy and verify on EC2,"Clone repo, build, seed, verify endpoints.",Sprint 3 - AWS Deployment,High,To Do
+33,Sub-task,,,32,Clone repo and set VITE_API_BASE_URL and CORS_ORIGINS,"See DEPLOYMENT.md Step 3.",Sprint 3 - AWS Deployment,Medium,To Do
+34,Sub-task,,,32,Build and start docker-compose.prod.yml and seed the database,"See DEPLOYMENT.md Step 4.",Sprint 3 - AWS Deployment,High,To Do
+35,Sub-task,,,32,Verify Dashboard health and docs endpoints at the public IP,"See DEPLOYMENT.md Step 5.",Sprint 3 - AWS Deployment,Medium,To Do
+36,Epic,Post-Deployment Hardening,,,Post-Deployment Hardening,"Everything not covered by the first AWS deployment pass.",,Low,Backlog
+37,Story,,Post-Deployment Hardening,,TLS and custom domain,"Let's Encrypt via certbot in the nginx container.",Backlog,Medium,To Do
+38,Story,,Post-Deployment Hardening,,Automated CD,"Deploy to EC2 on push to main, replacing the manual runbook.",Backlog,Medium,To Do
+39,Story,,Post-Deployment Hardening,,URL-synced filters and pagination,"Shareable filtered and paginated links.",Backlog,Low,To Do
+40,Story,,Post-Deployment Hardening,,Automated test suite,"pytest for backend, component and integration tests for frontend.",Backlog,Medium,To Do
+41,Story,,Post-Deployment Hardening,,Path to managed infrastructure,"RDS instead of containerized Postgres, horizontal scaling, if traffic grows.",Backlog,Low,To Do

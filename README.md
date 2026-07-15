@@ -172,7 +172,7 @@ WA_Mining/
 ├── README.md
 ├── data_dictionary.md
 ├── DEPLOYMENT.md                      # AWS EC2 deployment runbook (not yet executed)
-├── JIRA_BACKLOG.md                    # proposed Epic/Story/Subtask backlog plan
+├── JIRA_BACKLOG.md                    # Epic/Story/Subtask backlog plan, live in Jira as WMDP2-1..41
 ├── jira_backlog_import.csv            # same plan, formatted for Jira's CSV importer
 ├── .gitignore
 ├── docker-compose.yml                 # Postgres + backend, local dev (hot reload)
@@ -302,7 +302,7 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql` itself still only buckets 4 of 6 stages — left as-is since that file is kept for reference/lineage, not actively used by the app.
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
 - Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `POWER_BI/screenshots/`.
-- Project tracking: [JIRA_BACKLOG.md](JIRA_BACKLOG.md) has a proposed Epic/Story/Subtask breakdown (plus an importable CSV) — not yet created in Jira itself, pending access to the actual project.
+- Project tracking: [JIRA_BACKLOG.md](JIRA_BACKLOG.md) documents the Epic/Story/Subtask breakdown (plus the importable CSV used to create it) — live in the WMDP2 Jira project, organized into 3 sprints.
 
 ## Further Reading (optional, external)
 
