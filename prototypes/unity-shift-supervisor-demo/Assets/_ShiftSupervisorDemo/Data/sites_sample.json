@@ -1,0 +1,44 @@
+{
+  "sites": [
+    {
+      "siteCode": "S0001538",
+      "title": "Abra Underground",
+      "siteType": "Mine",
+      "stage": "Operating",
+      "commodity": "Copper - Lead - Zinc",
+      "region": "Mid-West"
+    },
+    {
+      "siteCode": "S0004457",
+      "title": "Admiral - Admiral South and West Open Pit",
+      "siteType": "Mine",
+      "stage": "Operating",
+      "commodity": "Gold",
+      "region": "Goldfields-Esperance"
+    },
+    {
+      "siteCode": "S0224441",
+      "title": "Bibra",
+      "siteType": "Mine",
+      "stage": "Operating",
+      "commodity": "Gold",
+      "region": "Mid-West"
+    },
+    {
+      "siteCode": "S0225440",
+      "title": "Anketell Port",
+      "siteType": "Infrastructure",
+      "stage": "Proposed",
+      "commodity": "Iron Ore",
+      "region": "Pilbara"
+    },
+    {
+      "siteCode": "SDEMO001",
+      "title": "Demo Care & Maintenance Site",
+      "siteType": "Mine",
+      "stage": "Care And Maintenance",
+      "commodity": "Nickel",
+      "region": "Goldfields-Esperance"
+    }
+  ]
+}
