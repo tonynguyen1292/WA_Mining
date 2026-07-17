@@ -18,7 +18,7 @@ def list_sites(
     site_type: list[str] | None = Query(None, description="Filter by site_type (repeatable)"),
     search: str | None = Query(None, description="Free-text match on title / project / site code"),
     page: int = Query(1, ge=1),
-    page_size: int = Query(25, ge=1, le=200),
+    page_size: int = Query(25, ge=1, le=500),
     db: Session = Depends(get_db),
 ) -> SiteListResponse:
     items, total = portfolio_service.list_sites(
