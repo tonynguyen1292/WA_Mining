@@ -1,9 +1,19 @@
-# Scene setup — one-time manual steps
+# Scene setup — how the scene was assembled
 
-The C# scripts and sample data in this repo are ready to use. The `.unity`
-scene file itself is not — Unity scene/prefab files are GUID-linked binary-
-adjacent formats that need to be created by the actual Editor, not hand-
-written as text. This is a short, one-time checklist to assemble them.
+**Status: done.** `ShiftSupervisorDemo.unity` and `SiteMarker.prefab`
+already exist in this repo — you don't need to follow these steps to run
+the demo, just open the scene and press Play (see the root
+[README](README.md#running-it)).
+
+This document is kept for reference and reproducibility. In practice, the
+steps below were executed by a temporary Unity Editor script
+(`SceneBuilder.cs`, run once via a menu command, then deleted) rather than
+by clicking through the Editor by hand — see
+[DECISIONS.md](DECISIONS.md#scene-generation-a-one-time-editor-script-not-hand-authored-yaml-or-manual-clicking)
+for why. The steps themselves are still accurate: that script does exactly
+what's described here, just as code instead of mouse clicks. If the scene
+ever needs to be rebuilt from scratch, redo this checklist manually, or
+recreate a similar Editor script from `DECISIONS.md`'s description of it.
 
 ## 0. Open this folder as a Unity project
 
@@ -58,12 +68,7 @@ Maintenance, red = everything else in this small sample). Left-click a cube
 to see its details in the bottom-left panel; left-drag elsewhere to orbit;
 scroll to zoom.
 
-## After this works
-
-Commit the newly-generated `ProjectSettings/`, `Packages/manifest.json`,
-the `.unity` scene, the prefab, and their `.meta` files as one commit:
-
-```
-git add prototypes/unity-shift-supervisor-demo
-git commit -m "Add Unity-generated project settings, prefab, and demo scene"
-```
+This matches what's already committed in this repo — 3 green (Operating:
+Abra Underground, Admiral, Bibra), 1 yellow (Care and Maintenance: the demo
+entry), 1 red (Anketell Port, Proposed — falls into the catch-all "other"
+color bucket, see `SiteMarker.cs`).

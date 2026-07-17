@@ -18,7 +18,7 @@ on the web app.
 ## Scope
 
 **What this is:**
-- One scene, five clickable 3D markers representing sample mining sites
+- One scene (`ShiftSupervisorDemo.unity`), five clickable 3D markers representing sample mining sites
 - Marker color reflects `stage` (Operating / Care and Maintenance / other)
 - Click a marker → see its details (name, type, stage, commodity, region) in a UI panel
 - Simple mouse-drag orbit + scroll zoom camera
@@ -35,13 +35,15 @@ on the web app.
 
 ```
 unity-shift-supervisor-demo/
-├── README.md                 # this file
-├── SCENE_SETUP.md            # one-time manual steps to assemble the .unity scene
-├── .gitignore                # Unity-specific, scoped to this folder only
-├── ProjectSettings/
-│   └── ProjectVersion.txt    # pins Unity 2022.3 LTS
+├── README.md                   # this file
+├── DECISIONS.md                # why each non-obvious technical choice was made
+├── TROUBLESHOOTING_LOG.md       # real errors hit while building this, with full detail
+├── SCENE_SETUP.md               # how the scene was assembled (kept for reference/reproducibility)
+├── .gitignore                   # Unity-specific, scoped to this folder only
+├── ProjectSettings/              # Unity-generated on first open (see DECISIONS.md)
+├── Packages/manifest.json        # Unity-generated + one manual addition (com.unity.ugui, see TROUBLESHOOTING_LOG.md)
 └── Assets/
-    └── _ShiftSupervisorDemo/ # underscore keeps custom content sorted above package folders in the Editor
+    └── _ShiftSupervisorDemo/     # underscore keeps custom content sorted above package folders in the Editor
         ├── Scripts/
         │   ├── SiteInfo.cs                   # plain data class (+ JSON wrapper)
         │   ├── SiteDatabase.cs                # loads sites_sample.json at startup
@@ -50,26 +52,25 @@ unity-shift-supervisor-demo/
         │   └── CameraOrbitController.cs       # mouse-drag orbit + scroll zoom
         ├── Data/
         │   └── sites_sample.json
-        ├── Scenes/            # ShiftSupervisorDemo.unity goes here (see SCENE_SETUP.md)
-        └── Prefabs/           # SiteMarker.prefab goes here (see SCENE_SETUP.md)
+        ├── Scenes/
+        │   └── ShiftSupervisorDemo.unity
+        └── Prefabs/
+            └── SiteMarker.prefab
 ```
-
-`Packages/manifest.json` and the rest of `ProjectSettings/` aren't
-committed yet — they're generated correctly by the Unity Editor the first
-time this folder is opened as a project (see `SCENE_SETUP.md`), rather than
-hand-authored here.
 
 ## Running it
 
-See [SCENE_SETUP.md](SCENE_SETUP.md) — Unity Hub → Open this folder →
-follow the one-time scene-assembly checklist → Play.
+1. Unity Hub → **Open** → select this folder.
+2. Open `Assets/_ShiftSupervisorDemo/Scenes/ShiftSupervisorDemo.unity`.
+3. Press **Play**. Left-click a marker for its details; left-drag to orbit; scroll to zoom.
 
-## Tech choices, briefly
+## Further reading
 
-- **Built-in render pipeline**, not URP/HDRP — a handful of primitives and
-  a UI panel don't need a render pipeline package.
-- **Legacy UGUI `Text`**, not TextMeshPro — ships by default, no extra
-  package import for a demo this small.
-- **`OnMouseDown()`** for click detection — Unity's built-in mouse-event
-  system already does the raycast-against-collider work; no reason to
-  hand-roll one.
+- **[DECISIONS.md](DECISIONS.md)** — the reasoning behind each non-obvious
+  technical choice (render pipeline, UI framework, click detection, data
+  approach, and how the scene itself was generated).
+- **[TROUBLESHOOTING_LOG.md](TROUBLESHOOTING_LOG.md)** — real errors hit
+  building this, with root cause and fix.
+- **[SCENE_SETUP.md](SCENE_SETUP.md)** — how the scene in this repo was
+  assembled (a one-time Editor script, not manual clicking — see
+  DECISIONS.md for why).
