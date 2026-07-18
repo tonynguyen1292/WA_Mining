@@ -8,7 +8,7 @@ A PostgreSQL-backed system for Western Australia's public Major Resources Projec
 
 This project takes a raw government export of WA mining, infrastructure, and petroleum sites and turns it into an analysis-ready data model, then exposes it two ways:
 
-- **The app** (`backend/` + `frontend/`) — a live, filterable dashboard and sites explorer. This is the primary, actively developed interface. See [Getting Started](#getting-started).
+- **The app** (`backend/` + `frontend/`) — a live, filterable dashboard, sortable sites explorer, and map view. This is the primary, actively developed interface. See [Getting Started](#getting-started).
 - **The original SQL pipeline + Power BI** (`SQL/`, `POWER_BI/`) — the pipeline that established the cleaning rules the app now reuses, and a static dashboard on the same rules. Kept as reference/lineage documentation. See [System / Workflow Summary](#system--workflow-summary).
 
 The CSV snapshot currently included in this repo (`DATABASES/raw/Major_Resource_Projects.csv`) contains 421 site records across 356 distinct projects.
@@ -83,7 +83,8 @@ npm run dev
 ### Step 6 — Verify the app
 
 Open http://localhost:5173 — the Dashboard should load with KPI cards (421 total sites, 356 total projects) and three breakdown charts (stage/commodity/region). From there:
-- **Sites** in the nav bar → a filterable, paginated table of all 421 sites
+- **Sites** in the nav bar → a filterable, sortable, paginated table of all 421 sites (filters/sort/page are synced to the URL, so the link is shareable)
+- **Map** in the nav bar → all matching sites plotted on a map, colored by stage, with the same filters
 - Click any site → its full detail page
 
 ### Troubleshooting
@@ -157,8 +158,9 @@ The PostgreSQL database (`wa_mining`) is the source of truth for the analytical 
 
 - **PostgreSQL** — system of record, both for the original SQL pipeline and the FastAPI app's `sites` table
 - **FastAPI + SQLAlchemy** — read-only API over the cleaned portfolio data (`backend/`)
-- **React + TypeScript + Vite** — dashboard, sites explorer, and site detail pages (`frontend/`)
+- **React + TypeScript + Vite** — dashboard, sites explorer, map, and site detail pages (`frontend/`)
 - **Recharts** — portfolio breakdown charts
+- **Leaflet + react-leaflet** — the map view (free OpenStreetMap tiles, no API key)
 - **Docker Compose** — local dev (`docker-compose.yml`) and a production-like build (`docker-compose.prod.yml`, nginx-served frontend)
 - **GitHub Actions** — CI: backend lint/compile, frontend typecheck/build
 - **Power BI + DAX** — dashboard and interactive reporting (legacy/reference reporting surface)
