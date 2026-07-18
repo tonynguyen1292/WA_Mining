@@ -1,12 +1,25 @@
 import { Link } from "react-router-dom";
 import type { Site } from "../types/site";
 
+// Matches backend SORTABLE_COLUMNS in portfolio_service.py -- keep in sync,
+// since a mismatch here means a header that clicks into a 422 from the API.
+const SORT_COLUMNS: { key: string; label: string }[] = [
+  { key: "title", label: "Site" },
+  { key: "project_title", label: "Project" },
+  { key: "site_type", label: "Type" },
+  { key: "stage", label: "Stage" },
+  { key: "target_group_name", label: "Commodity" },
+  { key: "development_region", label: "Region" },
+];
+
 interface SitesTableProps {
   items: Site[];
   total: number;
   page: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  sort?: string;
+  onSortChange: (sort: string) => void;
   isLoading?: boolean;
 }
 
@@ -16,21 +29,48 @@ export default function SitesTable({
   page,
   pageSize,
   onPageChange,
+  sort,
+  onSortChange,
   isLoading = false,
 }: SitesTableProps) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const activeField = sort?.startsWith("-") ? sort.slice(1) : sort;
+  const activeDescending = sort?.startsWith("-") ?? false;
+
+  function handleHeaderClick(key: string) {
+    if (activeField !== key) {
+      onSortChange(key);
+    } else if (!activeDescending) {
+      onSortChange(`-${key}`);
+    } else {
+      onSortChange(key);
+    }
+  }
 
   return (
     <div className="sites-table-wrap">
       <table className="sites-table">
         <thead>
           <tr>
-            <th>Site</th>
-            <th>Project</th>
-            <th>Type</th>
-            <th>Stage</th>
-            <th>Commodity</th>
-            <th>Region</th>
+            {SORT_COLUMNS.map(({ key, label }) => {
+              const isActive = activeField === key;
+              return (
+                <th key={key}>
+                  <button
+                    type="button"
+                    className={`sites-table-sort${isActive ? " is-active" : ""}`}
+                    onClick={() => handleHeaderClick(key)}
+                  >
+                    {label}
+                    {isActive && (
+                      <span className="sites-table-sort-indicator">
+                        {activeDescending ? "▼" : "▲"}
+                      </span>
+                    )}
+                  </button>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

@@ -286,6 +286,38 @@ a {
   border-bottom: 1px solid var(--line);
 }
 
+.sites-table th {
+  padding: 0;
+}
+
+.sites-table-sort {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sites-table-sort:hover {
+  color: var(--ink);
+}
+
+.sites-table-sort.is-active {
+  color: var(--accent);
+}
+
+.sites-table-sort-indicator {
+  font-size: 10px;
+}
+
 .sites-table tr:last-child td {
   border-bottom: none;
 }

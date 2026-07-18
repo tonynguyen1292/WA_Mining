@@ -10,6 +10,7 @@ const PAGE_SIZE = 25;
 export default function SitesPage() {
   const [filters, setFilters] = useState<SiteFilters>({});
   const debouncedFilters = useDebouncedValue(filters);
+  const [sort, setSort] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<Site[]>([]);
   const [total, setTotal] = useState(0);
@@ -21,7 +22,10 @@ export default function SitesPage() {
     setIsLoading(true);
     setError(null);
 
-    fetchSites(debouncedFilters, page, PAGE_SIZE)
+    // sort is intentionally not debounced -- unlike filters/search, a header
+    // click is a single discrete action, not fast keystrokes, so there's no
+    // typing burst to coalesce and the user expects an immediate reorder.
+    fetchSites(debouncedFilters, page, PAGE_SIZE, sort)
       .then((data) => {
         if (cancelled) return;
         setItems(data.items);
@@ -37,11 +41,16 @@ export default function SitesPage() {
     return () => {
       cancelled = true;
     };
-  }, [debouncedFilters, page]);
+  }, [debouncedFilters, sort, page]);
 
   function handleFiltersChange(next: SiteFilters) {
     setFilters(next);
     setPage(1); // reset paging whenever the filter set changes
+  }
+
+  function handleSortChange(next: string) {
+    setSort(next);
+    setPage(1); // reset paging whenever the sort changes, same as filters
   }
 
   return (
@@ -59,6 +68,8 @@ export default function SitesPage() {
         page={page}
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
+        sort={sort}
+        onSortChange={handleSortChange}
         isLoading={isLoading}
       />
     </div>

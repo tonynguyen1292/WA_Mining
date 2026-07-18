@@ -41,10 +41,12 @@ async function apiGet<T>(path: string, params?: Record<string, QueryValue>): Pro
 export function fetchSites(
   filters: SiteFilters,
   page: number,
-  pageSize: number
+  pageSize: number,
+  sort?: string
 ): Promise<SiteListResponse> {
   return apiGet<SiteListResponse>("/api/sites", {
     ...filters,
+    sort,
     page,
     page_size: pageSize,
   });
