@@ -1,10 +1,28 @@
+import { useEffect, useState } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
+import CommandPalette from "./components/CommandPalette";
 import DashboardPage from "./pages/DashboardPage";
 import MapPage from "./pages/MapPage";
 import SiteDetailPage from "./pages/SiteDetailPage";
 import SitesPage from "./pages/SitesPage";
 
 export default function App() {
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+
+  // Global, not page-scoped: a command palette that only works on some
+  // routes isn't one you can rely on, so this listens on `window` rather
+  // than living inside a specific page component.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const isSearchShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+      if (!isSearchShortcut) return;
+      event.preventDefault(); // otherwise this doubles as the browser's own address-bar search shortcut
+      setIsPaletteOpen((open) => !open);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <div className="app-shell">
       <header className="app-header">
@@ -16,6 +34,13 @@ export default function App() {
           <NavLink to="/sites">Sites</NavLink>
           <NavLink to="/map">Map</NavLink>
         </nav>
+        <button
+          type="button"
+          className="command-palette-trigger"
+          onClick={() => setIsPaletteOpen(true)}
+        >
+          Search sites <kbd>Ctrl</kbd><kbd>K</kbd>
+        </button>
       </header>
 
       <main>
@@ -26,6 +51,8 @@ export default function App() {
           <Route path="/map" element={<MapPage />} />
         </Routes>
       </main>
+
+      <CommandPalette isOpen={isPaletteOpen} onClose={() => setIsPaletteOpen(false)} />
     </div>
   );
 }
