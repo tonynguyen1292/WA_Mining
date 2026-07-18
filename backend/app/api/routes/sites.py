@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.site import SiteListResponse, SiteOut
 from app.services import portfolio_service
+from app.services.portfolio_service import SORTABLE_COLUMNS, InvalidSortField
 
 router = APIRouter(prefix="/api/sites", tags=["sites"])
 
@@ -17,20 +18,31 @@ def list_sites(
     stage: list[str] | None = Query(None, description="Filter by stage (repeatable)"),
     site_type: list[str] | None = Query(None, description="Filter by site_type (repeatable)"),
     search: str | None = Query(None, description="Free-text match on title / project / site code"),
+    sort: str | None = Query(
+        None,
+        description=(
+            "Column to sort by, prefixed with '-' for descending "
+            f"(e.g. ?sort=-stage). Valid fields: {', '.join(sorted(SORTABLE_COLUMNS))}"
+        ),
+    ),
     page: int = Query(1, ge=1),
     page_size: int = Query(25, ge=1, le=500),
     db: Session = Depends(get_db),
 ) -> SiteListResponse:
-    items, total = portfolio_service.list_sites(
-        db,
-        commodity=commodity,
-        region=region,
-        stage=stage,
-        site_type=site_type,
-        search=search,
-        page=page,
-        page_size=page_size,
-    )
+    try:
+        items, total = portfolio_service.list_sites(
+            db,
+            commodity=commodity,
+            region=region,
+            stage=stage,
+            site_type=site_type,
+            search=search,
+            sort=sort,
+            page=page,
+            page_size=page_size,
+        )
+    except InvalidSortField as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     return SiteListResponse(items=items, total=total, page=page, page_size=page_size)
 
 

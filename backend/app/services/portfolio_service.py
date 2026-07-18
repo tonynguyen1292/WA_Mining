@@ -14,6 +14,44 @@ from sqlalchemy.orm import Session
 
 from app.models.site import Site
 
+# Allowlist: the only columns /api/sites will sort by, and the exact
+# strings the `sort` query param accepts (prefix with "-" for descending).
+# Deliberately not a passthrough of arbitrary column names to ORDER BY.
+SORTABLE_COLUMNS: dict[str, object] = {
+    "title": Site.title,
+    "project_title": Site.project_title,
+    "site_type": Site.site_type,
+    "stage": Site.stage,
+    "target_group_name": Site.target_group_name,
+    "development_region": Site.development_region,
+}
+
+
+class InvalidSortField(ValueError):
+    """Raised when a `sort` value isn't in SORTABLE_COLUMNS."""
+
+
+def resolve_sort(sort: str | None):
+    """Parse a `sort` param like "-stage" into (column, descending).
+
+    Raises InvalidSortField if the field isn't one of SORTABLE_COLUMNS --
+    the API layer turns that into a 422, rather than this silently
+    falling back to the default order or passing an arbitrary string to
+    the database.
+    """
+    if not sort:
+        return None
+
+    descending = sort.startswith("-")
+    field = sort[1:] if descending else sort
+    column = SORTABLE_COLUMNS.get(field)
+    if column is None:
+        raise InvalidSortField(
+            f"Cannot sort by '{field}'. Valid fields: {', '.join(sorted(SORTABLE_COLUMNS))} "
+            "(prefix with '-' for descending)."
+        )
+    return column, descending
+
 
 def _apply_filters(
     stmt,
@@ -50,6 +88,7 @@ def list_sites(
     stage: list[str] | None = None,
     site_type: list[str] | None = None,
     search: str | None = None,
+    sort: str | None = None,
     page: int = 1,
     page_size: int = 25,
 ) -> tuple[list[Site], int]:
@@ -64,8 +103,21 @@ def list_sites(
 
     total = db.scalar(select(func.count()).select_from(base_stmt.subquery())) or 0
 
+    resolved = resolve_sort(sort)
+    if resolved is not None:
+        column, descending = resolved
+        primary_order = column.desc().nulls_last() if descending else column.asc().nulls_last()
+    else:
+        primary_order = Site.title.asc().nulls_last()
+
+    # site_code is appended as a stable tiebreaker on every query, sorted
+    # or not -- several columns (stage, region, site_type) are low enough
+    # cardinality that without a deterministic secondary key, Postgres
+    # doesn't guarantee consistent ordering for tied rows across requests,
+    # which surfaces as pagination bugs (a row on two pages, or missing)
+    # rather than an obvious error.
     items_stmt = (
-        base_stmt.order_by(Site.title.asc().nulls_last(), Site.site_code.asc())
+        base_stmt.order_by(primary_order, Site.site_code.asc())
         .offset((page - 1) * page_size)
         .limit(page_size)
     )
