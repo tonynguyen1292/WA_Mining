@@ -441,6 +441,13 @@ a {
   border: 1px solid var(--line);
   border-radius: 6px;
   overflow: hidden;
+  /* Leaflet's own panes/controls use z-index up to 1000, well above the
+     filter dropdowns' z-index: 10. Without a stacking context here, those
+     values compare directly against page content instead of staying
+     contained to the map, so the map painted on top of open dropdowns.
+     isolation creates that stacking context without an arbitrary z-index
+     number to out-bid. */
+  isolation: isolate;
 }
 
 .map-container .leaflet-container {
