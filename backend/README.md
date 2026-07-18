@@ -73,7 +73,7 @@ Filters (`commodity`, `region`, `stage`, `site_type`) accept multiple values by 
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/health` | Liveness check |
-| GET | `/api/sites` | Paginated list. Query params: `commodity`, `region`, `stage`, `site_type` (each repeatable), `search`, `page`, `page_size` |
+| GET | `/api/sites` | Paginated list. Query params: `commodity`, `region`, `stage`, `site_type` (each repeatable), `search`, `sort` (allowlisted column, prefix `-` for descending, e.g. `-stage`; invalid values return 422), `page`, `page_size` |
 | GET | `/api/sites/{site_code}` | Single site detail; 404 if not found |
 | GET | `/api/kpis` | Portfolio totals + breakdowns by stage/site type/commodity/region. Same filter params as `/api/sites` (minus `search`) |
 | GET | `/api/meta/filters` | Distinct values for each filterable field, for populating dropdowns |
