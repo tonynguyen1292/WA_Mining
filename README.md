@@ -168,6 +168,10 @@ The PostgreSQL database (`wa_mining`) is the source of truth for the analytical 
 - **Jira** — active backlog and sprint tracking (see *Further Reading*)
 - **Notion** — early-stage planning docs, superseded by the Jira backlog (see *Further Reading*)
 
+## How This Was Built
+
+This is a solo project, built with Claude (Anthropic's AI coding assistant) as a pair-programming tool for scaffolding, refactoring, and documentation drafts — you'll see it credited as a co-author in the commit history. The parts that matter are mine: the problem framing, the site-vs-project grain decision, the data-cleaning business rules, the API and schema design, and every trade-off documented in *Key Engineering Decisions* below. I treat AI assistance the way I'd treat any power tool — it speeds up the typing, not the thinking — and I can walk through any file in this repo and explain why it looks the way it does.
+
 ## Repository Structure
 
 ```
