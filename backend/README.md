@@ -24,8 +24,12 @@ backend/
 │   │   └── portfolio_service.py  # filtering + aggregation query logic
 │   └── db/
 │       └── seed.py             # loads + cleans the CSV into `sites`
+├── tests/
+│   ├── conftest.py             # in-memory SQLite fixtures + TestClient
+│   ├── test_portfolio_service.py  # sort/filter/tiebreaker/NULL-handling logic
+│   └── test_sites_routes.py    # /api/sites HTTP-layer behavior (422s, filters, 404s)
 ├── requirements.txt
-├── requirements-dev.txt        # + ruff, for CI/local linting
+├── requirements-dev.txt        # + ruff, pytest, httpx, for CI/local linting + testing
 ├── Dockerfile
 ├── .dockerignore
 └── .env.example
@@ -82,11 +86,25 @@ Filters (`commodity`, `region`, `stage`, `site_type`) accept multiple values by 
 
 ```
 pip install -r requirements-dev.txt
-ruff check app
+ruff check app tests
 ```
 
 Runs in CI on every push/PR (`.github/workflows/ci.yml`), alongside a `python -m compileall` check.
 
+## Testing
+
+```
+pip install -r requirements-dev.txt
+pytest
+```
+
+Tests run against an in-memory SQLite database, not a real Postgres — `conftest.py` seeds a small, hand-picked set of `Site` rows (including a NULL `stage` and a duplicate-`stage` pair) via the ORM directly, and pins the engine to a single connection with `poolclass=StaticPool` (without it, each connection checkout opens a *new*, empty in-memory database, since SQLite's `:memory:` databases are per-connection, not per-engine — a real failure mode hit while building this, not a hypothetical one). SQLite is a deliberate choice: the logic under test (filtering, sorting, tiebreaking, `NULLS LAST` ordering) is plain SQL that behaves identically on both databases, so a real Postgres container would only add setup time, not coverage.
+
+- `test_portfolio_service.py` — `resolve_sort`'s allowlist/parsing, and `list_sites`'s sort direction, `NULLS LAST` on both directions, the `site_code` tiebreaker's determinism across repeated calls, and filter composition (single value, multiple values as OR, multiple fields as AND, free-text search)
+- `test_sites_routes.py` — the HTTP layer on top: does an invalid `sort` actually come back as 422 (not 500), do query params reach the service layer correctly, does an unknown `site_code` 404
+
+Runs in CI alongside linting. Not exhaustive — `/api/kpis` and `/api/meta/filters` have no tests yet.
+
 ## Known scope limits
 
-No auth, no write endpoints beyond the seed script, no automated tests yet (see the root README's Future Improvements).
+No auth, no write endpoints beyond the seed script.

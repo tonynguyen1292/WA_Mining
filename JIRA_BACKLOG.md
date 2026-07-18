@@ -62,8 +62,11 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 - Story: TLS + custom domain (e.g. Let's Encrypt via certbot in the nginx container)
 - Story: Automated CD — deploy to EC2 on push to `main`, instead of the current manual runbook
 - ~~Story: URL-synced filters and pagination, so filtered views are shareable links~~ — **done, not yet reflected in the live Jira board.** Shipped in the app: `/sites` (filters + page + sort) and `/map` (filters) both read/write their state to the URL query string. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) for the design writeup. This board entry should be moved to Done in Jira to match.
-- Story: Automated test suite — backend (pytest) and frontend (component/integration tests); CI currently only lints/builds
+- ~~Story: Automated test suite — backend (pytest) and frontend (component/integration tests); CI currently only lints/builds~~ — **done, not yet reflected in the live Jira board.** A starter suite shipped: 23 backend tests (pytest, in-memory SQLite) covering sort/filter logic and the `/api/sites` route, 24 frontend tests (Vitest + RTL) covering `urlFilters` and `SitesTable`'s sort-cycle, both now required CI steps. Not exhaustive -- see WA_MINING_PROJECT_PLAN.md's platform roadmap for what's still uncovered. This board entry should be moved to Done in Jira to match.
 - Story: Path to managed infrastructure if traffic grows — RDS instead of containerized Postgres, horizontal scaling
+
+**Epic: Product Polish**
+- ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — **done, not yet reflected in the live Jira board.** Shipped as a new, out-of-backlog feature (not originally scoped in this file) -- see WA_MINING_PROJECT_PLAN.md section 1.9. This board entry should be added and moved to Done in Jira to match.
 
 ## How this got into Jira
 

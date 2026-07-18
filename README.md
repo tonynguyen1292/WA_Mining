@@ -86,6 +86,7 @@ Open http://localhost:5173 — the Dashboard should load with KPI cards (421 tot
 - **Sites** in the nav bar → a filterable, sortable, paginated table of all 421 sites (filters/sort/page are synced to the URL, so the link is shareable)
 - **Map** in the nav bar → all matching sites plotted on a map, colored by stage, with the same filters
 - Click any site → its full detail page
+- Press **Ctrl+K** (or **⌘K**) anywhere, or click **Search sites** in the header → a global command palette; type to search, ↑/↓ to move, Enter to open a site directly
 
 ### Troubleshooting
 
@@ -95,6 +96,18 @@ Open http://localhost:5173 — the Dashboard should load with KPI cards (421 tot
 | Backend starts but `/api/sites` returns an empty list | Seed step (Step 3) hasn't been run yet, or hasn't finished |
 | Frontend loads but shows no data / network errors in console | Backend isn't running, or `frontend/.env`'s `VITE_API_BASE_URL` doesn't match where the API is actually listening |
 | `docker compose exec backend python -m app.db.seed` can't find the CSV | You're not running it from the repo root, or `DATABASES/raw/Major_Resource_Projects.csv` isn't present — see `DATABASES/README_database.md` |
+
+### Running the tests
+
+```
+# backend (from backend/, with requirements-dev.txt installed)
+pytest
+
+# frontend (from frontend/)
+npm run test -- --run
+```
+
+Both run in CI on every push/PR to `main`. See `backend/README.md` and `frontend/README.md` for what each suite actually covers.
 
 ### Key endpoints
 
@@ -121,7 +134,7 @@ Differences from the dev compose file: the backend runs without `--reload` and *
 
 ### CI
 
-`.github/workflows/ci.yml` runs on every push/PR to `main`: backend lint (`ruff`) + compile check, and frontend typecheck + build (`tsc -b && vite build`). Both must pass before merging.
+`.github/workflows/ci.yml` runs on every push/PR to `main`: backend lint (`ruff`) + compile check + tests (`pytest`), and frontend tests (`vitest`) + typecheck + build (`tsc -b && vite build`). All must pass before merging.
 
 ### Cloud Deployment (AWS)
 
@@ -161,8 +174,10 @@ The PostgreSQL database (`wa_mining`) is the source of truth for the analytical 
 - **React + TypeScript + Vite** — dashboard, sites explorer, map, and site detail pages (`frontend/`)
 - **Recharts** — portfolio breakdown charts
 - **Leaflet + react-leaflet** — the map view (free OpenStreetMap tiles, no API key)
+- **pytest** — backend tests, against an in-memory SQLite DB (`backend/tests/`)
+- **Vitest + React Testing Library** — frontend tests (`frontend/src/**/*.test.ts(x)`)
 - **Docker Compose** — local dev (`docker-compose.yml`) and a production-like build (`docker-compose.prod.yml`, nginx-served frontend)
-- **GitHub Actions** — CI: backend lint/compile, frontend typecheck/build
+- **GitHub Actions** — CI: backend lint/compile/test, frontend test/typecheck/build
 - **Power BI + DAX** — dashboard and interactive reporting (legacy/reference reporting surface)
 - **Git / GitHub** — version control and documentation
 - **Jira** — active backlog and sprint tracking (see *Further Reading*)
@@ -185,7 +200,7 @@ WA_Mining/
 ├── .gitignore
 ├── docker-compose.yml                 # Postgres + backend, local dev (hot reload)
 ├── docker-compose.prod.yml            # full stack, production-like build (nginx frontend)
-├── .github/workflows/ci.yml           # backend lint/compile + frontend typecheck/build
+├── .github/workflows/ci.yml           # backend lint/compile/test + frontend test/typecheck/build
 ├── image.png                          # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── image-1.png                        # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── backend/                           # FastAPI app (Phase 1-2: API + DB seed pipeline)
@@ -197,20 +212,22 @@ WA_Mining/
 │   │   ├── api/routes/                # health, sites, kpis, meta endpoints
 │   │   ├── services/                  # query logic (filters, KPI aggregation)
 │   │   └── db/seed.py                 # loads + cleans the CSV into `sites`
+│   ├── tests/                         # pytest: sort/filter logic + /api/sites route behavior
 │   ├── requirements.txt
-│   ├── requirements-dev.txt           # + ruff, for CI/local linting
+│   ├── requirements-dev.txt           # + ruff, pytest, httpx, for CI/local linting + testing
 │   ├── Dockerfile
 │   ├── .dockerignore
 │   ├── .env.example
 │   └── README.md                      # backend-specific setup, structure, endpoints
 ├── frontend/                          # React + TypeScript app (Phase 3)
 │   ├── src/
-│   │   ├── main.tsx, App.tsx          # entrypoint, routing, nav
+│   │   ├── main.tsx, App.tsx          # entrypoint, routing, nav, command palette hook-in
 │   │   ├── api/client.ts              # typed fetch wrapper over the backend API
 │   │   ├── pages/                     # DashboardPage, SitesPage, SiteDetailPage, MapPage
-│   │   ├── components/                # FilterBar, KpiCard, SitesTable, SitesMap, charts/
+│   │   ├── components/                # FilterBar, KpiCard, SitesTable, SitesMap, CommandPalette, charts/
 │   │   ├── hooks/useDebouncedValue.ts
 │   │   ├── utils/urlFilters.ts        # parse/serialize filters+page+sort <-> URL query params
+│   │   ├── test/setup.ts              # vitest + jest-dom setup
 │   │   └── types/site.ts
 │   ├── package.json
 │   ├── Dockerfile                     # multi-stage: build (node) -> serve (nginx)
@@ -308,7 +325,7 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 The full, current roadmap — delivered features, what's next and why, and the platform/infra backlog — lives in **[WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md)**. The notes below are narrower, code-level items worth keeping close to the code they describe:
 
 - Not yet covered by `docker-compose.prod.yml` or the AWS deployment: TLS/custom domain, horizontal scaling, and full CD (CI currently only lints/builds — deployment is manual; see [Cloud Deployment (AWS)](#cloud-deployment-aws)).
-- No automated tests yet (backend or frontend) — CI currently catches lint/type/compile errors, not behavioral regressions.
+- Test coverage is a starter set, not exhaustive — `backend/tests/` covers sort/filter logic and the `/api/sites` route; frontend covers `urlFilters` and `SitesTable`'s sort cycle. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct tests.
 - `backend/app/models/site.py` adds `title` and `short_title` to the original `SQL/02` clean-table schema (present in the raw CSV/`staging_sites` but previously dropped) — needed as the human-readable site name for any UI.
 - Reconcile `DATABASES/README_database.md` (says the CSV isn't stored in the repo) with the fact that a snapshot currently is — either remove the tracked CSV (`.gitignore` now correctly excludes future changes to it) or update the doc to reflect that a snapshot is intentionally kept.
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql` itself still only buckets 4 of 6 stages — left as-is since that file is kept for reference/lineage, not actively used by the app.

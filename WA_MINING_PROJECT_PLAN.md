@@ -67,6 +67,20 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - [x] `api/client.ts` now surfaces the backend's actual validation message on HTTP 422 (e.g. an invalid `?sort=` value hand-typed into the URL) instead of a generic "is the API running?" — a failure mode that became reachable by real users once `sort` was URL-editable, not just UI-driven
 - [x] Shared parsing/serialization in `frontend/src/utils/urlFilters.ts`, used by both `SitesPage` and `MapPage`
 
+### 1.8 Automated test suite — ✅ Done (2026-07-18)
+**Why:** Explicitly the project's most-cited gap (README's Future Improvements, this file's own platform roadmap, and the JIRA backlog all called it out) — CI caught lint/type/compile errors but nothing behavioral, on top of a growing amount of filter/sort/pagination logic that had zero coverage.
+- [x] Backend (`backend/tests/`, pytest): an in-memory SQLite DB (pinned to a single connection via `StaticPool` -- otherwise each pool checkout opens a *new*, empty in-memory database) seeded with a small, hand-picked fixture set, covering `resolve_sort`'s allowlist/parsing, `list_sites`'s sort/tiebreaker/NULL-handling/filter-composition logic, and the `/api/sites` route's 422-on-invalid-sort behavior end-to-end
+- [x] Frontend (`frontend/src/**/*.test.ts(x)`, Vitest + React Testing Library): `urlFilters.ts`'s parse/serialize/round-trip behavior, and `SitesTable`'s header click-cycle (ascending → descending → ascending, and starting fresh on a newly-clicked column)
+- [x] Both wired into CI (`.github/workflows/ci.yml`) as a required step, not just something that exists locally — a test suite nobody runs isn't one
+
+### 1.9 Command palette / global search — ✅ Done (2026-07-18)
+**Why:** Chosen alongside the test suite as a same-day-safe, high-visibility feature -- purely additive (new component, one small `App.tsx` hook-in), reuses the existing `/api/sites?search=` endpoint with no backend changes, and reads as UX polish in the first 30 seconds of a live click-through.
+- [x] `Ctrl`/`Cmd`+`K` opens a global search modal from any route (`frontend/src/components/CommandPalette.tsx`, mounted once in `App.tsx`); a "Search sites" button in the header is the mouse-accessible, discoverable entry point for the same action
+- [x] Debounced search (150ms -- snappier than the 300ms filter-bar debounce, since instant feedback is the point of the feature) against up to 8 results
+- [x] Full keyboard control: ↑/↓ to move the active result, Enter to navigate to that site's detail page, Escape or a backdrop click to close
+- [x] Errors are logged to the console with a `[CommandPalette]` tag and shown inline, rather than failing silently
+- [x] One real bug fixed during build: focus-on-open originally used a ref + `requestAnimationFrame`, which proved unreliable; switched to the `autoFocus` prop, which is the correct tool here since the `<input>` is genuinely unmounted/remounted each time the palette opens
+
 ---
 
 ## 2. Next up (approved priority order)
@@ -92,7 +106,7 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 Carried over from the README's Future Improvements, organized here as actionable items rather than a flat list:
 
 - 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials.
-- 💡 **Automated test suite** — backend (pytest) and frontend (component/integration tests). CI currently only catches lint/type/compile errors, not behavioral regressions — a real gap given how much filter/sort/pagination logic now lives in the frontend.
+- 💡 **Expand test coverage** — section 1.8's suite is a focused starter set (sort/filter logic, one component), not exhaustive. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct coverage.
 - 💡 **TLS + custom domain** — e.g. Let's Encrypt via certbot in the nginx container.
 - 💡 **Automated CD** — deploy to EC2 on push to `main`, instead of the current manual runbook.
 - 💡 **Bundle size** — `vite build` warns on a >500kB chunk (Leaflet + deps); consider code-splitting the map route with `React.lazy` so `/sites` and `/` don't pay for Leaflet on first load.
