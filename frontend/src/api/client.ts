@@ -16,6 +16,23 @@ const API_BASE_URL =
 
 type QueryValue = string | number | string[] | undefined;
 
+// Carries the HTTP status so callers can tell "the server rejected this
+// specific request" (422, a bad `sort`/filter value) apart from "the API is
+// unreachable" -- those need different messages, and a plain Error loses
+// the distinction. Once `sort` became URL-editable rather than purely
+// UI-driven (via header clicks that only ever produce valid values), a
+// hand-edited `?sort=bogus` became a request a real user can trigger, so
+// this needed to surface the backend's actual validation message instead of
+// a generic "is the API running?" that would be actively misleading here.
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function apiGet<T>(path: string, params?: Record<string, QueryValue>): Promise<T> {
   const url = new URL(path, API_BASE_URL);
   if (params) {
@@ -33,7 +50,9 @@ async function apiGet<T>(path: string, params?: Record<string, QueryValue>): Pro
 
   const res = await fetch(url.toString());
   if (!res.ok) {
-    throw new Error(`${path} failed with ${res.status}`);
+    const body = await res.json().catch(() => null);
+    const detail = typeof body?.detail === "string" ? body.detail : `${path} failed with ${res.status}`;
+    throw new ApiError(res.status, detail);
   }
   return (await res.json()) as T;
 }
