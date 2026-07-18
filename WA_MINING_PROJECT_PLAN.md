@@ -1,0 +1,114 @@
+# WA Mining Project Plan
+
+This is the current, git-tracked feature roadmap for the project — what's been built, what's next, and why, in priority order. It replaces the original **[7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202)** Notion document from when this was scoped as a single-sprint BA/analytics portfolio piece. That framing no longer matches reality: the project grew into a full-stack app (FastAPI + PostgreSQL + React) with its own live Jira backlog ([JIRA_BACKLOG.md](JIRA_BACKLOG.md), WMDP2-1 through WMDP2-41), and a Notion page that can't be updated from this repo was never going to stay in sync with that. This file can.
+
+Relationship to the other planning docs, since there are now three and it's worth being explicit about which one to trust for what:
+- **This file** — the feature-level roadmap: what's done, what's next, and the engineering reasoning behind sequencing. Start here.
+- **[JIRA_BACKLOG.md](JIRA_BACKLOG.md)** — the sprint/ticket-level breakdown of the same work, mirroring the live WMDP2 Jira board. Use it for day-to-day task tracking.
+- **[README.md](README.md)** — how to run the app, architecture, and key engineering decisions already made. Use it to get the app running or understand *why* something is built the way it is.
+
+## How to read this document
+
+Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**. Status values:
+- ✅ **Done** — shipped and verified (see the file/PR it landed in)
+- 🔜 **Next** — the next thing being built
+- 📋 **Planned** — approved and sequenced, not yet started
+- 💡 **Idea** — worth doing, not yet sequenced
+
+---
+
+## 1. Delivered
+
+### 1.1 Full-stack platform foundation — ✅ Done
+**Why:** The project started as a SQL pipeline + static Power BI dashboard. Turning it into a live, filterable app required a real backend and frontend, not just a reporting layer.
+- [x] FastAPI backend: `/health`, `/api/sites`, `/api/kpis`, `/api/meta/filters` (`backend/app/`)
+- [x] Database seed pipeline porting `SQL/01`–`03`'s cleaning rules into `backend/app/db/seed.py`
+- [x] React + TypeScript + Vite frontend: Dashboard, Sites explorer, Site detail (`frontend/src/`)
+- [x] Docker Compose for local dev (`docker-compose.yml`)
+
+### 1.2 Production readiness pass — ✅ Done
+**Why:** A working dev setup isn't a deployable one — needed a production build path and a safety net against regressions before adding more features.
+- [x] Loading/empty/error states across Dashboard and Sites
+- [x] Responsive layout pass (mobile/tablet breakpoints)
+- [x] Production Docker build: multi-stage frontend (`node` → `nginx`), `docker-compose.prod.yml`
+- [x] CI pipeline (`.github/workflows/ci.yml`): backend lint (`ruff`) + compile check, frontend typecheck + build
+
+### 1.3 Multi-select filtering — ✅ Done
+**Why:** A single-value filter per field (one commodity, one region at a time) doesn't match how someone actually explores a 421-site portfolio — comparing "Gold and Nickel across Goldfields-Esperance and Pilbara" needs multi-value filters.
+- [x] Backend: repeated query params (`?commodity=Gold&commodity=Nickel`) mapped to SQLAlchemy `.in_()`
+- [x] Frontend: `MultiSelect` checkbox-dropdown component wired into `FilterBar`
+- [x] Seed script validation: row-count floor, duplicate `SITE_CODE` check, post-insert count verification
+
+### 1.4 AWS deployment hardening (not yet executed) — ✅ Done (runbook), ⏸ execution blocked
+**Why:** A Docker Compose stack that only runs on a laptop isn't a deployment. Needed the stack hardened for a public host and a documented, cost-gated path to actually put it on one.
+- [x] nginx reverse proxy for `/api`, `/health`, `/docs` (`frontend/nginx.conf`)
+- [x] Backend's public port mapping removed in `docker-compose.prod.yml`
+- [x] Deployment runbook with an explicit cost/billing gate (`DEPLOYMENT.md`)
+- [ ] **Blocked:** actual EC2 provisioning and deploy — requires AWS credentials this environment doesn't have configured. Runbook is ready to execute whenever those are available.
+
+### 1.5 Sortable table columns — ✅ Done (2026-07-18)
+**Why:** Users need to reorder the Sites table (e.g. "biggest to smallest by stage") without hand-editing filters — a standard table affordance the app was missing.
+- [x] Backend: allowlisted `sort` query param (`SORTABLE_COLUMNS` in `backend/app/services/portfolio_service.py`), rejects unknown fields with HTTP 422 rather than passing a client string into `ORDER BY`
+- [x] Stable tiebreaker (`site_code` ascending, always appended) so low-cardinality columns (stage, site_type) don't produce nondeterministic pagination
+- [x] Explicit `.nulls_last()` on both directions, since Postgres's default NULL ordering flips with sort direction
+- [x] Frontend: clickable column headers (`SitesTable.tsx`) with a ▲/▼ indicator, toggling asc/desc, bypassing the filter debounce (a header click is a discrete action, not a keystroke burst)
+
+### 1.6 Map view — ✅ Done
+**Why:** Approved as a stretch feature ahead of its original place in the sequence — a geographic view of the portfolio is a natural, high-value complement to the tabular Sites view, and Leaflet + free OSM tiles made it cheap to build.
+- [x] `/map` route: all matching sites plotted via `react-leaflet`, colored by stage, WA-centered default view
+- [x] Popup per site (title, stage, commodity, region, link to detail page)
+- [x] Fixed: filter dropdowns rendering behind the map (`isolation: isolate` on `.map-container` — Leaflet's internal z-index values otherwise escaped its stacking context and beat the dropdown's)
+
+### 1.7 URL-synced filters, pagination, and sort — ✅ Done (2026-07-18)
+**Why:** Filtered/sorted/paginated views weren't shareable or bookmarkable, and a page reload silently discarded all of it — flagged as a known gap in the README's Future Improvements since the map view shipped.
+- [x] `/sites` (filters + page + sort) and `/map` (filters) read their initial state from the URL on mount, supporting deep links and reloads
+- [x] State → URL sync uses `history.replace`, not `push`, so rapid filter/pagination changes don't flood browser history — Back returns to the last real navigation, not the last keystroke
+- [x] URL → state sync (via a "did I just write this" ref guard) correctly restores state on browser back/forward, without the two directions fighting each other
+- [x] `api/client.ts` now surfaces the backend's actual validation message on HTTP 422 (e.g. an invalid `?sort=` value hand-typed into the URL) instead of a generic "is the API running?" — a failure mode that became reachable by real users once `sort` was URL-editable, not just UI-driven
+- [x] Shared parsing/serialization in `frontend/src/utils/urlFilters.ts`, used by both `SitesPage` and `MapPage`
+
+---
+
+## 2. Next up (approved priority order)
+
+### 2.1 CSV export of filtered view — 🔜 Next
+**Why:** Once someone has narrowed the portfolio down to exactly what they care about (e.g. "all Operating gold mines in the Goldfields"), the natural next step is taking that subset out of the app — into a spreadsheet, an email, a report attachment.
+- [ ] Decide server-side vs. client-side generation. Leaning server-side: `GET /api/sites/export?…same filters…&sort=…` returning `text/csv`, so the export reflects the *full* filtered result set (not just the current page of 25), which a client-side "export what's in the DOM" approach can't do without a separate unpaginated fetch anyway
+- [ ] Reuse `_apply_filters` + `resolve_sort` from `portfolio_service.py` — the export should be filtered/sorted identically to what's on screen, not a separate code path that can drift
+- [ ] CSV quoting/escaping for fields containing commas or quotes (project titles do have commas, e.g. "Boorara / Horizon")
+- [ ] Frontend: an "Export CSV" button on `/sites` that builds a download URL from current `filters`/`sort` (already centralized via `urlFilters.ts`) and triggers a browser download
+- [ ] Decide on a row cap or streaming response if the full unfiltered export (421 rows) turns out to need one — it almost certainly doesn't at this data size, but worth a one-line decision note either way
+
+### 2.2 Related sites by project — 📋 Planned
+**Why:** The data model's core insight (one project can have multiple sites — mine, processing plant, port) isn't visible anywhere in the UI yet. A site detail page for "Boorara Open Pit" doesn't show that "Boorara / Horizon" also has other sites.
+- [ ] Backend: either a new `GET /api/sites/{site_code}/related` endpoint, or expose `project_code` filtering on the existing `/api/sites` list endpoint and let the frontend reuse it
+- [ ] Frontend: a "Related sites in this project" section on `SiteDetailPage.tsx`, linking to each sibling site
+- [ ] Edge case: a project with only one site (most of them) should render nothing extra, not an empty "Related sites" heading
+
+---
+
+## 3. Platform / infrastructure roadmap
+
+Carried over from the README's Future Improvements, organized here as actionable items rather than a flat list:
+
+- 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials.
+- 💡 **Automated test suite** — backend (pytest) and frontend (component/integration tests). CI currently only catches lint/type/compile errors, not behavioral regressions — a real gap given how much filter/sort/pagination logic now lives in the frontend.
+- 💡 **TLS + custom domain** — e.g. Let's Encrypt via certbot in the nginx container.
+- 💡 **Automated CD** — deploy to EC2 on push to `main`, instead of the current manual runbook.
+- 💡 **Bundle size** — `vite build` warns on a >500kB chunk (Leaflet + deps); consider code-splitting the map route with `React.lazy` so `/sites` and `/` don't pay for Leaflet on first load.
+- 💡 **Path to managed infrastructure** if traffic ever justified it — RDS instead of containerized Postgres, horizontal scaling.
+
+### Repo cleanup (small, no feature value, but noted so they don't get forgotten)
+- Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
+- Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root — superseded by `POWER_BI/screenshots/`.
+- Reconcile `DATABASES/README_database.md` (says the CSV isn't stored in the repo) with the fact that a snapshot currently is committed under `DATABASES/raw/`.
+- `SQL/05_portfolio_summary.sql` only buckets 4 of 6 `STAGE` values — already fixed in the app's own `/api/kpis` (dynamic `GROUP BY`), left as-is in the legacy SQL file since it's reference/lineage only, not executed by the app.
+
+---
+
+## 4. Superseded planning docs (historical, do not use for current status)
+
+These were the original planning surface, from before this grew past a single-sprint scope. Kept linked from the README for the original framing, not for anything current:
+- [Notion Case Study](https://www.notion.so/WA-Mining-Operations-Dashboard-Business-Analyst-Portfolio-Project-35fd7e4273f0809ba6cecc2f77d9aa5f)
+- [7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202) — superseded by this file
+- [Portfolio Instructions](https://www.notion.so/WA-Mining-Portfolio-Instructions-363d7e4273f08052844def6827925a8c)

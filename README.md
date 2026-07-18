@@ -100,7 +100,7 @@ Open http://localhost:5173 — the Dashboard should load with KPI cards (421 tot
 | Endpoint | Purpose |
 |---|---|
 | `GET /health` | Liveness check |
-| `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type` (each repeatable for multi-select, e.g. `?region=Pilbara&region=Kimberley`), `search` |
+| `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type` (each repeatable for multi-select, e.g. `?region=Pilbara&region=Kimberley`), `search`; sort with `sort` (e.g. `?sort=-stage`, allowlisted, invalid values return 422) |
 | `GET /api/sites/{site_code}` | Single site detail |
 | `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
 | `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |
@@ -173,6 +173,7 @@ WA_Mining/
 ├── README.md
 ├── data_dictionary.md
 ├── DEPLOYMENT.md                      # AWS EC2 deployment runbook (not yet executed)
+├── WA_MINING_PROJECT_PLAN.md          # current feature roadmap: delivered, next up, and why
 ├── JIRA_BACKLOG.md                    # Epic/Story/Subtask backlog plan, live in Jira as WMDP2-1..41
 ├── jira_backlog_import.csv            # same plan, formatted for Jira's CSV importer
 ├── .gitignore
@@ -200,9 +201,10 @@ WA_Mining/
 │   ├── src/
 │   │   ├── main.tsx, App.tsx          # entrypoint, routing, nav
 │   │   ├── api/client.ts              # typed fetch wrapper over the backend API
-│   │   ├── pages/                     # DashboardPage, SitesPage, SiteDetailPage
-│   │   ├── components/                # FilterBar, KpiCard, SitesTable, charts/
+│   │   ├── pages/                     # DashboardPage, SitesPage, SiteDetailPage, MapPage
+│   │   ├── components/                # FilterBar, KpiCard, SitesTable, SitesMap, charts/
 │   │   ├── hooks/useDebouncedValue.ts
+│   │   ├── utils/urlFilters.ts        # parse/serialize filters+page+sort <-> URL query params
 │   │   └── types/site.ts
 │   ├── package.json
 │   ├── Dockerfile                     # multi-stage: build (node) -> serve (nginx)
@@ -297,8 +299,9 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 
 ## Future Improvements
 
+The full, current roadmap — delivered features, what's next and why, and the platform/infra backlog — lives in **[WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md)**. The notes below are narrower, code-level items worth keeping close to the code they describe:
+
 - Not yet covered by `docker-compose.prod.yml` or the AWS deployment: TLS/custom domain, horizontal scaling, and full CD (CI currently only lints/builds — deployment is manual; see [Cloud Deployment (AWS)](#cloud-deployment-aws)).
-- Filter state and pagination aren't synced to the URL, so filtered/paginated links aren't shareable.
 - No automated tests yet (backend or frontend) — CI currently catches lint/type/compile errors, not behavioral regressions.
 - `backend/app/models/site.py` adds `title` and `short_title` to the original `SQL/02` clean-table schema (present in the raw CSV/`staging_sites` but previously dropped) — needed as the human-readable site name for any UI.
 - Reconcile `DATABASES/README_database.md` (says the CSV isn't stored in the repo) with the fact that a snapshot currently is — either remove the tracked CSV (`.gitignore` now correctly excludes future changes to it) or update the doc to reflect that a snapshot is intentionally kept.
@@ -310,14 +313,13 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 
 - **[prototypes/unity-shift-supervisor-demo/](prototypes/unity-shift-supervisor-demo/)** — a small, separate Unity/C# prototype: a single-scene 3D view of a handful of the same mining sites, colored by stage, clickable for details. Built to explore what a spatial/XR-adjacent visualization direction could look like, and to demonstrate picking up the Unity/C# stack. **Not part of the analytics pipeline or the FastAPI/React app** — no shared code, no networking between them, different tech stack entirely. See its own README for exact scope (deliberately no backend, auth, multiplayer, or headset integration).
 
-## Further Reading (optional, external)
+## Further Reading
 
-Not required to run or understand the app or pipeline — external context for anyone tracking the project's progress or its earlier framing.
+**Current — start here for project status:**
+- **[WA Mining Project Plan](WA_MINING_PROJECT_PLAN.md)** — the current feature roadmap: what's delivered, what's next, and the reasoning behind the sequencing. Replaces the old Notion "7-Day Project Plan" below, which can't be kept in sync from this repo.
+- [JIRA_BACKLOG.md](JIRA_BACKLOG.md) — the sprint/ticket-level breakdown of the same roadmap, mirroring the live [WMDP2 Jira board](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/boards/73/backlog) (41 issues: 5 Epics, 19 Stories, 17 Subtasks, across 3 sprints).
 
-**Current:**
-- [WMDP2 — Jira Backlog](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/boards/73/backlog) — the live sprint board (41 issues: 5 Epics, 19 Stories, 17 Subtasks, across 3 sprints). [JIRA_BACKLOG.md](JIRA_BACKLOG.md) explains how it's organized and how it got there.
-
-**Historical** — planning docs from when this was scoped as a single-sprint BA/analytics portfolio piece, before it grew into the full-stack app described above. Superseded by this README and the Jira backlog for anything current, kept for the original framing:
+**Historical (external, optional)** — planning docs from when this was scoped as a single-sprint BA/analytics portfolio piece, before it grew into the full-stack app described above. Superseded by the two docs above for anything current, kept only for the original framing:
 - [Notion Case Study](https://www.notion.so/WA-Mining-Operations-Dashboard-Business-Analyst-Portfolio-Project-35fd7e4273f0809ba6cecc2f77d9aa5f)
-- [7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202)
+- [7-Day Project Plan](https://www.notion.so/7-day-Project-Mining-Plan-35fd7e4273f08090aa5ad18388ff8202) — superseded by [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md)
 - [Portfolio Instructions](https://www.notion.so/WA-Mining-Portfolio-Instructions-363d7e4273f08052844def6827925a8c)

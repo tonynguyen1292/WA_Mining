@@ -61,7 +61,7 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 **Epic: Post-Deployment Hardening**
 - Story: TLS + custom domain (e.g. Let's Encrypt via certbot in the nginx container)
 - Story: Automated CD — deploy to EC2 on push to `main`, instead of the current manual runbook
-- Story: URL-synced filters and pagination, so filtered views are shareable links
+- ~~Story: URL-synced filters and pagination, so filtered views are shareable links~~ — **done, not yet reflected in the live Jira board.** Shipped in the app: `/sites` (filters + page + sort) and `/map` (filters) both read/write their state to the URL query string. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) for the design writeup. This board entry should be moved to Done in Jira to match.
 - Story: Automated test suite — backend (pytest) and frontend (component/integration tests); CI currently only lints/builds
 - Story: Path to managed infrastructure if traffic grows — RDS instead of containerized Postgres, horizontal scaling
 
