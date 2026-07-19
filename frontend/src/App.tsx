@@ -15,9 +15,17 @@ export default function App() {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       const isSearchShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
-      if (!isSearchShortcut) return;
-      event.preventDefault(); // otherwise this doubles as the browser's own address-bar search shortcut
-      setIsPaletteOpen((open) => !open);
+      if (isSearchShortcut) {
+        event.preventDefault(); // otherwise this doubles as the browser's own address-bar search shortcut
+        setIsPaletteOpen((open) => !open);
+      } else if (event.key === "Escape") {
+        // Escape is handled here at the window level, not only inside the
+        // palette: the palette's own keydown handler can't fire when focus
+        // has drifted to <body> (e.g. after clicking its non-focusable hint
+        // bar), and a modal whose Escape only sometimes works reads as
+        // broken. Closing when already closed is a no-op.
+        setIsPaletteOpen(false);
+      }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -52,7 +60,7 @@ export default function App() {
         </Routes>
       </main>
 
-      <CommandPalette isOpen={isPaletteOpen} onClose={() => setIsPaletteOpen(false)} />
+      {isPaletteOpen && <CommandPalette onClose={() => setIsPaletteOpen(false)} />}
     </div>
   );
 }

@@ -13,11 +13,19 @@ const SEARCH_DEBOUNCE_MS = 150;
 const RESULT_LIMIT = 8;
 
 interface CommandPaletteProps {
-  isOpen: boolean;
   onClose: () => void;
 }
 
-export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
+// The parent renders this only while open ({isPaletteOpen && <CommandPalette/>}),
+// so every open starts from a fresh mount: blank query, empty results, and --
+// critically -- a fresh debounce timer. The earlier isOpen-prop version kept
+// the component mounted while hidden, and the debounced query surviving a
+// close/reopen caused a brief re-fetch and flash of the *previous* search's
+// results on reopen (the reset effect cleared `query`, but `debouncedQuery`
+// lagged it by 150ms). Mount-on-open removes that whole class of stale-state
+// bug instead of guarding against it, and it's also exactly the condition
+// that makes the input's `autoFocus` reliable.
+export default function CommandPalette({ onClose }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const [results, setResults] = useState<Site[]>([]);
@@ -26,25 +34,8 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Reset to a clean slate every time the palette opens, rather than
-  // leaving the last search's results showing behind a blank input.
-  // (Focusing the input is handled by `autoFocus` below, not here -- the
-  // early `if (!isOpen) return null` a few lines down means the <input>
-  // element is genuinely unmounted while closed and freshly mounted each
-  // time it opens, which is exactly the condition `autoFocus` is meant
-  // for. A manual ref + requestAnimationFrame did the same job but proved
-  // unreliable: rAF callbacks aren't guaranteed to run before the next
-  // paint in every environment, and autoFocus doesn't have that race.)
   useEffect(() => {
-    if (!isOpen) return;
-    setQuery("");
-    setResults([]);
-    setActiveIndex(0);
-    setError(null);
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen || !debouncedQuery.trim()) {
+    if (!debouncedQuery.trim()) {
       setResults([]);
       return;
     }
@@ -74,7 +65,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
     return () => {
       cancelled = true;
     };
-  }, [debouncedQuery, isOpen]);
+  }, [debouncedQuery]);
 
   function selectResult(site: Site) {
     navigate(`/sites/${site.site_code}`);
@@ -96,8 +87,6 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
       if (site) selectResult(site);
     }
   }
-
-  if (!isOpen) return null;
 
   const trimmedQuery = debouncedQuery.trim();
 
