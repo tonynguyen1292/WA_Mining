@@ -181,7 +181,7 @@ The most-exercised part of this flow is the `/api/sites` ↔ `SitesPage.tsx` rou
 
 ## Getting Started
 
-The project is evolving from a SQL + Power BI analytics project into a runnable full-stack application (FastAPI + PostgreSQL + React). **Phases 1–3 are implemented: backend foundation, database + seed pipeline, and the React frontend.** Component-level detail lives in [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md); this section is the fastest path to a running app.
+The app is a complete, runnable full-stack application (FastAPI + PostgreSQL + React) — the originally planned feature roadmap is fully delivered (see [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) for what shipped and why, in order). Component-level detail lives in [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md); this section is the fastest path to a running app.
 
 ### Prerequisites
 
@@ -303,7 +303,7 @@ WA_Mining/
 │   └── command-palette.png
 ├── image.png                          # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── image-1.png                        # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
-├── backend/                           # FastAPI app (Phase 1-2: API + DB seed pipeline)
+├── backend/                           # FastAPI app: API + DB seed pipeline
 │   ├── app/
 │   │   ├── main.py                    # app entrypoint, router registration
 │   │   ├── core/                      # config, DB engine/session
@@ -319,7 +319,7 @@ WA_Mining/
 │   ├── .dockerignore
 │   ├── .env.example
 │   └── README.md                      # backend-specific setup, structure, endpoints
-├── frontend/                          # React + TypeScript app (Phase 3)
+├── frontend/                          # React + TypeScript app
 │   ├── src/
 │   │   ├── main.tsx, App.tsx          # entrypoint, routing, nav, command palette hook-in
 │   │   ├── api/client.ts              # typed fetch wrapper over the backend API
@@ -418,7 +418,7 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 
 The full, current roadmap — delivered features, what's next and why, and the platform/infra backlog — lives in **[WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md)**. The notes below are narrower, code-level items worth keeping close to the code they describe:
 
-- Not yet covered by `docker-compose.prod.yml` or the AWS deployment: TLS/custom domain, horizontal scaling, and full CD (CI currently only lints/builds — deployment is manual; see [Cloud Deployment (AWS)](#cloud-deployment-aws)).
+- Not yet covered by `docker-compose.prod.yml` or the AWS deployment: TLS/custom domain, horizontal scaling, and full CD (CI lints, tests, and builds, but deployment itself is manual; see [Cloud Deployment (AWS)](#cloud-deployment-aws)).
 - Test coverage is a starter set, not exhaustive — `backend/tests/` covers sort/filter logic and the `/api/sites` route; frontend covers `urlFilters` and `SitesTable`'s sort cycle. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct tests.
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql`'s own `portfolio_summary` rollup table still only buckets 4 of 6 stages — left as-is since that specific table isn't consumed by the app (unlike `01`–`03`'s output, which now is, via `DATABASES/Cleaned_Mining_Data/`).
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.

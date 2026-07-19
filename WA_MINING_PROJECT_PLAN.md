@@ -147,7 +147,7 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 Carried over from the README's Future Improvements, organized here as actionable items rather than a flat list:
 
 - 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials.
-- 💡 **Expand test coverage** — the suite (sections 1.8–1.10: 33 backend + 34 frontend tests) is focused, not exhaustive. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct coverage.
+- 💡 **Expand test coverage** — the suite has grown with every feature (45 backend + 41 frontend tests as of 1.14) but is focused, not exhaustive. Remaining gaps: `/api/meta/filters`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage`. (`/api/kpis`, once on this list, gained direct coverage in 1.13.)
 - 💡 **Pin dev and CI to the same Node major** (`.nvmrc` + `engines`) — the durable guard against the npm 10 vs 11 lockfile-skew CI failure of 2026-07-18.
 - 💡 **TLS + custom domain** — e.g. Let's Encrypt via certbot in the nginx container.
 - 💡 **Automated CD** — deploy to EC2 on push to `main`, instead of the current manual runbook.

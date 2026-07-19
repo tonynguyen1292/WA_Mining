@@ -2,11 +2,11 @@
 
 This is the Epic → Story → Subtask breakdown for the [WMDP2 Jira project](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/summary), organized into sprints, aligned to what's actually in this repository (both what's already built and what's ahead).
 
-**Live in Jira** as WMDP2-1 through WMDP2-41 (5 Epics, 19 Stories, 17 Subtasks), imported via `jira_backlog_import.csv` and organized into three real Sprint objects:
-- **WMDP2 Sprint 1** (Platform Foundation) — WMDP2-6, 7, 8, 9
-- **WMDP2 Sprint 2** (Polish, Production Build & CI + Multi-Select Filtering) — WMDP2-10 through 16
-- **WMDP2 Sprint 3** (AWS Cloud Deployment) — WMDP2-17, 18, 19
-- **Backlog** (unscheduled future work) — WMDP2-20 through 24, correctly left without a sprint
+**Live in Jira** as WMDP2-1..24 (the original import: 5 Epics, 19 Stories, 17 Subtasks) plus WMDP2-59..66 (the Product Polish epic and its stories, added on the board 2026-07-19 as features shipped). Current board shape after the 2026-07-19 reconciliation (see the log below):
+- **WMDP2 Sprint 3** (19 Jul – 2 Aug) — WMDP2-17 (Done) and WMDP2-65 (Done); scope complete, sprint closable
+- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials), WMDP2-20, 21, 24
+- The original Sprint 1/2 objects were deleted during reconciliation — the import's sprint-matching failure had left them as empty, never-started shells while their stories (WMDP2-6..16, all Done) sat outside them
+- Keys 25–41 are the subtasks under stories 6–19; keys 42–58 were consumed by the import incident's duplicate subtasks (created, then deleted — see the note below), which is why the Product Polish epic starts at 59
 
 Note on the import itself: the CSV importer's own Sprint-name matching didn't work (the sprint names in the CSV didn't match any existing sprint), and its Sub-task import ran on a slower deferred path that looked stalled but wasn't — it finished ~20 minutes later and created a duplicate, unparented copy of every subtask. That duplicate set was deleted, and Sprint assignment was done afterward via bulk-edit instead of the CSV. Worth knowing if you re-run a CSV import against this project.
 

@@ -36,8 +36,9 @@ frontend/
 │   ├── utils/
 │   │   ├── urlFilters.ts      # parse/serialize filters+page+sort <-> URL query params, shared by SitesPage and MapPage
 │   │   └── urlFilters.test.ts # parse/serialize/round-trip coverage (vitest)
-│   └── test/
-│       └── setup.ts           # vitest + jest-dom setup, referenced from vite.config.ts
+│   ├── test/
+│   │   └── setup.ts           # vitest + jest-dom setup, referenced from vite.config.ts
+│   └── vite-env.d.ts          # Vite's ambient type declarations (import.meta.env)
 ├── package.json
 ├── vite.config.ts             # also configures vitest (test.environment, setupFiles)
 ├── Dockerfile                 # multi-stage: build (node) -> serve (nginx), for production
