@@ -33,6 +33,12 @@ class BreakdownItem(BaseModel):
     count: int
 
 
+class ProjectBreakdownItem(BaseModel):
+    project_code: str
+    project_title: str | None = None
+    site_count: int
+
+
 class KpiSummary(BaseModel):
     total_sites: int
     total_projects: int
@@ -40,6 +46,8 @@ class KpiSummary(BaseModel):
     by_site_type: list[BreakdownItem]
     by_commodity: list[BreakdownItem]
     by_region: list[BreakdownItem]
+    by_lga: list[BreakdownItem]
+    top_projects: list[ProjectBreakdownItem]
 
 
 class FilterOptions(BaseModel):

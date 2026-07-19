@@ -67,10 +67,14 @@ def _make_sample_sites() -> list[Site]:
             target_group_name="Gold",
             development_region="Wheatbelt",
         ),
+        # Same project as S001 on purpose: the only multi-site project in
+        # the fixture set, so /api/kpis' top_projects has real material
+        # (mirrors the dataset's core grain property -- multiple sites per
+        # project_code).
         Site(
             site_code="S005",
-            project_code="P05",
-            project_title="Echo Project",
+            project_code="P01",
+            project_title="Alpha Project",
             title="Echo Mine",
             site_type="Mine",
             stage="Operating",

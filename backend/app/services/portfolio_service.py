@@ -254,17 +254,42 @@ def get_kpis(
         select(func.count(func.distinct(filtered.c.project_code)))
     ) or 0
 
-    def breakdown(column_name: str) -> list[dict]:
+    def breakdown(column_name: str, limit: int | None = None) -> list[dict]:
         col = filtered.c[column_name]
         stmt = (
             select(col, func.count().label("count"))
             .group_by(col)
             .order_by(func.count().desc())
         )
+        if limit is not None:
+            stmt = stmt.limit(limit)
         return [
             {"label": label or "Unspecified", "count": count}
             for label, count in db.execute(stmt).all()
         ]
+
+    # Projects with the most sites -- surfaces the site-vs-project grain
+    # decision (multiple sites per project_code) that the rest of the
+    # dashboard's per-site counts can't show. HAVING >= 2 because a
+    # "multi-site projects" panel listing single-site projects would just
+    # restate the sites list; secondary ORDER BY project_code keeps ties
+    # deterministic (same reasoning as list_sites' site_code tiebreaker).
+    top_projects_stmt = (
+        select(
+            filtered.c.project_code,
+            filtered.c.project_title,
+            func.count().label("site_count"),
+        )
+        .where(filtered.c.project_code.isnot(None))
+        .group_by(filtered.c.project_code, filtered.c.project_title)
+        .having(func.count() >= 2)
+        .order_by(func.count().desc(), filtered.c.project_code.asc())
+        .limit(8)
+    )
+    top_projects = [
+        {"project_code": code, "project_title": title, "site_count": count}
+        for code, title, count in db.execute(top_projects_stmt).all()
+    ]
 
     return {
         "total_sites": total_sites,
@@ -273,6 +298,11 @@ def get_kpis(
         "by_site_type": breakdown("site_type"),
         "by_commodity": breakdown("target_group_name"),
         "by_region": breakdown("development_region"),
+        # 65 distinct LGAs in the full dataset -- a chart of all of them is
+        # unreadable, so only the top 10 ship; the rest stay queryable via
+        # the sites list, not the dashboard.
+        "by_lga": breakdown("lga_name", limit=10),
+        "top_projects": top_projects,
     }
 
 
