@@ -277,7 +277,7 @@ Both run in CI on every push/PR to `main`. See `backend/README.md` and `frontend
 |---|---|
 | `GET /health` | Liveness check |
 | `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type` (each repeatable for multi-select, e.g. `?region=Pilbara&region=Kimberley`), `search`; sort with `sort` (e.g. `?sort=-stage`, allowlisted, invalid values return 422) |
-| `GET /api/sites/export` | The same filtered+sorted view as a CSV download (full result set, not one page); same `commodity`/`region`/`stage`/`site_type`/`search`/`sort` params |
+| `GET /api/sites/export` | The same filtered+sorted view as a CSV download (full result set, not one page); same `commodity`/`region`/`stage`/`site_type`/`search`/`sort` params. Header row uses the app's own labels ("Local Government Area"), not schema names (`lga_name`) |
 | `GET /api/sites/{site_code}` | Single site detail |
 | `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
 | `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |

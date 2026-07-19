@@ -103,6 +103,13 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - [x] Caught and fixed a `SyntaxWarning` (an unescaped `\c` in a docstring) via `python -W error` before it could reach CI
 - [x] Documentation updated everywhere this touches: root README (System/Workflow Summary diagram, Setup/How to Run, Repository Structure, Key Engineering Decisions, two stale Future Improvements bullets removed), `backend/README.md` (Seeding section, structure tree), and a full rewrite of `DATABASES/README_database.md` (previously inaccurate — said the CSV wasn't stored in the repo when a snapshot already was; now correctly documents both committed files and how to regenerate the cleaned one)
 
+### 1.12 Human-readable CSV export headers — ✅ Done (2026-07-19)
+**Why:** The follow-up round of the 1.11 report resolved the remaining confusion precisely: the exported *values* were clean, but the *header row* still used the database's snake_case attribute names (`lga_name`, `target_group_name`) — and to a spreadsheet user, schema-style headers read as "raw data" even when every value beneath them is clean. The user confirmed the values were fine once the "Shire Of X" prefix format was shown to be their own SQL rule's intended output; what they actually wanted was headers in the app's own vocabulary. Two supporting hardenings came out of the same investigation before the labels: `Cache-Control: no-store` on the export (no cache directives at all previously — the exact gap that could make a server-side data fix look broken client-side), pinned by a regression test.
+- [x] `EXPORT_COLUMN_LABELS` in `portfolio_service.py`: an explicit column→label mapping using the UI's own vocabulary — "Site Code", "Project", "Site Title", "Commodity", "Local Government Area", "Active" — matching the site detail page and table headers, so an exported file reads like the app, not like the schema
+- [x] Model attribute names stay snake_case; only the CSV's header row (presentation) changes — the JSON API is untouched, so no frontend or client-code changes ripple out
+- [x] Tests updated + extended (35 backend total): a completeness guard (`set(EXPORT_COLUMN_LABELS) == set(EXPORT_COLUMNS)`, so adding a column without a label fails in CI instead of KeyErroring at request time), a header-content test asserting `lga_name` is absent and "Local Government Area" present, and the existing escaping/route tests re-keyed to the labels
+- [x] Verified live: `curl` on the running stack shows the labeled header on filtered and unfiltered exports; values unchanged
+
 ---
 
 ## 2. Next up (approved priority order)
