@@ -29,7 +29,7 @@ A PostgreSQL-backed system for Western Australia's public Major Resources Projec
 
 ### The app
 
-**Dashboard** — portfolio-wide KPIs and breakdowns by stage, commodity, and region, live-filtered:
+**Dashboard** — portfolio-wide KPIs and live-filtered breakdowns; chart bars click through to the matching filtered Sites view, the top-10 LGA and multi-site-project panels surface the cleaned `lga_name` data and the site-vs-project grain, and the footer records data provenance:
 
 ![Dashboard](screenshots/dashboard.png)
 
@@ -244,7 +244,7 @@ npm run dev
 
 ### Step 6 — Verify the app
 
-Open http://localhost:5173 — the Dashboard should load with KPI cards (421 total sites, 356 total projects) and three breakdown charts (stage/commodity/region). From there:
+Open http://localhost:5173 — the Dashboard should load with KPI cards (421 total sites, 356 total projects), breakdown charts (stage/commodity/region — click any bar to jump to the matching filtered Sites view — plus top-10 LGAs), a "projects with the most sites" panel, and a data-provenance strip. From there:
 - **Sites** in the nav bar → a filterable, sortable, paginated table of all 421 sites (filters/sort/page are synced to the URL, so the link is shareable; **Export CSV** downloads the current filtered view in full)
 - **Map** in the nav bar → all matching sites plotted on a map, colored by stage, with the same filters
 - Click any site → its full detail page
@@ -279,7 +279,7 @@ Both run in CI on every push/PR to `main`. See `backend/README.md` and `frontend
 | `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type` (each repeatable for multi-select, e.g. `?region=Pilbara&region=Kimberley`), `search`; sort with `sort` (e.g. `?sort=-stage`, allowlisted, invalid values return 422) |
 | `GET /api/sites/export` | The same filtered+sorted view as a CSV download (full result set, not one page); same `commodity`/`region`/`stage`/`site_type`/`search`/`sort` params. Header row uses the app's own labels ("Local Government Area"), not schema names (`lga_name`) |
 | `GET /api/sites/{site_code}` | Single site detail |
-| `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
+| `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region, top-10 LGAs, and multi-site projects ranked by site count), same filters as above |
 | `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |
 
 ## Repository Structure

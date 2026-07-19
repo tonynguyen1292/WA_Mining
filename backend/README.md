@@ -28,7 +28,8 @@ backend/
 │   ├── conftest.py             # in-memory SQLite fixtures + TestClient
 │   ├── test_portfolio_service.py  # sort/filter/tiebreaker/NULL-handling logic
 │   ├── test_sites_routes.py    # /api/sites HTTP-layer behavior (422s, filters, 404s)
-│   └── test_export.py          # CSV escaping units + /api/sites/export route behavior
+│   ├── test_export.py          # CSV escaping units + /api/sites/export route behavior
+│   └── test_kpis.py            # /api/kpis totals, breakdown ordering, by_lga, top_projects
 ├── requirements.txt
 ├── requirements-dev.txt        # + ruff, pytest, httpx, for CI/local linting + testing
 ├── Dockerfile
@@ -83,7 +84,7 @@ Filters (`commodity`, `region`, `stage`, `site_type`) accept multiple values by 
 | GET | `/api/sites` | Paginated list. Query params: `commodity`, `region`, `stage`, `site_type` (each repeatable), `search`, `sort` (allowlisted column, prefix `-` for descending, e.g. `-stage`; invalid values return 422), `page`, `page_size` |
 | GET | `/api/sites/export` | The filtered+sorted list as a CSV attachment (`wa_mining_sites.csv`) — full result set, unpaginated. Same filter/`sort` params as the list; UTF-8 BOM included for Excel; `Cache-Control: no-store` so a re-seed is never masked by a cached download. Header row uses the UI's labels ("Local Government Area", not `lga_name`) via `EXPORT_COLUMN_LABELS`. Registered before `/{site_code}` so the path param doesn't capture it |
 | GET | `/api/sites/{site_code}` | Single site detail; 404 if not found |
-| GET | `/api/kpis` | Portfolio totals + breakdowns by stage/site type/commodity/region. Same filter params as `/api/sites` (minus `search`) |
+| GET | `/api/kpis` | Portfolio totals + breakdowns by stage/site type/commodity/region, plus `by_lga` (top 10 — 65 distinct LGAs would swamp a chart) and `top_projects` (multi-site projects only, `HAVING count >= 2`, ranked by site count with a `project_code` tiebreaker). Same filter params as `/api/sites` (minus `search`) |
 | GET | `/api/meta/filters` | Distinct values for each filterable field, for populating dropdowns |
 
 ## Linting
@@ -107,8 +108,9 @@ Tests run against an in-memory SQLite database, not a real Postgres — `conftes
 - `test_portfolio_service.py` — `resolve_sort`'s allowlist/parsing, and `list_sites`'s sort direction, `NULLS LAST` on both directions, the `site_code` tiebreaker's determinism across repeated calls, and filter composition (single value, multiple values as OR, multiple fields as AND, free-text search)
 - `test_sites_routes.py` — the HTTP layer on top: does an invalid `sort` actually come back as 422 (not 500), do query params reach the service layer correctly, does an unknown `site_code` 404
 - `test_export.py` — `sites_to_csv`'s escaping (commas, quotes, embedded newlines, NULLs) and header labeling (every export column must have a label; the header row is the labels, not attribute names) as pure units, plus `/api/sites/export` route behavior: download headers + BOM + `Cache-Control: no-store`, filters/sort applied, invalid sort 422, and a regression guard that `/export` isn't captured by the `/{site_code}` path param
+- `test_kpis.py` — `/api/kpis` totals (site count vs. distinct-project count), breakdown count-descending ordering and NULL bucketing, `by_lga` aggregation, and `top_projects` (multi-site projects only; respects filters, including filtering down to zero)
 
-Runs in CI alongside linting. Not exhaustive — `/api/kpis` and `/api/meta/filters` have no tests yet.
+Runs in CI alongside linting. Not exhaustive — `/api/meta/filters` has no tests yet.
 
 ## Known scope limits
 

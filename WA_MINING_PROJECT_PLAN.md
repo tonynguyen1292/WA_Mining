@@ -110,6 +110,20 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - [x] Tests updated + extended (35 backend total): a completeness guard (`set(EXPORT_COLUMN_LABELS) == set(EXPORT_COLUMNS)`, so adding a column without a label fails in CI instead of KeyErroring at request time), a header-content test asserting `lga_name` is absent and "Local Government Area" present, and the existing escaping/route tests re-keyed to the labels
 - [x] Verified live: `curl` on the running stack shows the labeled header on filtered and unfiltered exports; values unchanged
 
+### 1.13 Dashboard insights & provenance — ✅ Done (2026-07-19)
+**Why:** The Dashboard had visible blank space below its three charts, and a documentation-first brainstorm found the strongest candidates were things the docs had described all along but the UI never showed: `lga_name` (the most carefully cleaned field in the dataset — the entire suffix-handling saga — displayed nowhere but the detail page) and the site-vs-project grain (Key Engineering Decision #1, the reason "421 sites / 356 projects" appears in every doc, invisible in the app). Chosen set was 1-2-3-5 from a six-option brainstorm; the two held back (mines-by-subtype, stage×commodity stacked) are parked below.
+- [x] `/api/kpis` gains `by_lga` (top 10 only — 65 distinct LGAs would swamp a chart; the rest stay reachable via the sites list) and `top_projects` (multi-site projects only, `HAVING count >= 2` — listing single-site projects would just restate the sites list; `project_code` tiebreaker for deterministic ties), both respecting the same filters as every other breakdown
+- [x] Clickable chart bars: stage/commodity/region bars navigate to `/sites` pre-filtered to that value — the URL-sync feature (1.7) is what makes each destination a shareable link. The synthetic "Unspecified" bucket renders inert (it stands for NULL, which `/sites` can't filter on), and the LGA chart has no link field at all until a real LGA filter exists
+- [x] "Projects with the most sites" panel with a one-line grain explainer ("that's why 421 sites roll up to 356 projects"), each row linking into a searched Sites view — to be upgraded to a real `project_code` filter link when 2.1 (Related sites) lands
+- [x] Data-provenance strip: DMIRS source link, May 2026 snapshot date, CC BY 4.0, dataset shape (421/356/10 regions/65 LGAs), and a data-dictionary link — everything sourced from `data_dictionary.md` and the README's Data Source section, now visible in the product itself
+- [x] Tests: 6 backend (`test_kpis.py` — first direct `/api/kpis` coverage: totals, ordering, NULL bucketing, multi-site-only + filter behavior; fixture gained its first multi-site project) and 3 frontend (`sitesLinkForBreakdown` round-trip/encoding/Unspecified-null)
+- [x] Verified end-to-end via Playwright (the Browser pane's inactive tab never runs Recharts' entry animation, so bars don't exist there to click): stage-bar click lands on `/sites?stage=Operating`, LGA bars confirmed inert, project links navigate with correct encoding; dashboard screenshot regenerated (full-page) so the README shows the new layout
+
+#### Parked from the same brainstorm (💡, unscheduled)
+- Mines-by-subtype breakdown (`SUB_TYPE` is documented but never aggregated anywhere)
+- Stage × commodity stacked composition (two-dimension KPI query + stacked bars)
+- An LGA filter on `/sites` — would also let the LGA chart's bars become clickable like the other three
+
 ---
 
 ## 2. Next up (approved priority order)
