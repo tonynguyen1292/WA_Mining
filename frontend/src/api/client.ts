@@ -33,7 +33,7 @@ export class ApiError extends Error {
   }
 }
 
-async function apiGet<T>(path: string, params?: Record<string, QueryValue>): Promise<T> {
+function buildUrl(path: string, params?: Record<string, QueryValue>): string {
   const url = new URL(path, API_BASE_URL);
   if (params) {
     for (const [key, value] of Object.entries(params)) {
@@ -47,8 +47,11 @@ async function apiGet<T>(path: string, params?: Record<string, QueryValue>): Pro
       }
     }
   }
+  return url.toString();
+}
 
-  const res = await fetch(url.toString());
+async function apiGet<T>(path: string, params?: Record<string, QueryValue>): Promise<T> {
+  const res = await fetch(buildUrl(path, params));
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     const detail = typeof body?.detail === "string" ? body.detail : `${path} failed with ${res.status}`;
@@ -73,6 +76,14 @@ export function fetchSites(
 
 export function fetchSite(siteCode: string): Promise<Site> {
   return apiGet<Site>(`/api/sites/${encodeURIComponent(siteCode)}`);
+}
+
+// A URL, not a fetch: the export is a browser-native download (the server
+// answers with Content-Disposition: attachment), so the frontend's whole
+// job is handing the browser an <a href> built from the same filter/sort
+// serialization the table itself uses -- what you see is what you export.
+export function buildSitesExportUrl(filters: SiteFilters, sort?: string): string {
+  return buildUrl("/api/sites/export", { ...filters, sort });
 }
 
 export function fetchKpis(filters: SiteFilters): Promise<KpiSummary> {

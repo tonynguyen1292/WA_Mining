@@ -9,6 +9,9 @@ hardcoded per-stage CASE list) also fixes the "Undeveloped/Shut not
 bucketed" gap noted in the repo's own README as a byproduct.
 """
 
+import csv
+import io
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -80,6 +83,29 @@ def _apply_filters(
     return stmt
 
 
+def _apply_order(stmt, sort: str | None):
+    """Shared ORDER BY for the sites list and the CSV export.
+
+    Single code path on purpose: the export must be ordered identically to
+    the table the user is looking at, and two hand-maintained copies of
+    this logic would drift.
+
+    site_code is appended as a stable tiebreaker on every query, sorted
+    or not -- several columns (stage, region, site_type) are low enough
+    cardinality that without a deterministic secondary key, Postgres
+    doesn't guarantee consistent ordering for tied rows across requests,
+    which surfaces as pagination bugs (a row on two pages, or missing)
+    rather than an obvious error.
+    """
+    resolved = resolve_sort(sort)
+    if resolved is not None:
+        column, descending = resolved
+        primary_order = column.desc().nulls_last() if descending else column.asc().nulls_last()
+    else:
+        primary_order = Site.title.asc().nulls_last()
+    return stmt.order_by(primary_order, Site.site_code.asc())
+
+
 def list_sites(
     db: Session,
     *,
@@ -103,26 +129,78 @@ def list_sites(
 
     total = db.scalar(select(func.count()).select_from(base_stmt.subquery())) or 0
 
-    resolved = resolve_sort(sort)
-    if resolved is not None:
-        column, descending = resolved
-        primary_order = column.desc().nulls_last() if descending else column.asc().nulls_last()
-    else:
-        primary_order = Site.title.asc().nulls_last()
-
-    # site_code is appended as a stable tiebreaker on every query, sorted
-    # or not -- several columns (stage, region, site_type) are low enough
-    # cardinality that without a deterministic secondary key, Postgres
-    # doesn't guarantee consistent ordering for tied rows across requests,
-    # which surfaces as pagination bugs (a row on two pages, or missing)
-    # rather than an obvious error.
     items_stmt = (
-        base_stmt.order_by(primary_order, Site.site_code.asc())
+        _apply_order(base_stmt, sort)
         .offset((page - 1) * page_size)
         .limit(page_size)
     )
     items = list(db.scalars(items_stmt).all())
     return items, total
+
+
+def list_sites_for_export(
+    db: Session,
+    *,
+    commodity: list[str] | None = None,
+    region: list[str] | None = None,
+    stage: list[str] | None = None,
+    site_type: list[str] | None = None,
+    search: str | None = None,
+    sort: str | None = None,
+) -> list[Site]:
+    """The full filtered+sorted result set, unpaginated, for CSV export.
+
+    No row cap: the whole dataset is 421 rows (~60KB of CSV), so a cap or
+    streaming response would be solving a problem this data can't have.
+    Revisit if the dataset ever grows by orders of magnitude.
+    """
+    stmt = _apply_filters(
+        select(Site),
+        commodity=commodity,
+        region=region,
+        stage=stage,
+        site_type=site_type,
+        search=search,
+    )
+    return list(db.scalars(_apply_order(stmt, sort)).all())
+
+
+# Column order for the CSV export: site identity first, then
+# classification, then location -- matches the Site model's own field
+# order so the export is predictable against the data dictionary.
+EXPORT_COLUMNS: list[str] = [
+    "site_code",
+    "project_code",
+    "project_title",
+    "title",
+    "short_title",
+    "site_type",
+    "subtype",
+    "stage",
+    "target_group_name",
+    "commodity_group_name",
+    "development_region",
+    "lga_name",
+    "longitude",
+    "latitude",
+    "active_flag",
+]
+
+
+def sites_to_csv(items: list[Site]) -> str:
+    """Serialize sites to CSV text (header row + one row per site).
+
+    Uses the stdlib csv writer rather than string joins -- project titles
+    in this dataset really do contain commas ("Boorara / Horizon" style)
+    and the writer handles quoting/escaping/embedded newlines correctly
+    instead of producing a file that only *looks* like CSV.
+    """
+    buffer = io.StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow(EXPORT_COLUMNS)
+    for site in items:
+        writer.writerow([getattr(site, column) for column in EXPORT_COLUMNS])
+    return buffer.getvalue()
 
 
 def get_site(db: Session, site_code: str) -> Site | None:

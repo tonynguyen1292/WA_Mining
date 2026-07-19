@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { ApiError, fetchSites } from "../api/client";
+import { ApiError, buildSitesExportUrl, fetchSites } from "../api/client";
 import FilterBar from "../components/FilterBar";
 import SitesTable from "../components/SitesTable";
 import useDebouncedValue from "../hooks/useDebouncedValue";
@@ -127,6 +127,21 @@ export default function SitesPage() {
       <FilterBar filters={filters} onChange={handleFiltersChange} />
 
       {error && <p className="error-note">{error}</p>}
+
+      <div className="sites-toolbar">
+        {/* Built from debouncedFilters + sort -- the same values the table's
+            own fetch uses -- so the downloaded CSV always matches the rows
+            on screen (all of them, not just the current page). */}
+        {total > 0 ? (
+          <a className="export-csv" href={buildSitesExportUrl(debouncedFilters, sort)}>
+            Export CSV · {total} site{total === 1 ? "" : "s"}
+          </a>
+        ) : (
+          <span className="export-csv is-disabled" aria-disabled="true">
+            Export CSV
+          </span>
+        )}
+      </div>
 
       <SitesTable
         items={items}

@@ -256,6 +256,33 @@ a {
   transition: opacity 0.15s ease;
 }
 
+.sites-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.export-csv {
+  display: inline-block;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.export-csv:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.export-csv.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .sites-table-wrap {
   background: var(--surface);
   border: 1px solid var(--line);
