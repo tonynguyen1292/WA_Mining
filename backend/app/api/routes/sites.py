@@ -86,7 +86,19 @@ def export_sites(
     return Response(
         content="\ufeff" + csv_text,
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": 'attachment; filename="wa_mining_sites.csv"'},
+        headers={
+            "Content-Disposition": 'attachment; filename="wa_mining_sites.csv"',
+            # This response had no cache directives at all before -- without
+            # explicit no-store, a browser (or an intermediary) is free to
+            # reuse a previously cached response for an identical request URL
+            # (e.g. a bare /api/sites/export with no filters) even after the
+            # underlying data has changed server-side, such as after a
+            # re-seed. That's exactly the kind of "it's fixed on the server
+            # but the client still shows the old thing" gap worth closing
+            # explicitly rather than relying on the absence of caching
+            # headers to *imply* no caching.
+            "Cache-Control": "no-store",
+        },
     )
 
 

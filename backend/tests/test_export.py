@@ -64,6 +64,13 @@ class TestExportRoute:
         assert res.headers["content-disposition"] == 'attachment; filename="wa_mining_sites.csv"'
         assert res.text.startswith("\ufeff")
 
+    def test_response_is_not_cacheable(self, client):
+        # Without this, a browser (or intermediary) could serve a stale
+        # cached response for an identical request URL even after the
+        # underlying data changed server-side -- e.g. after a re-seed.
+        res = client.get("/api/sites/export")
+        assert res.headers["cache-control"] == "no-store"
+
     def test_full_unfiltered_export_has_all_rows(self, client):
         res = client.get("/api/sites/export")
         rows = _parse(res.text.lstrip("\ufeff"))
