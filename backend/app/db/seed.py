@@ -1,11 +1,25 @@
-"""Seed the `sites` table from the raw MINEDEX CSV snapshot.
+"""Seed the `sites` table from the pre-cleaned MINEDEX snapshot.
 
-Ports the cleaning rules from SQL/01_create_raw_table.sql through
-SQL/03_insert_cleaned_data.sql (TRIM / INITCAP / region+LGA suffix
-handling) directly into Python, so the app doesn't need a psql-driven
-staging step. The CSV is read once and cleaned rows are inserted straight
-into `sites` -- `staging_sites` from the original pipeline has no
-equivalent here.
+Loads DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv --
+the output of actually running SQL/01_create_raw_table.sql through
+SQL/05_portfolio_summary.sql against the raw CSV, not a from-scratch
+reimplementation of that cleaning in Python. Earlier versions of this file
+read the raw CSV directly and ported the SQL's TRIM/INITCAP/suffix-handling
+logic into Python by hand -- functionally correct (verified byte-for-byte
+identical, row by row, against a real run of the SQL pipeline before this
+file changed), but it meant the same cleaning rules were maintained in two
+places that could silently drift apart. Now there is exactly one
+implementation of the cleaning rules (the SQL pipeline); this file's job is
+just loading its already-clean output.
+
+To regenerate DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv
+from a fresh raw CSV: run SQL/01 through SQL/05 (see SQL/run_all.sql) against
+any Postgres database, then, via psql, run the meta-command:
+    copy sites TO 'DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv' WITH (FORMAT csv, HEADER true)
+(prefixed with a backslash at the psql prompt -- omitted above so this
+docstring doesn't trip Python's invalid-escape-sequence warning). Column
+ordering doesn't need to match this file's Site(...) construction below,
+since rows are read by column name via csv.DictReader, not position.
 
 Usage (from backend/, with DATABASE_URL configured):
     python -m app.db.seed
@@ -24,51 +38,34 @@ MIN_EXPECTED_ROWS = 100  # sanity floor; the known-good snapshot has 421
 
 # backend/app/db/seed.py -> backend/app -> backend -> repo root
 REPO_ROOT = Path(__file__).resolve().parents[3]
-CSV_PATH = REPO_ROOT / "DATABASES" / "raw" / "Major_Resource_Projects.csv"
+CSV_PATH = REPO_ROOT / "DATABASES" / "Cleaned_Mining_Data" / "Major_Resource_Projects_Cleaned.csv"
 
-_LGA_SUFFIXES = (
-    (", SHIRE OF", "Shire Of "),
-    (", CITY OF", "City Of "),
-    (", TOWN OF", "Town Of "),
+# Text columns read verbatim (already cleaned by the SQL pipeline) --
+# longitude/latitude are handled separately since they need float parsing.
+_TEXT_COLUMNS = (
+    "project_code",
+    "project_title",
+    "title",
+    "short_title",
+    "site_type",
+    "subtype",
+    "stage",
+    "target_group_name",
+    "commodity_group_name",
+    "development_region",
+    "lga_name",
+    "active_flag",
 )
 
 
-def _clean_text(value: str | None) -> str | None:
-    if value is None:
-        return None
-    value = value.strip()
-    return value or None
-
-
-def _title_case(value: str | None) -> str | None:
-    value = _clean_text(value)
-    return value.title() if value else None
-
-
-def _clean_region(value: str | None) -> str | None:
-    """Mirrors SQL/03: strip the ', Development Region' suffix, then title-case."""
-    value = _clean_text(value)
-    if not value:
-        return None
-    return value.replace(", Development Region", "").strip().title()
-
-
-def _clean_lga(value: str | None) -> str | None:
-    """Mirrors SQL/03's CASE block for SHIRE OF / CITY OF / TOWN OF suffixes."""
-    value = _clean_text(value)
-    if not value:
-        return None
-    upper = value.upper()
-    for suffix, prefix in _LGA_SUFFIXES:
-        if upper.endswith(suffix):
-            base = value[: -len(suffix)].strip()
-            return f"{prefix}{base.title()}"
-    return value.title()
+def _empty_to_none(value: str | None) -> str | None:
+    """`\\copy ... TO csv` writes SQL NULL as an empty field -- map it back."""
+    return value if value else None
 
 
 def _to_float(value: str | None) -> float | None:
-    value = _clean_text(value)
-    if not value:
+    value = _empty_to_none(value)
+    if value is None:
         return None
     try:
         return float(value)
@@ -81,27 +78,16 @@ def _load_rows() -> list[Site]:
     with CSV_PATH.open(newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
         for raw in reader:
-            site_code = _clean_text(raw.get("SITE_CODE"))
+            site_code = _empty_to_none(raw.get("site_code"))
             if not site_code:
                 continue  # mirrors SQL/03: WHERE sitecode IS NOT NULL AND sitecode != ''
 
             rows.append(
                 Site(
                     site_code=site_code,
-                    project_code=_clean_text(raw.get("PROJ_CODE")),
-                    project_title=_clean_text(raw.get("PROJECT_TITLE")),
-                    title=_clean_text(raw.get("TITLE")),
-                    short_title=_clean_text(raw.get("SHORT_TITLE")),
-                    site_type=_title_case(raw.get("SITE_TYPE")),
-                    subtype=_title_case(raw.get("SUB_TYPE")),
-                    stage=_title_case(raw.get("STAGE")),
-                    target_group_name=_title_case(raw.get("TARGET_GROUP_NAME")),
-                    commodity_group_name=_title_case(raw.get("COMMODITY_GROUP_NAME")),
-                    development_region=_clean_region(raw.get("DEVELOPMENT_REGION")),
-                    lga_name=_clean_lga(raw.get("LGA_NAME")),
-                    longitude=_to_float(raw.get("LONGITUDE")),
-                    latitude=_to_float(raw.get("LATITUDE")),
-                    active_flag=_clean_text(raw.get("ACTIVE_FLAG")),
+                    longitude=_to_float(raw.get("longitude")),
+                    latitude=_to_float(raw.get("latitude")),
+                    **{col: _empty_to_none(raw.get(col)) for col in _TEXT_COLUMNS},
                 )
             )
     return rows
@@ -133,8 +119,10 @@ def _validate_rows(rows: list[Site]) -> None:
 def seed() -> None:
     if not CSV_PATH.exists():
         raise FileNotFoundError(
-            f"Raw dataset not found at {CSV_PATH}. "
-            "See DATABASES/README_database.md for how to obtain it."
+            f"Cleaned dataset not found at {CSV_PATH}. Regenerate it by running "
+            "SQL/01 through SQL/05 against a Postgres database and exporting "
+            "`sites` -- see this file's module docstring for the exact command. "
+            "See also DATABASES/README_database.md."
         )
 
     Base.metadata.create_all(bind=engine)
