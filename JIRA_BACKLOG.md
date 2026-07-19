@@ -58,18 +58,30 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 
 ## Backlog — Future Work (not yet scheduled)
 
-**Epic: Post-Deployment Hardening**
-- Story: TLS + custom domain (e.g. Let's Encrypt via certbot in the nginx container)
-- Story: Automated CD — deploy to EC2 on push to `main`, instead of the current manual runbook
-- ~~Story: URL-synced filters and pagination, so filtered views are shareable links~~ — **done, not yet reflected in the live Jira board.** Shipped in the app: `/sites` (filters + page + sort) and `/map` (filters) both read/write their state to the URL query string. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) for the design writeup. This board entry should be moved to Done in Jira to match.
-- ~~Story: Automated test suite — backend (pytest) and frontend (component/integration tests); CI currently only lints/builds~~ — **done, not yet reflected in the live Jira board.** A starter suite shipped: 23 backend tests (pytest, in-memory SQLite) covering sort/filter logic and the `/api/sites` route, 24 frontend tests (Vitest + RTL) covering `urlFilters` and `SitesTable`'s sort-cycle, both now required CI steps. Not exhaustive -- see WA_MINING_PROJECT_PLAN.md's platform roadmap for what's still uncovered. This board entry should be moved to Done in Jira to match.
-- Story: Path to managed infrastructure if traffic grows — RDS instead of containerized Postgres, horizontal scaling
+**Epic: Post-Deployment Hardening** (WMDP2-5, In Progress)
+- Story: TLS + custom domain (WMDP2-20) — e.g. Let's Encrypt via certbot in the nginx container
+- Story: Automated CD (WMDP2-21) — deploy to EC2 on push to `main`, instead of the current manual runbook
+- ~~Story: URL-synced filters and pagination (WMDP2-22)~~ — **Done, on the board.** Shipped in the app: `/sites` (filters + page + sort) and `/map` (filters) both read/write their state to the URL query string. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.7.
+- ~~Story: Automated test suite (WMDP2-23)~~ — **Done, on the board.** Backend pytest + frontend Vitest/RTL suites, both required CI steps. See WA_MINING_PROJECT_PLAN.md section 1.8 and the platform roadmap for what's still uncovered.
+- Story: Path to managed infrastructure if traffic grows (WMDP2-24) — RDS instead of containerized Postgres, horizontal scaling
 
-**Epic: Product Polish**
-- ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — **done, not yet reflected in the live Jira board.** Shipped as a new, out-of-backlog feature (not originally scoped in this file) -- see WA_MINING_PROJECT_PLAN.md section 1.9. This board entry should be added and moved to Done in Jira to match.
-- ~~Story: CSV export of the filtered Sites view~~ — **done, not yet reflected in the live Jira board.** `GET /api/sites/export` + an "Export CSV" link on `/sites`; full filtered+sorted result set, shared query path with the table so they can't drift -- see WA_MINING_PROJECT_PLAN.md section 1.10. This board entry should be added and moved to Done in Jira to match.
-- ~~Story: Consolidate the cleaning pipeline onto one implementation~~ — **done, not yet reflected in the live Jira board.** Triggered by a user bug report about the CSV export (investigation found the running app's data was already clean; the real, separate issue was the SQL pipeline and `seed.py`'s Python port being two implementations of the same cleaning rules). `SQL/01`-`05` now run for real to produce `DATABASES/Cleaned_Mining_Data/`, which `seed.py` loads directly -- see WA_MINING_PROJECT_PLAN.md section 1.11. This board entry should be added and moved to Done in Jira to match.
-- ~~Story: Human-readable CSV export headers + no-store caching~~ — **done, not yet reflected in the live Jira board.** The export's header row now uses the app's own labels ("Local Government Area", not `lga_name`) via an explicit, test-guarded column→label mapping, and the response sends `Cache-Control: no-store` -- see WA_MINING_PROJECT_PLAN.md section 1.12. This board entry should be added and moved to Done in Jira to match.
+Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastructure** and **WMDP2-19 Deploy and verify on EC2**, both flagged in Jira as blocked on AWS credentials — the `DEPLOYMENT.md` runbook is ready to execute the moment an account is configured. Moved out of the active sprint so it only carries workable scope.
+
+**Epic: Product Polish** (WMDP2-59, In Progress — created on the board 2026-07-19)
+- ~~Story: Sortable table columns~~ — Done, on the board. See WA_MINING_PROJECT_PLAN.md section 1.5.
+- ~~Story: Map view~~ — Done, on the board. See section 1.6.
+- ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — Done, on the board. See section 1.9.
+- ~~Story: CSV export of filtered view~~ — Done, on the board (covers the export endpoint, header labels, and no-store caching). See sections 1.10 and 1.12.
+- ~~Story: Cleaned-data pipeline consolidation~~ — Done, on the board. See section 1.11.
+- Story: Related sites by project (WMDP2-65) — **in WMDP2 Sprint 3**, next up per the roadmap (section 2.1).
+
+## Board reconciliation log (2026-07-19)
+
+The board drifted while the repo shipped (every item above previously carried a "done, not yet reflected in the live Jira board" note). Reconciled in one pass, executed through the Jira UI:
+- WMDP2-22 and WMDP2-23 transitioned to Done; Jira's built-in parent automation moved epic WMDP2-5 to In Progress on its own.
+- Product Polish epic (WMDP2-59) created with five Done stories for the shipped-untracked features, plus WMDP2-65 (Related sites) into Sprint 3.
+- The empty, never-started Sprint 1/2 shells were deleted (their stories WMDP2-6..16 keep their Done status; retro-dating fake sprint completions would have corrupted the record worse than absence does).
+- WMDP2-18/19 moved from Sprint 3 to the backlog and flagged, so the active sprint no longer consists entirely of externally-blocked work.
 
 ## How this got into Jira
 
