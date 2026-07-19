@@ -92,6 +92,17 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - [x] Frontend: an "Export CSV · N sites" link on `/sites` built from the same `debouncedFilters`/`sort` the table fetch uses; disabled state when the filter set matches zero rows
 - [x] Tests: 10 backend (CSV escaping units + route behavior incl. filters/sort/422/route-order) and 4 frontend (export-URL serialization)
 
+### 1.11 Cleaned-data pipeline consolidation — ✅ Done (2026-07-19)
+**Why:** A user reported the exported CSV looked "uncleaned" (raw-looking `lga_name` values). Investigation found the currently-running app's data and the CSV export were already byte-identical and fully clean (zero suffix artifacts across all 421 rows, verified against the raw source and against `seed.py`'s cleaning logic) — but it also surfaced a real structural risk worth closing regardless: the app's cleaning rules existed in two places (the original SQL pipeline, and a hand-ported Python reimplementation in `seed.py`) that could in principle drift apart, even though they hadn't. Rather than leave that risk in place, the SQL pipeline was run for real and its output made the single source of truth.
+- [x] Closed a real gap this required: `SQL/02_create_clean_table.sql` and `SQL/03_insert_cleaned_data.sql` were missing `title`/`short_title` entirely (already-known, already-documented in the README) — added (TRIM-only, no title-casing, since these are already-authored proper names, not categorical fields)
+- [x] Ran `SQL/01`→`05` for real, in an isolated scratch database (never the app's own `wa_mining` DB) — all 5 scripts succeeded; `portfolio_summary`'s numbers (421/356/261/74/40/10/229/158/33) matched the README's already-published business context exactly
+- [x] Exported the resulting `sites` table to `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` — a new, git-tracked artifact (matches the existing precedent of committing `DATABASES/raw/`'s snapshot, for the same reason: `seed.py` needs it present to run out of the box)
+- [x] Diffed this SQL-cleaned output against the live app's Python-cleaned data: 421 rows × 14 columns, **zero mismatches** — proof the two implementations were already equivalent, not just an assumption
+- [x] Rewrote `seed.py` to load this pre-cleaned CSV directly, deleting its own `_title_case`/`_clean_region`/`_clean_lga` functions — the cleaning rules now exist in exactly one place (`SQL/03`), not two
+- [x] Re-seeded the live app from the new source and re-verified: all pages (Dashboard/Sites/Map/Site detail), `/api/kpis`, `/api/sites/{code}`, and `/api/sites/export` all still correct, zero console errors, all 33 backend + 34 frontend tests still passing
+- [x] Caught and fixed a `SyntaxWarning` (an unescaped `\c` in a docstring) via `python -W error` before it could reach CI
+- [x] Documentation updated everywhere this touches: root README (System/Workflow Summary diagram, Setup/How to Run, Repository Structure, Key Engineering Decisions, two stale Future Improvements bullets removed), `backend/README.md` (Seeding section, structure tree), and a full rewrite of `DATABASES/README_database.md` (previously inaccurate — said the CSV wasn't stored in the repo when a snapshot already was; now correctly documents both committed files and how to regenerate the cleaned one)
+
 ---
 
 ## 2. Next up (approved priority order)

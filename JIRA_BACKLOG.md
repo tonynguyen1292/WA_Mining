@@ -68,6 +68,7 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 **Epic: Product Polish**
 - ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — **done, not yet reflected in the live Jira board.** Shipped as a new, out-of-backlog feature (not originally scoped in this file) -- see WA_MINING_PROJECT_PLAN.md section 1.9. This board entry should be added and moved to Done in Jira to match.
 - ~~Story: CSV export of the filtered Sites view~~ — **done, not yet reflected in the live Jira board.** `GET /api/sites/export` + an "Export CSV" link on `/sites`; full filtered+sorted result set, shared query path with the table so they can't drift -- see WA_MINING_PROJECT_PLAN.md section 1.10. This board entry should be added and moved to Done in Jira to match.
+- ~~Story: Consolidate the cleaning pipeline onto one implementation~~ — **done, not yet reflected in the live Jira board.** Triggered by a user bug report about the CSV export (investigation found the running app's data was already clean; the real, separate issue was the SQL pipeline and `seed.py`'s Python port being two implementations of the same cleaning rules). `SQL/01`-`05` now run for real to produce `DATABASES/Cleaned_Mining_Data/`, which `seed.py` loads directly -- see WA_MINING_PROJECT_PLAN.md section 1.11. This board entry should be added and moved to Done in Jira to match.
 
 ## How this got into Jira
 

@@ -9,7 +9,7 @@ A PostgreSQL-backed system for Western Australia's public Major Resources Projec
 This project takes a raw government export of WA mining, infrastructure, and petroleum sites and turns it into an analysis-ready data model, then exposes it two ways:
 
 - **The app** (`backend/` + `frontend/`) — a live, filterable dashboard, sortable sites explorer, and map view. This is the primary, actively developed interface. See [Getting Started](#getting-started).
-- **The original SQL pipeline + Power BI** (`SQL/`, `POWER_BI/`) — the pipeline that established the cleaning rules the app now reuses, and a static dashboard on the same rules. Kept as reference/lineage documentation. See [System / Workflow Summary](#system--workflow-summary).
+- **The original SQL pipeline + Power BI** (`SQL/`, `POWER_BI/`) — the pipeline that defines the cleaning rules, run for real (not just ported) to produce the cleaned dataset the app itself seeds from (`DATABASES/Cleaned_Mining_Data/`), plus a static Power BI dashboard on the same rules. See [System / Workflow Summary](#system--workflow-summary).
 
 The CSV snapshot currently included in this repo (`DATABASES/raw/Major_Resource_Projects.csv`) contains 421 site records across 356 distinct projects.
 
@@ -63,7 +63,7 @@ In a second terminal, with the stack from Step 2 still running:
 docker compose exec backend python -m app.db.seed
 ```
 
-This loads `DATABASES/raw/Major_Resource_Projects.csv`, applies the same cleaning rules as `SQL/01`–`03` (ported to `backend/app/db/seed.py`), and populates the `sites` table. It's safe to re-run — it clears and reloads `sites` each time. You should see `Seeded 421 sites from Major_Resource_Projects.csv`.
+This loads `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` — the output of actually running `SQL/01`–`05` against the raw CSV (see [System / Workflow Summary](#system--workflow-summary)) — and populates the `sites` table. It's safe to re-run — it clears and reloads `sites` each time. You should see `Seeded 421 sites from Major_Resource_Projects_Cleaned.csv`.
 
 ### Step 4 — Verify the backend
 
@@ -95,7 +95,7 @@ Open http://localhost:5173 — the Dashboard should load with KPI cards (421 tot
 | `docker compose up` fails to connect / hangs | Docker Desktop isn't running — start it and wait for "Engine running" before retrying |
 | Backend starts but `/api/sites` returns an empty list | Seed step (Step 3) hasn't been run yet, or hasn't finished |
 | Frontend loads but shows no data / network errors in console | Backend isn't running, or `frontend/.env`'s `VITE_API_BASE_URL` doesn't match where the API is actually listening |
-| `docker compose exec backend python -m app.db.seed` can't find the CSV | You're not running it from the repo root, or `DATABASES/raw/Major_Resource_Projects.csv` isn't present — see `DATABASES/README_database.md` |
+| `docker compose exec backend python -m app.db.seed` can't find the CSV | You're not running it from the repo root, or `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` isn't present — see `DATABASES/README_database.md` (it's committed, so this normally shouldn't happen from a fresh clone) |
 
 ### Running the tests
 
@@ -143,7 +143,7 @@ Differences from the dev compose file: the backend runs without `--reload` and *
 
 ## System / Workflow Summary
 
-This is the original SQL pipeline. It's kept as the documented, reusable source of truth for the cleaning rules — `backend/app/db/seed.py` ports this same logic (TRIM / INITCAP / region+LGA suffix handling) directly into the application's seed step, so the two stay conceptually in sync. Power BI remains a valid alternative reporting surface on the same database.
+This SQL pipeline is the single, actually-executed source of truth for the cleaning rules — not just a reference copy. Earlier, `backend/app/db/seed.py` re-implemented the same TRIM/INITCAP/suffix-handling logic by hand in Python, reading the raw CSV directly; that carried a real risk of the two implementations quietly drifting apart. Now the pipeline is run for real against a scratch database, its output (`sites`) is exported to `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv`, and `seed.py` just loads that already-clean file — one cleaning implementation, not two.
 
 ```
 Major_Resource_Projects.csv (DATABASES/raw/)
@@ -152,7 +152,7 @@ Major_Resource_Projects.csv (DATABASES/raw/)
 SQL/01_create_raw_table.sql    →  staging_sites (raw load, all columns as TEXT)
         │
         ▼
-SQL/02_create_clean_table.sql  →  sites (typed, cleaned schema)
+SQL/02_create_clean_table.sql  →  sites (typed, cleaned schema, incl. title/short_title)
 SQL/03_insert_cleaned_data.sql →  cleaning + standardization applied on insert
         │
         ▼
@@ -160,13 +160,21 @@ SQL/04_create_summary_view.sql →  views: sites_by_commodity, sites_by_stage,
                                     sites_by_region, sites_by_type
 SQL/05_portfolio_summary.sql   →  portfolio_summary rollup table
         │
+        ├──▶ Power BI (POWER_BI/wa_mining_dashboard_v2.pbix)
+        │
         ▼
-Power BI (POWER_BI/wa_mining_dashboard_v2.pbix)
+`\copy sites TO ...` export
+        │
+        ▼
+Major_Resource_Projects_Cleaned.csv (DATABASES/Cleaned_Mining_Data/)
+        │
+        ▼
+backend/app/db/seed.py  →  the app's own `sites` table (Postgres, live-queried by the API)
 ```
 
-`SQL/run_all.sql` runs the full sequence above in one pass — see *Setup / How to Run (legacy SQL + Power BI)* below.
+`SQL/run_all.sql` runs `01`→`05` in one pass — see *Setup / How to Run (legacy SQL + Power BI)* below for how to regenerate the cleaned CSV from a fresh raw download.
 
-The PostgreSQL database (`wa_mining`) is the source of truth for the analytical model; Power BI connects to it and replicates part of the `portfolio_summary` logic in DAX for interactive slicing (see *Key Engineering Decisions*).
+The PostgreSQL database (`wa_mining`) is the source of truth for the analytical model; Power BI connects to it and replicates part of the `portfolio_summary` logic in DAX for interactive slicing (see *Key Engineering Decisions*). The app's own database is a separate instance, seeded from the exported cleaned CSV rather than sharing a live connection with whatever database this pipeline is run against.
 
 ## Tech Stack
 
@@ -237,15 +245,17 @@ WA_Mining/
 │   ├── .env.example
 │   └── README.md                      # frontend-specific setup, structure, scripts
 ├── DATABASES/
-│   ├── README_database.md             # explains where to download the CSV from
-│   └── raw/
-│       └── Major_Resource_Projects.csv
+│   ├── README_database.md             # provenance of both folders below + how to regenerate the cleaned one
+│   ├── raw/
+│   │   └── Major_Resource_Projects.csv         # source snapshot, as downloaded from DMIRS
+│   └── Cleaned_Mining_Data/
+│       └── Major_Resource_Projects_Cleaned.csv # output of SQL/01-05, run against the raw snapshot above; what seed.py actually loads
 ├── DOCUMENTS/
 │   ├── Licence_CCBY4.pdf
 │   └── METADATA/
 │       ├── MINEDEX_Major_Resource_Projects_Map_DataDictionary_GDA2020.pdf
 │       └── MINEDEX_Major_Resource_Projects_Map_Metadata_GDA2020.pdf
-├── SQL/                                # legacy/reference pipeline — logic ported into backend/app/db/seed.py
+├── SQL/                                # the actual cleaning pipeline -- run to produce DATABASES/Cleaned_Mining_Data/
 │   ├── 01_create_raw_table.sql
 │   ├── 02_create_clean_table.sql
 │   ├── 03_insert_cleaned_data.sql
@@ -264,18 +274,21 @@ WA_Mining/
 
 ## Setup / How to Run (legacy SQL + Power BI)
 
-This runs the original pipeline standalone, without the app — useful if you only want the Power BI dashboard, or want to inspect the SQL directly. For the app, see [Getting Started](#getting-started) above.
+Running this pipeline standalone is useful for two things: the Power BI dashboard, or inspecting the SQL directly — and it's also how `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` (the file the app itself seeds from) gets (re)generated when the raw dataset changes. For running the app day to day, see [Getting Started](#getting-started) above — you don't need to run any of this to do that, the cleaned CSV is already committed.
 
-1. Install PostgreSQL locally.
+1. Install PostgreSQL locally (or use a scratch database in the app's own Postgres container — anywhere isolated from the app's live `wa_mining` database is fine, since `SQL/02` creates a `sites` table without checking whether one already exists).
 2. Create the database and run the full pipeline:
    ```
-   createdb wa_mining
-   psql -d wa_mining -f SQL/run_all.sql
+   createdb wa_mining_pipeline
+   psql -d wa_mining_pipeline -f SQL/run_all.sql
    ```
    This runs `01`→`05` in order and loads `DATABASES/raw/Major_Resource_Projects.csv` into `staging_sites` along the way. Run it from the repository root so the relative paths resolve.
 3. Open `POWER_BI/wa_mining_dashboard_v2.pbix` in Power BI Desktop and refresh the data connection.
-
-`DATABASES/README_database.md` currently documents this CSV as something to download fresh from the DMIRS Data and Software Centre rather than store in the repo — in practice a snapshot is committed under `DATABASES/raw/` today. This is a known inconsistency, not yet resolved (see *Future Improvements*).
+4. To regenerate the app's cleaned CSV from this run, export `sites` (via psql, from the same session):
+   ```
+   \copy sites TO 'DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv' WITH (FORMAT csv, HEADER true)
+   ```
+   Then `docker compose exec backend python -m app.db.seed` (or the native equivalent) to load it into the app.
 
 ## Key Engineering Decisions
 
@@ -285,6 +298,7 @@ This runs the original pipeline standalone, without the app — useful if you on
 - **Status field:** `STAGE` is used as the primary status dimension; `SYMBOL_STATUS` (a second, overlapping status encoding in the source data) is kept only for cross-checking, not as a reporting field.
 - **String cleaning:** region and LGA names are standardized in SQL (`TRIM`, `INITCAP`, and `CASE`-based suffix handling in `03_insert_cleaned_data.sql`) rather than in Power Query, so the cleaning logic lives with the data model and is re-runnable independent of the BI tool.
 - **DAX/SQL parity:** the Power BI measures replicate the `portfolio_summary` SQL logic (COUNT/CASE patterns) rather than reimplementing separate business logic in DAX from scratch.
+- **One cleaning implementation, not two:** the app's seed step (`backend/app/db/seed.py`) used to read the raw CSV and re-implement `03_insert_cleaned_data.sql`'s TRIM/INITCAP/suffix rules by hand in Python. Verified byte-for-byte equivalent at the time (421 rows × 14 columns, zero mismatches), but still a second place the same rules had to be kept in sync by hand. `seed.py` now loads `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` — the actual, executed output of `SQL/01`–`05` — so there's exactly one implementation of the cleaning rules to maintain.
 
 ## Challenges and Trade-offs
 
@@ -327,9 +341,7 @@ The full, current roadmap — delivered features, what's next and why, and the p
 
 - Not yet covered by `docker-compose.prod.yml` or the AWS deployment: TLS/custom domain, horizontal scaling, and full CD (CI currently only lints/builds — deployment is manual; see [Cloud Deployment (AWS)](#cloud-deployment-aws)).
 - Test coverage is a starter set, not exhaustive — `backend/tests/` covers sort/filter logic and the `/api/sites` route; frontend covers `urlFilters` and `SitesTable`'s sort cycle. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct tests.
-- `backend/app/models/site.py` adds `title` and `short_title` to the original `SQL/02` clean-table schema (present in the raw CSV/`staging_sites` but previously dropped) — needed as the human-readable site name for any UI.
-- Reconcile `DATABASES/README_database.md` (says the CSV isn't stored in the repo) with the fact that a snapshot currently is — either remove the tracked CSV (`.gitignore` now correctly excludes future changes to it) or update the doc to reflect that a snapshot is intentionally kept.
-- The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql` itself still only buckets 4 of 6 stages — left as-is since that file is kept for reference/lineage, not actively used by the app.
+- The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql`'s own `portfolio_summary` rollup table still only buckets 4 of 6 stages — left as-is since that specific table isn't consumed by the app (unlike `01`–`03`'s output, which now is, via `DATABASES/Cleaned_Mining_Data/`).
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
 - Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `POWER_BI/screenshots/`.
 

@@ -23,7 +23,7 @@ backend/
 │   ├── services/
 │   │   └── portfolio_service.py  # filtering + aggregation query logic
 │   └── db/
-│       └── seed.py             # loads + cleans the CSV into `sites`
+│       └── seed.py             # loads the pre-cleaned CSV (DATABASES/Cleaned_Mining_Data/) into `sites`
 ├── tests/
 │   ├── conftest.py             # in-memory SQLite fixtures + TestClient
 │   ├── test_portfolio_service.py  # sort/filter/tiebreaker/NULL-handling logic
@@ -57,11 +57,13 @@ Interactive API docs: http://localhost:8000/docs
 
 `Site` (table `sites`, primary key `site_code`) is the grain the whole API is built around — a project (`project_code`) is a grouping of one or more sites (mine, processing plant, port, etc.), matching the grain decision documented in `data_dictionary.md`.
 
-`title` / `short_title` are carried through from the raw CSV even though the original `SQL/02_create_clean_table.sql` dropped them — a UI needs a human-readable site name, not just codes.
+`title` / `short_title` are carried through from the raw CSV — a UI needs a human-readable site name, not just codes. (`SQL/02_create_clean_table.sql` originally dropped these two columns; that gap is now closed, since the app depends on this exact schema — see *Seeding* below.)
 
 ## Seeding
 
-`app/db/seed.py` reads `DATABASES/raw/Major_Resource_Projects.csv` directly and applies the same cleaning rules as `SQL/01_create_raw_table.sql` through `SQL/03_insert_cleaned_data.sql` (trimming, title-casing, region/LGA suffix handling), ported into Python. It intentionally skips the two-phase `staging_sites` → `sites` load the SQL pipeline uses — the CSV is read and cleaned in one pass. Re-running it is safe; it clears and reloads `sites` each time.
+`app/db/seed.py` loads `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` — a file that's already fully cleaned, because it's the actual output of running `SQL/01_create_raw_table.sql` through `SQL/05_portfolio_summary.sql` against the raw CSV and exporting the resulting `sites` table. `seed.py` does *not* re-implement any TRIM/INITCAP/suffix-handling itself; that logic lives in exactly one place (`SQL/03_insert_cleaned_data.sql`). This replaced an earlier version of `seed.py` that read the raw CSV directly and ported the SQL's cleaning rules into Python by hand — functionally equivalent (verified byte-for-byte across all 421 rows before switching), but a second implementation of the same rules that could silently drift from the SQL over time. See the root README's [System / Workflow Summary](../README.md#system--workflow-summary) and `DATABASES/README_database.md` for how to regenerate this CSV after a raw-data refresh or a cleaning-rule change.
+
+Re-running `seed.py` is safe; it clears and reloads `sites` each time.
 
 Before inserting, it validates the parsed rows and refuses to seed if something looks wrong, rather than silently loading bad data: fewer than 100 parsed rows (likely a truncated/malformed CSV), or any duplicate `SITE_CODE` (the primary key). After inserting, it re-counts `sites` and errors if the count doesn't match what was loaded.
 
