@@ -9,7 +9,13 @@ import csv
 import io
 
 from app.models.site import Site
-from app.services.portfolio_service import EXPORT_COLUMNS, sites_to_csv
+from app.services.portfolio_service import (
+    EXPORT_COLUMN_LABELS,
+    EXPORT_COLUMNS,
+    sites_to_csv,
+)
+
+EXPECTED_HEADER = [EXPORT_COLUMN_LABELS[c] for c in EXPORT_COLUMNS]
 
 
 def _parse(csv_text: str) -> list[list[str]]:
@@ -17,9 +23,21 @@ def _parse(csv_text: str) -> list[list[str]]:
 
 
 class TestSitesToCsv:
-    def test_header_row_matches_export_columns(self):
+    def test_every_export_column_has_a_label(self):
+        # Guards adding a column to EXPORT_COLUMNS without a display label
+        # (which would KeyError at request time) and orphaning labels for
+        # columns that no longer exist.
+        assert set(EXPORT_COLUMN_LABELS) == set(EXPORT_COLUMNS)
+
+    def test_header_row_is_the_human_readable_labels(self):
+        # The header uses UI vocabulary ("Local Government Area"), not the
+        # model's attribute names ("lga_name") -- snake_case headers read as
+        # raw/unclean data to spreadsheet users, which is the misreading
+        # that motivated the labels.
         rows = _parse(sites_to_csv([]))
-        assert rows == [EXPORT_COLUMNS]
+        assert rows == [EXPECTED_HEADER]
+        assert "lga_name" not in rows[0]
+        assert "Local Government Area" in rows[0]
 
     def test_one_row_per_site_in_given_order(self):
         sites = [
@@ -39,15 +57,15 @@ class TestSitesToCsv:
         )
         rows = _parse(sites_to_csv([site]))
         row = dict(zip(rows[0], rows[1]))
-        assert row["project_title"] == 'Boorara / Horizon, Stage 2 "North"'
-        assert row["title"] == "Line one\nline two"
+        assert row["Project"] == 'Boorara / Horizon, Stage 2 "North"'
+        assert row["Site Title"] == "Line one\nline two"
 
     def test_none_fields_serialize_as_empty_strings(self):
         rows = _parse(sites_to_csv([Site(site_code="S001")]))
         row = dict(zip(rows[0], rows[1]))
-        assert row["site_code"] == "S001"
-        assert row["stage"] == ""
-        assert row["longitude"] == ""
+        assert row["Site Code"] == "S001"
+        assert row["Stage"] == ""
+        assert row["Longitude"] == ""
 
 
 class TestExportRoute:
@@ -74,7 +92,7 @@ class TestExportRoute:
     def test_full_unfiltered_export_has_all_rows(self, client):
         res = client.get("/api/sites/export")
         rows = _parse(res.text.lstrip("\ufeff"))
-        assert rows[0] == EXPORT_COLUMNS
+        assert rows[0] == EXPECTED_HEADER
         assert len(rows) == 1 + 5  # header + all seeded sites
 
     def test_filters_apply_to_the_export(self, client):
@@ -86,7 +104,7 @@ class TestExportRoute:
     def test_sort_applies_to_the_export(self, client):
         res = client.get("/api/sites/export", params={"sort": "-title"})
         rows = _parse(res.text.lstrip("\ufeff"))
-        titles = [dict(zip(rows[0], r))["title"] for r in rows[1:]]
+        titles = [dict(zip(rows[0], r))["Site Title"] for r in rows[1:]]
         assert titles == sorted(titles, reverse=True)
 
     def test_invalid_sort_returns_422_not_a_csv(self, client):

@@ -186,9 +186,33 @@ EXPORT_COLUMNS: list[str] = [
     "active_flag",
 ]
 
+# Header labels for the export, keyed by EXPORT_COLUMNS entry. These follow
+# the app's own UI vocabulary (the site detail page and table headers), not
+# the database schema -- a real user reading "lga_name" in row 1 of a
+# spreadsheet reasonably concludes they've been handed raw data, which is
+# exactly the misreading that motivated this mapping. Model attribute names
+# stay snake_case; only the presentation layer (this header row) changes.
+EXPORT_COLUMN_LABELS: dict[str, str] = {
+    "site_code": "Site Code",
+    "project_code": "Project Code",
+    "project_title": "Project",
+    "title": "Site Title",
+    "short_title": "Short Title",
+    "site_type": "Site Type",
+    "subtype": "Subtype",
+    "stage": "Stage",
+    "target_group_name": "Commodity",
+    "commodity_group_name": "Commodity Group",
+    "development_region": "Development Region",
+    "lga_name": "Local Government Area",
+    "longitude": "Longitude",
+    "latitude": "Latitude",
+    "active_flag": "Active",
+}
+
 
 def sites_to_csv(items: list[Site]) -> str:
-    """Serialize sites to CSV text (header row + one row per site).
+    """Serialize sites to CSV text (labeled header row + one row per site).
 
     Uses the stdlib csv writer rather than string joins -- project titles
     in this dataset really do contain commas ("Boorara / Horizon" style)
@@ -197,7 +221,7 @@ def sites_to_csv(items: list[Site]) -> str:
     """
     buffer = io.StringIO()
     writer = csv.writer(buffer)
-    writer.writerow(EXPORT_COLUMNS)
+    writer.writerow([EXPORT_COLUMN_LABELS[column] for column in EXPORT_COLUMNS])
     for site in items:
         writer.writerow([getattr(site, column) for column in EXPORT_COLUMNS])
     return buffer.getvalue()
