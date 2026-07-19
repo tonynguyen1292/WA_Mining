@@ -4,18 +4,180 @@
 
 A PostgreSQL-backed system for Western Australia's public Major Resources Projects dataset (MINEDEX): a SQL data pipeline that cleans and models the raw government export, and a FastAPI + React application built on top of it for exploring the portfolio interactively. A Power BI dashboard remains available as an alternative reporting surface on the same data.
 
+## Contents
+
+- [Screenshots](#screenshots)
+- [Project Overview](#project-overview)
+- [How This Was Built](#how-this-was-built)
+- [Problem Statement](#problem-statement)
+- [System / Workflow Summary](#system--workflow-summary)
+- [Application Architecture](#application-architecture)
+- [Key Engineering Decisions](#key-engineering-decisions)
+- [Challenges and Trade-offs](#challenges-and-trade-offs)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [Repository Structure](#repository-structure)
+- [Production / Deployment](#production--deployment)
+- [Setup / How to Run (legacy SQL + Power BI)](#setup--how-to-run-legacy-sql--power-bi)
+- [Business Context](#business-context)
+- [Data Source](#data-source)
+- [Future Improvements](#future-improvements)
+- [Related Experiments](#related-experiments)
+- [Further Reading](#further-reading)
+
+## Screenshots
+
+### The app
+
+**Dashboard** — portfolio-wide KPIs and breakdowns by stage, commodity, and region, live-filtered:
+
+![Dashboard](screenshots/dashboard.png)
+
+**Sites** — the full 421-site table, filterable and sortable (shown here sorted by Stage, descending), with CSV export of the current filtered view:
+
+![Sites table](screenshots/sites-table.png)
+
+**Map** — every matching site plotted by location and colored by stage (shown here filtered to Gold):
+
+![Map view](screenshots/map-view.png)
+
+**Command palette** (`Ctrl`/`Cmd`+`K`) — jump straight to any site from anywhere in the app:
+
+![Command palette](screenshots/command-palette.png)
+
+### Power BI dashboard (legacy)
+
+**Overview page** — portfolio-wide snapshot (commodity, stage, region breakdowns):
+
+![Dashboard overview page](POWER_BI/screenshots/dashboard_overview.png)
+
+**Regional and Operational View** — drill-down by region, project, and site type:
+
+![Dashboard regional and operational view](POWER_BI/screenshots/dashboard_regional_analysis.png)
+
+`wa_mining_dashboard_v2.pbix` is the current version — it corrects region/LGA name suffixes that `v1` still has.
+
 ## Project Overview
 
 This project takes a raw government export of WA mining, infrastructure, and petroleum sites and turns it into an analysis-ready data model, then exposes it two ways:
 
-- **The app** (`backend/` + `frontend/`) — a live, filterable dashboard, sortable sites explorer, and map view. This is the primary, actively developed interface. See [Getting Started](#getting-started).
+- **The app** (`backend/` + `frontend/`) — a live, filterable dashboard, sortable sites explorer, and map view. This is the primary, actively developed interface. See [Getting Started](#getting-started) to run it, or [Application Architecture](#application-architecture) for how it's built.
 - **The original SQL pipeline + Power BI** (`SQL/`, `POWER_BI/`) — the pipeline that defines the cleaning rules, run for real (not just ported) to produce the cleaned dataset the app itself seeds from (`DATABASES/Cleaned_Mining_Data/`), plus a static Power BI dashboard on the same rules. See [System / Workflow Summary](#system--workflow-summary).
 
+**Why both exist:** Power BI already answered the reporting question on this data. The app exists because reporting isn't the same job as exploring — Power BI needs Power BI Desktop installed and a `.pbix` file to open, while the app is a URL: no license, works on a phone, and (per the priority order in [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md)) a specific filtered/sorted/paginated view is itself a shareable link, in a way a static report file can't be.
+
 The CSV snapshot currently included in this repo (`DATABASES/raw/Major_Resource_Projects.csv`) contains 421 site records across 356 distinct projects.
+
+## How This Was Built
+
+This is a solo project, built with Claude (Anthropic's AI coding assistant) as a pair-programming tool for scaffolding, refactoring, and documentation drafts — you'll see it credited as a co-author in the commit history. The parts that matter are mine: the problem framing, the site-vs-project grain decision, the data-cleaning business rules, the API and schema design, and every trade-off documented in *Key Engineering Decisions* below. I treat AI assistance the way I'd treat any power tool — it speeds up the typing, not the thinking — and I can walk through any file in this repo and explain why it looks the way it does.
+
+That extends to how problems get handled, not just how features get built. When a downloaded CSV export looked "uncleaned," the useful first move wasn't to guess at a fix — it was to reproduce it. It didn't reproduce: the live data and the export turned out to be byte-identical, verified row by row. But that same investigation surfaced a real, separate risk worth fixing anyway — the cleaning rules existed in two hand-maintained places (an SQL pipeline and a Python port of it) that could in principle drift apart, even though they hadn't yet — so that's what got fixed instead of a bug that wasn't there (see *Key Engineering Decisions*). The same discipline shows up earlier in the history: a SQLite connection-pooling bug caught by a test that was supposed to pass, and a stale-results bug in the command palette found by deliberately re-reviewing it after shipping rather than waiting for a user to hit it. Every feature in this repo ships with the test suite that would catch its regressions (`backend/tests/`, `frontend/src/**/*.test.ts(x)`), enforced in CI on every push — not just "it worked when I tried it."
 
 ## Problem Statement
 
 The source dataset is a flat CSV with data-quality issues typical of a raw government export: inconsistent region/LGA labels (suffixes like ", SHIRE OF"), two overlapping status encodings (`STAGE` and `SYMBOL_STATUS`), and a site-vs-project grain mismatch — a single project can have multiple sites (mine, processing plant, port), so naive counting double-counts projects. Before any reporting is possible, the data has to be cleaned and modeled with an explicit grain decision. That's what the SQL layer in this repo does.
+
+## System / Workflow Summary
+
+This SQL pipeline is the single, actually-executed source of truth for the cleaning rules — not just a reference copy. Earlier, `backend/app/db/seed.py` re-implemented the same TRIM/INITCAP/suffix-handling logic by hand in Python, reading the raw CSV directly; that carried a real risk of the two implementations quietly drifting apart. Now the pipeline is run for real against a scratch database, its output (`sites`) is exported to `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv`, and `seed.py` just loads that already-clean file — one cleaning implementation, not two.
+
+```
+Major_Resource_Projects.csv (DATABASES/raw/)
+        │
+        ▼
+SQL/01_create_raw_table.sql    →  staging_sites (raw load, all columns as TEXT)
+        │
+        ▼
+SQL/02_create_clean_table.sql  →  sites (typed, cleaned schema, incl. title/short_title)
+SQL/03_insert_cleaned_data.sql →  cleaning + standardization applied on insert
+        │
+        ▼
+SQL/04_create_summary_view.sql →  views: sites_by_commodity, sites_by_stage,
+                                    sites_by_region, sites_by_type
+SQL/05_portfolio_summary.sql   →  portfolio_summary rollup table
+        │
+        ├──▶ Power BI (POWER_BI/wa_mining_dashboard_v2.pbix)
+        │
+        ▼
+`\copy sites TO ...` export
+        │
+        ▼
+Major_Resource_Projects_Cleaned.csv (DATABASES/Cleaned_Mining_Data/)
+        │
+        ▼
+backend/app/db/seed.py  →  the app's own `sites` table (Postgres, live-queried by the API)
+```
+
+`SQL/run_all.sql` runs `01`→`05` in one pass — see *Setup / How to Run (legacy SQL + Power BI)* below for how to regenerate the cleaned CSV from a fresh raw download.
+
+The PostgreSQL database (`wa_mining`) is the source of truth for the analytical model; Power BI connects to it and replicates part of the `portfolio_summary` logic in DAX for interactive slicing (see *Key Engineering Decisions*). The app's own database is a separate instance, seeded from the exported cleaned CSV rather than sharing a live connection with whatever database this pipeline is run against.
+
+## Application Architecture
+
+The SQL pipeline above produces the data the app starts from; from that point on, the app doesn't share any code with it — this is its own request flow.
+
+```
+Browser (React + TypeScript, Vite)
+        │
+        │  fetch() via frontend/src/api/client.ts
+        │  filters, page, and sort live in the URL query
+        │  string (frontend/src/utils/urlFilters.ts), not
+        │  just component state -- any view is a shareable,
+        │  reloadable link. Ctrl/Cmd+K opens a global search
+        │  modal (CommandPalette.tsx) from any route.
+        ▼
+FastAPI (backend/app/main.py + api/routes/)
+        │
+        │  backend/app/services/portfolio_service.py: one
+        │  shared filter + sort + tiebreaker implementation
+        │  behind /api/sites (paginated JSON),
+        │  /api/sites/export (the same view, unpaginated, as
+        │  a CSV download), and /api/kpis (aggregated
+        │  breakdowns) alike -- so the three can't quietly
+        │  drift apart from each other.
+        ▼
+PostgreSQL (`sites` table)
+```
+
+The most-exercised part of this flow is the `/api/sites` ↔ `SitesPage.tsx` round trip: filter or sort there, and the URL, the network request, and the browser's back/forward history all stay in sync with what's on screen.
+
+## Key Engineering Decisions
+
+- **Grain:** modeled at site level, not project level, to preserve operational asset detail — multiple sites can map to a single project code (`PROJ_CODE`); this repo's snapshot has 421 sites across 356 projects.
+- **Schema:** a single flat, typed table (`sites`) rather than a star schema — the snapshot data doesn't have update/history requirements that would justify one.
+- **Commodity dimension:** `TARGET_GROUP_NAME` is used as the primary commodity field instead of the raw `COMMODITIES` column, which stores pipe-delimited multi-value lists that aren't directly groupable.
+- **Status field:** `STAGE` is used as the primary status dimension; `SYMBOL_STATUS` (a second, overlapping status encoding in the source data) is kept only for cross-checking, not as a reporting field.
+- **String cleaning:** region and LGA names are standardized in SQL (`TRIM`, `INITCAP`, and `CASE`-based suffix handling in `03_insert_cleaned_data.sql`) rather than in Power Query, so the cleaning logic lives with the data model and is re-runnable independent of the BI tool.
+- **DAX/SQL parity:** the Power BI measures replicate the `portfolio_summary` SQL logic (COUNT/CASE patterns) rather than reimplementing separate business logic in DAX from scratch.
+- **One cleaning implementation, not two:** the app's seed step (`backend/app/db/seed.py`) used to read the raw CSV and re-implement `03_insert_cleaned_data.sql`'s TRIM/INITCAP/suffix rules by hand in Python. Verified byte-for-byte equivalent at the time (421 rows × 14 columns, zero mismatches), but still a second place the same rules had to be kept in sync by hand. `seed.py` now loads `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` — the actual, executed output of `SQL/01`–`05` — so there's exactly one implementation of the cleaning rules to maintain.
+
+## Challenges and Trade-offs
+
+| Challenge | Approach taken |
+|---|---|
+| Mixed asset types (mine, infrastructure, deposit, other) in one source table | Segmented using `TARGET_GROUP_NAME` and `SITE_TYPE`, documented in `data_dictionary.md` |
+| Multi-commodity fields with pipe-delimited lists | Used the cleaned `TARGET_GROUP_NAME` single-value field instead of parsing `COMMODITIES` |
+| Region/LGA names with inconsistent suffixes (e.g. ", SHIRE OF") | Handled in SQL with `CASE`-based text transforms during the clean-table insert |
+| Site-to-project duplicate counting | Exposed both project-level and site-level counts as separate measures in Power BI, rather than picking one and hiding the ambiguity |
+| No capital-cost field in the source dataset | Out of scope for this version — noted explicitly in `data_dictionary.md` rather than estimated or backfilled |
+| `05_portfolio_summary.sql` only buckets 4 of the 6 real `STAGE` values (`Operating`, `Proposed`, `Care and Maintenance`, `Under Development`) | Known gap — `Undeveloped` (33 sites) and `Shut` (3 sites) currently fall outside the per-stage breakdown, though they're still included in `total_sites`. Not fixed in this pass; tracked in Future Improvements |
+
+## Tech Stack
+
+- **PostgreSQL** — system of record, both for the original SQL pipeline and the FastAPI app's `sites` table
+- **FastAPI + SQLAlchemy** — read-only API over the cleaned portfolio data (`backend/`)
+- **React + TypeScript + Vite** — dashboard, sites explorer, map, and site detail pages (`frontend/`)
+- **Recharts** — portfolio breakdown charts
+- **Leaflet + react-leaflet** — the map view (free OpenStreetMap tiles, no API key)
+- **pytest** — backend tests, against an in-memory SQLite DB (`backend/tests/`)
+- **Vitest + React Testing Library** — frontend tests (`frontend/src/**/*.test.ts(x)`)
+- **Docker Compose** — local dev (`docker-compose.yml`) and a production-like build (`docker-compose.prod.yml`, nginx-served frontend)
+- **GitHub Actions** — CI: backend lint/compile/test, frontend test/typecheck/build
+- **Power BI + DAX** — dashboard and interactive reporting (legacy/reference reporting surface)
+- **Git / GitHub** — version control and documentation
+- **Jira** — active backlog and sprint tracking (see *Further Reading*)
+- **Notion** — early-stage planning docs, superseded by the Jira backlog (see *Further Reading*)
 
 ## Getting Started
 
@@ -120,82 +282,6 @@ Both run in CI on every push/PR to `main`. See `backend/README.md` and `frontend
 | `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
 | `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |
 
-## Production / Deployment
-
-`docker-compose.yml` (used above) is for local development: it bind-mounts `backend/` for hot reload and runs `uvicorn --reload`. For a production-like build — no source mounts, no reload, the frontend built and served as static assets through nginx — use `docker-compose.prod.yml` instead:
-
-```
-docker compose -f docker-compose.prod.yml up --build
-docker compose -f docker-compose.prod.yml exec backend python -m app.db.seed
-```
-
-- App (nginx, static build + reverse-proxied API): http://localhost:8080
-
-Differences from the dev compose file: the backend runs without `--reload` and **has no host port mapping at all** — `frontend/nginx.conf` reverse-proxies `/api`, `/health`, `/docs`, and `/openapi.json` to the backend over the internal Compose network, so nginx (port 8080 locally, port 80 in the cloud) is the only thing reachable from outside the stack; the frontend is a multi-stage build (`frontend/Dockerfile`) — `npm run build` in a `node` stage, then served by `nginx` (which also handles the SPA fallback so client-side routes like `/sites/S0001538` don't 404 on a hard refresh); and Postgres isn't exposed to the host either. This is still a single-host Compose setup, not a multi-node cloud deployment — see Future Improvements for what's not covered (TLS, horizontal scaling, automated CD).
-
-### CI
-
-`.github/workflows/ci.yml` runs on every push/PR to `main`: backend lint (`ruff`) + compile check + tests (`pytest`), and frontend tests (`vitest`) + typecheck + build (`tsc -b && vite build`). All must pass before merging.
-
-### Cloud Deployment (AWS)
-
-[DEPLOYMENT.md](DEPLOYMENT.md) is a step-by-step runbook for deploying this same `docker-compose.prod.yml` stack to a single free-tier-eligible AWS EC2 instance — architecture, an explicit cost/billing gate (checked before creating anything), launch/configure/deploy/verify steps, and teardown. **Not yet executed** — it requires AWS credentials this environment doesn't have configured.
-
-## System / Workflow Summary
-
-This SQL pipeline is the single, actually-executed source of truth for the cleaning rules — not just a reference copy. Earlier, `backend/app/db/seed.py` re-implemented the same TRIM/INITCAP/suffix-handling logic by hand in Python, reading the raw CSV directly; that carried a real risk of the two implementations quietly drifting apart. Now the pipeline is run for real against a scratch database, its output (`sites`) is exported to `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv`, and `seed.py` just loads that already-clean file — one cleaning implementation, not two.
-
-```
-Major_Resource_Projects.csv (DATABASES/raw/)
-        │
-        ▼
-SQL/01_create_raw_table.sql    →  staging_sites (raw load, all columns as TEXT)
-        │
-        ▼
-SQL/02_create_clean_table.sql  →  sites (typed, cleaned schema, incl. title/short_title)
-SQL/03_insert_cleaned_data.sql →  cleaning + standardization applied on insert
-        │
-        ▼
-SQL/04_create_summary_view.sql →  views: sites_by_commodity, sites_by_stage,
-                                    sites_by_region, sites_by_type
-SQL/05_portfolio_summary.sql   →  portfolio_summary rollup table
-        │
-        ├──▶ Power BI (POWER_BI/wa_mining_dashboard_v2.pbix)
-        │
-        ▼
-`\copy sites TO ...` export
-        │
-        ▼
-Major_Resource_Projects_Cleaned.csv (DATABASES/Cleaned_Mining_Data/)
-        │
-        ▼
-backend/app/db/seed.py  →  the app's own `sites` table (Postgres, live-queried by the API)
-```
-
-`SQL/run_all.sql` runs `01`→`05` in one pass — see *Setup / How to Run (legacy SQL + Power BI)* below for how to regenerate the cleaned CSV from a fresh raw download.
-
-The PostgreSQL database (`wa_mining`) is the source of truth for the analytical model; Power BI connects to it and replicates part of the `portfolio_summary` logic in DAX for interactive slicing (see *Key Engineering Decisions*). The app's own database is a separate instance, seeded from the exported cleaned CSV rather than sharing a live connection with whatever database this pipeline is run against.
-
-## Tech Stack
-
-- **PostgreSQL** — system of record, both for the original SQL pipeline and the FastAPI app's `sites` table
-- **FastAPI + SQLAlchemy** — read-only API over the cleaned portfolio data (`backend/`)
-- **React + TypeScript + Vite** — dashboard, sites explorer, map, and site detail pages (`frontend/`)
-- **Recharts** — portfolio breakdown charts
-- **Leaflet + react-leaflet** — the map view (free OpenStreetMap tiles, no API key)
-- **pytest** — backend tests, against an in-memory SQLite DB (`backend/tests/`)
-- **Vitest + React Testing Library** — frontend tests (`frontend/src/**/*.test.ts(x)`)
-- **Docker Compose** — local dev (`docker-compose.yml`) and a production-like build (`docker-compose.prod.yml`, nginx-served frontend)
-- **GitHub Actions** — CI: backend lint/compile/test, frontend test/typecheck/build
-- **Power BI + DAX** — dashboard and interactive reporting (legacy/reference reporting surface)
-- **Git / GitHub** — version control and documentation
-- **Jira** — active backlog and sprint tracking (see *Further Reading*)
-- **Notion** — early-stage planning docs, superseded by the Jira backlog (see *Further Reading*)
-
-## How This Was Built
-
-This is a solo project, built with Claude (Anthropic's AI coding assistant) as a pair-programming tool for scaffolding, refactoring, and documentation drafts — you'll see it credited as a co-author in the commit history. The parts that matter are mine: the problem framing, the site-vs-project grain decision, the data-cleaning business rules, the API and schema design, and every trade-off documented in *Key Engineering Decisions* below. I treat AI assistance the way I'd treat any power tool — it speeds up the typing, not the thinking — and I can walk through any file in this repo and explain why it looks the way it does.
-
 ## Repository Structure
 
 ```
@@ -210,6 +296,11 @@ WA_Mining/
 ├── docker-compose.yml                 # Postgres + backend, local dev (hot reload)
 ├── docker-compose.prod.yml            # full stack, production-like build (nginx frontend)
 ├── .github/workflows/ci.yml           # backend lint/compile/test + frontend test/typecheck/build
+├── screenshots/                       # app screenshots used above
+│   ├── dashboard.png
+│   ├── sites-table.png
+│   ├── map-view.png
+│   └── command-palette.png
 ├── image.png                          # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── image-1.png                        # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── backend/                           # FastAPI app (Phase 1-2: API + DB seed pipeline)
@@ -220,7 +311,7 @@ WA_Mining/
 │   │   ├── schemas/                   # Pydantic request/response types
 │   │   ├── api/routes/                # health, sites, kpis, meta endpoints
 │   │   ├── services/                  # query logic (filters, KPI aggregation)
-│   │   └── db/seed.py                 # loads + cleans the CSV into `sites`
+│   │   └── db/seed.py                 # loads the pre-cleaned CSV into `sites`
 │   ├── tests/                         # pytest: sort/filter logic + /api/sites route behavior
 │   ├── requirements.txt
 │   ├── requirements-dev.txt           # + ruff, pytest, httpx, for CI/local linting + testing
@@ -272,6 +363,27 @@ WA_Mining/
     └── unity-shift-supervisor-demo/    # separate Unity/C# experiment, see Related Experiments below
 ```
 
+## Production / Deployment
+
+`docker-compose.yml` (used above) is for local development: it bind-mounts `backend/` for hot reload and runs `uvicorn --reload`. For a production-like build — no source mounts, no reload, the frontend built and served as static assets through nginx — use `docker-compose.prod.yml` instead:
+
+```
+docker compose -f docker-compose.prod.yml up --build
+docker compose -f docker-compose.prod.yml exec backend python -m app.db.seed
+```
+
+- App (nginx, static build + reverse-proxied API): http://localhost:8080
+
+Differences from the dev compose file: the backend runs without `--reload` and **has no host port mapping at all** — `frontend/nginx.conf` reverse-proxies `/api`, `/health`, `/docs`, and `/openapi.json` to the backend over the internal Compose network, so nginx (port 8080 locally, port 80 in the cloud) is the only thing reachable from outside the stack; the frontend is a multi-stage build (`frontend/Dockerfile`) — `npm run build` in a `node` stage, then served by `nginx` (which also handles the SPA fallback so client-side routes like `/sites/S0001538` don't 404 on a hard refresh); and Postgres isn't exposed to the host either. This is still a single-host Compose setup, not a multi-node cloud deployment — see Future Improvements for what's not covered (TLS, horizontal scaling, automated CD).
+
+### CI
+
+`.github/workflows/ci.yml` runs on every push/PR to `main`: backend lint (`ruff`) + compile check + tests (`pytest`), and frontend tests (`vitest`) + typecheck + build (`tsc -b && vite build`). All must pass before merging.
+
+### Cloud Deployment (AWS)
+
+[DEPLOYMENT.md](DEPLOYMENT.md) is a step-by-step runbook for deploying this same `docker-compose.prod.yml` stack to a single free-tier-eligible AWS EC2 instance — architecture, an explicit cost/billing gate (checked before creating anything), launch/configure/deploy/verify steps, and teardown. **Not yet executed** — it requires AWS credentials this environment doesn't have configured.
+
 ## Setup / How to Run (legacy SQL + Power BI)
 
 Running this pipeline standalone is useful for two things: the Power BI dashboard, or inspecting the SQL directly — and it's also how `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` (the file the app itself seeds from) gets (re)generated when the raw dataset changes. For running the app day to day, see [Getting Started](#getting-started) above — you don't need to run any of this to do that, the cleaned CSV is already committed.
@@ -289,39 +401,6 @@ Running this pipeline standalone is useful for two things: the Power BI dashboar
    \copy sites TO 'DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv' WITH (FORMAT csv, HEADER true)
    ```
    Then `docker compose exec backend python -m app.db.seed` (or the native equivalent) to load it into the app.
-
-## Key Engineering Decisions
-
-- **Grain:** modeled at site level, not project level, to preserve operational asset detail — multiple sites can map to a single project code (`PROJ_CODE`); this repo's snapshot has 421 sites across 356 projects.
-- **Schema:** a single flat, typed table (`sites`) rather than a star schema — the snapshot data doesn't have update/history requirements that would justify one.
-- **Commodity dimension:** `TARGET_GROUP_NAME` is used as the primary commodity field instead of the raw `COMMODITIES` column, which stores pipe-delimited multi-value lists that aren't directly groupable.
-- **Status field:** `STAGE` is used as the primary status dimension; `SYMBOL_STATUS` (a second, overlapping status encoding in the source data) is kept only for cross-checking, not as a reporting field.
-- **String cleaning:** region and LGA names are standardized in SQL (`TRIM`, `INITCAP`, and `CASE`-based suffix handling in `03_insert_cleaned_data.sql`) rather than in Power Query, so the cleaning logic lives with the data model and is re-runnable independent of the BI tool.
-- **DAX/SQL parity:** the Power BI measures replicate the `portfolio_summary` SQL logic (COUNT/CASE patterns) rather than reimplementing separate business logic in DAX from scratch.
-- **One cleaning implementation, not two:** the app's seed step (`backend/app/db/seed.py`) used to read the raw CSV and re-implement `03_insert_cleaned_data.sql`'s TRIM/INITCAP/suffix rules by hand in Python. Verified byte-for-byte equivalent at the time (421 rows × 14 columns, zero mismatches), but still a second place the same rules had to be kept in sync by hand. `seed.py` now loads `DATABASES/Cleaned_Mining_Data/Major_Resource_Projects_Cleaned.csv` — the actual, executed output of `SQL/01`–`05` — so there's exactly one implementation of the cleaning rules to maintain.
-
-## Challenges and Trade-offs
-
-| Challenge | Approach taken |
-|---|---|
-| Mixed asset types (mine, infrastructure, deposit, other) in one source table | Segmented using `TARGET_GROUP_NAME` and `SITE_TYPE`, documented in `data_dictionary.md` |
-| Multi-commodity fields with pipe-delimited lists | Used the cleaned `TARGET_GROUP_NAME` single-value field instead of parsing `COMMODITIES` |
-| Region/LGA names with inconsistent suffixes (e.g. ", SHIRE OF") | Handled in SQL with `CASE`-based text transforms during the clean-table insert |
-| Site-to-project duplicate counting | Exposed both project-level and site-level counts as separate measures in Power BI, rather than picking one and hiding the ambiguity |
-| No capital-cost field in the source dataset | Out of scope for this version — noted explicitly in `data_dictionary.md` rather than estimated or backfilled |
-| `05_portfolio_summary.sql` only buckets 4 of the 6 real `STAGE` values (`Operating`, `Proposed`, `Care and Maintenance`, `Under Development`) | Known gap — `Undeveloped` (33 sites) and `Shut` (3 sites) currently fall outside the per-stage breakdown, though they're still included in `total_sites`. Not fixed in this pass; tracked in Future Improvements |
-
-## Screenshots
-
-**Overview page** — portfolio-wide snapshot (commodity, stage, region breakdowns):
-
-![Dashboard overview page](POWER_BI/screenshots/dashboard_overview.png)
-
-**Regional and Operational View** — drill-down by region, project, and site type:
-
-![Dashboard regional and operational view](POWER_BI/screenshots/dashboard_regional_analysis.png)
-
-`wa_mining_dashboard_v2.pbix` is the current version — it corrects region/LGA name suffixes that `v1` still has.
 
 ## Business Context
 
@@ -343,7 +422,7 @@ The full, current roadmap — delivered features, what's next and why, and the p
 - Test coverage is a starter set, not exhaustive — `backend/tests/` covers sort/filter logic and the `/api/sites` route; frontend covers `urlFilters` and `SitesTable`'s sort cycle. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct tests.
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql`'s own `portfolio_summary` rollup table still only buckets 4 of 6 stages — left as-is since that specific table isn't consumed by the app (unlike `01`–`03`'s output, which now is, via `DATABASES/Cleaned_Mining_Data/`).
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
-- Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `POWER_BI/screenshots/`.
+- Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `screenshots/` and `POWER_BI/screenshots/`.
 
 ## Related Experiments
 
