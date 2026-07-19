@@ -3,6 +3,8 @@ INSERT INTO sites (
     site_code,
     project_code,
     project_title,
+    title,
+    short_title,
     site_type,
     subtype,
     stage,
@@ -18,6 +20,8 @@ SELECT
     TRIM(sitecode) AS site_code,
     TRIM(projcode) AS project_code,
     TRIM(projecttitle) AS project_title,
+    NULLIF(TRIM(title), '') AS title,
+    NULLIF(TRIM(shorttitle), '') AS short_title,
     TRIM(INITCAP(sitetype)) AS site_type,
     TRIM(INITCAP(subtype)) AS subtype,
     TRIM(INITCAP(stage)) AS stage,  -- Standardize to Title Case
