@@ -67,6 +67,7 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 
 **Epic: Product Polish**
 - ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — **done, not yet reflected in the live Jira board.** Shipped as a new, out-of-backlog feature (not originally scoped in this file) -- see WA_MINING_PROJECT_PLAN.md section 1.9. This board entry should be added and moved to Done in Jira to match.
+- ~~Story: CSV export of the filtered Sites view~~ — **done, not yet reflected in the live Jira board.** `GET /api/sites/export` + an "Export CSV" link on `/sites`; full filtered+sorted result set, shared query path with the table so they can't drift -- see WA_MINING_PROJECT_PLAN.md section 1.10. This board entry should be added and moved to Done in Jira to match.
 
 ## How this got into Jira
 

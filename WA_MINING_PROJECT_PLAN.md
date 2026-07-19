@@ -80,20 +80,23 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - [x] Full keyboard control: ↑/↓ to move the active result, Enter to navigate to that site's detail page, Escape or a backdrop click to close
 - [x] Errors are logged to the console with a `[CommandPalette]` tag and shown inline, rather than failing silently
 - [x] One real bug fixed during build: focus-on-open originally used a ref + `requestAnimationFrame`, which proved unreliable; switched to the `autoFocus` prop, which is the correct tool here since the `<input>` is genuinely unmounted/remounted each time the palette opens
+- [x] Post-ship consistency review (2026-07-19) found and fixed two more: (1) reopening the palette briefly re-fetched and flashed the *previous* search's results, because the component stayed mounted while closed and the 150ms-debounced query outlived the reset — fixed structurally by mounting the palette only while open, which removes the whole stale-state class rather than guarding it; (2) Escape went dead if focus drifted to `<body>` (e.g. after clicking the non-focusable hint bar) — fixed by handling Escape at the window level in `App.tsx`. Palette now has its own test file (6 tests) covering search, keyboard flow, and the error path
+
+### 1.10 CSV export of filtered view — ✅ Done (2026-07-19)
+**Why:** Once someone has narrowed the portfolio down to exactly what they care about (e.g. "all Operating gold mines in the Goldfields"), the natural next step is taking that subset out of the app — into a spreadsheet, an email, a report attachment.
+- [x] Server-side generation: `GET /api/sites/export` accepts the same filter + `sort` params as the list endpoint and returns `text/csv` as an attachment (`wa_mining_sites.csv`) — the *full* filtered result set, not one page of it
+- [x] Zero drift by construction: the export reuses `_apply_filters` and a new shared `_apply_order` helper (extracted from `list_sites`), so the CSV is filtered and ordered by exactly the code path the table uses
+- [x] Proper escaping via the stdlib `csv` writer — project titles in this dataset genuinely contain commas and quotes — plus a UTF-8 BOM so Excel on Windows opens it correctly
+- [x] Route registered *before* `/{site_code}` with a regression test pinning that order — otherwise the path param captures `/export` as a site code and 404s
+- [x] Row-cap decision (per the original plan note): none — the full dataset is 421 rows (~60KB); documented in `list_sites_for_export`'s docstring with the revisit condition
+- [x] Frontend: an "Export CSV · N sites" link on `/sites` built from the same `debouncedFilters`/`sort` the table fetch uses; disabled state when the filter set matches zero rows
+- [x] Tests: 10 backend (CSV escaping units + route behavior incl. filters/sort/422/route-order) and 4 frontend (export-URL serialization)
 
 ---
 
 ## 2. Next up (approved priority order)
 
-### 2.1 CSV export of filtered view — 🔜 Next
-**Why:** Once someone has narrowed the portfolio down to exactly what they care about (e.g. "all Operating gold mines in the Goldfields"), the natural next step is taking that subset out of the app — into a spreadsheet, an email, a report attachment.
-- [ ] Decide server-side vs. client-side generation. Leaning server-side: `GET /api/sites/export?…same filters…&sort=…` returning `text/csv`, so the export reflects the *full* filtered result set (not just the current page of 25), which a client-side "export what's in the DOM" approach can't do without a separate unpaginated fetch anyway
-- [ ] Reuse `_apply_filters` + `resolve_sort` from `portfolio_service.py` — the export should be filtered/sorted identically to what's on screen, not a separate code path that can drift
-- [ ] CSV quoting/escaping for fields containing commas or quotes (project titles do have commas, e.g. "Boorara / Horizon")
-- [ ] Frontend: an "Export CSV" button on `/sites` that builds a download URL from current `filters`/`sort` (already centralized via `urlFilters.ts`) and triggers a browser download
-- [ ] Decide on a row cap or streaming response if the full unfiltered export (421 rows) turns out to need one — it almost certainly doesn't at this data size, but worth a one-line decision note either way
-
-### 2.2 Related sites by project — 📋 Planned
+### 2.1 Related sites by project — 🔜 Next
 **Why:** The data model's core insight (one project can have multiple sites — mine, processing plant, port) isn't visible anywhere in the UI yet. A site detail page for "Boorara Open Pit" doesn't show that "Boorara / Horizon" also has other sites.
 - [ ] Backend: either a new `GET /api/sites/{site_code}/related` endpoint, or expose `project_code` filtering on the existing `/api/sites` list endpoint and let the frontend reuse it
 - [ ] Frontend: a "Related sites in this project" section on `SiteDetailPage.tsx`, linking to each sibling site
@@ -106,7 +109,8 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 Carried over from the README's Future Improvements, organized here as actionable items rather than a flat list:
 
 - 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials.
-- 💡 **Expand test coverage** — section 1.8's suite is a focused starter set (sort/filter logic, one component), not exhaustive. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct coverage.
+- 💡 **Expand test coverage** — the suite (sections 1.8–1.10: 33 backend + 34 frontend tests) is focused, not exhaustive. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct coverage.
+- 💡 **Pin dev and CI to the same Node major** (`.nvmrc` + `engines`) — the durable guard against the npm 10 vs 11 lockfile-skew CI failure of 2026-07-18.
 - 💡 **TLS + custom domain** — e.g. Let's Encrypt via certbot in the nginx container.
 - 💡 **Automated CD** — deploy to EC2 on push to `main`, instead of the current manual runbook.
 - 💡 **Bundle size** — `vite build` warns on a >500kB chunk (Leaflet + deps); consider code-splitting the map route with `React.lazy` so `/sites` and `/` don't pay for Leaflet on first load.

@@ -10,7 +10,8 @@ frontend/
 │   ├── main.tsx              # React root, router setup
 │   ├── App.tsx                # layout shell + route definitions
 │   ├── api/
-│   │   └── client.ts          # typed fetch wrapper over the backend API
+│   │   ├── client.ts          # typed fetch wrapper over the backend API + export-URL builder
+│   │   └── client.test.ts     # export-URL serialization coverage (vitest)
 │   ├── types/
 │   │   └── site.ts            # shared TS types, mirroring the backend's Pydantic schemas
 │   ├── pages/
@@ -25,7 +26,8 @@ frontend/
 │   │   ├── SitesTable.tsx     # sortable column headers (click to toggle asc/desc)
 │   │   ├── SitesTable.test.tsx  # sort-cycle behavior (vitest + RTL)
 │   │   ├── SitesMap.tsx       # Leaflet map, CircleMarker per site, popup with site details
-│   │   ├── CommandPalette.tsx # Ctrl/Cmd+K global search modal
+│   │   ├── CommandPalette.tsx # Ctrl/Cmd+K global search modal (mounted only while open)
+│   │   ├── CommandPalette.test.tsx  # search/keyboard/error-path coverage (vitest + RTL)
 │   │   └── charts/
 │   │       └── BreakdownChart.tsx  # generic horizontal bar chart, reused for stage/commodity/region
 │   ├── hooks/
@@ -67,12 +69,15 @@ Vitest (Vite-native, so it reuses `vite.config.ts` rather than a separate config
 
 - `utils/urlFilters.test.ts` — parsing, serializing, and round-tripping filters/page/sort through `URLSearchParams`, including edge cases like a non-numeric or negative `page` value
 - `components/SitesTable.test.tsx` — the header click-cycle (ascending → descending → ascending on the same column; a different column always starts ascending), rendered with React Testing Library and a `MemoryRouter` (`SitesTable` renders `<Link>` internally)
+- `components/CommandPalette.test.tsx` — fresh-mount contract (focused blank input, no fetch), typing debounced into one request, ArrowDown+Enter navigation, Escape close, no-matches state, and the error path (inline message + tagged `console.error`), with `fetch` stubbed and `useNavigate` mocked
+- `api/client.test.ts` — `buildSitesExportUrl` serialization: repeated multi-value params matching the table's fetch, search/sort inclusion, and never emitting pagination params (asserts on pathname + params, not origin, since `API_BASE_URL` is environment-dependent)
 
-Runs in CI (`npm run test -- --run`) before the typecheck/build step. Not exhaustive — `MultiSelect`, `CommandPalette`, and the URL-sync effects in `SitesPage`/`MapPage` have no direct tests yet.
+Runs in CI (`npm run test -- --run`) before the typecheck/build step. Not exhaustive — `MultiSelect` and the URL-sync effects in `SitesPage`/`MapPage` have no direct tests yet.
 
 ## Notes
 
-- `CommandPalette` (`Ctrl`/`Cmd`+`K`, or the "Search sites" button in the header, both wired up in `App.tsx`) is a global search modal mounted once at the app root, not per-page — a command palette that only works on some routes isn't one you can rely on. It reuses `fetchSites({ search })` (no new backend endpoint), debounces at 150ms (snappier than the filter bar's 300ms, since instant feedback is the whole point), and supports ↑/↓/Enter/Escape plus a backdrop click to close. Focus-on-open uses the `autoFocus` prop rather than a ref + `requestAnimationFrame` — the latter was tried first and proved unreliable, since the `<input>` is genuinely unmounted/remounted each time the palette opens (an early `if (!isOpen) return null`), which is exactly the condition `autoFocus` handles correctly on its own. Fetch errors are logged to the console with a `[CommandPalette]` tag and shown inline, rather than failing silently.
+- `CommandPalette` (`Ctrl`/`Cmd`+`K`, or the "Search sites" button in the header, both wired up in `App.tsx`) is a global search modal available from every route — a command palette that only works on some routes isn't one you can rely on. It reuses `fetchSites({ search })` (no new backend endpoint), debounces at 150ms (snappier than the filter bar's 300ms, since instant feedback is the whole point), and supports ↑/↓/Enter/Escape plus a backdrop click to close. Two structural decisions worth knowing: (1) `App.tsx` renders it **only while open** (`{isPaletteOpen && …}`), so every open is a fresh mount — blank query, empty results, fresh debounce timer, and reliable `autoFocus`. An earlier always-mounted version with an `isOpen` prop briefly re-fetched and flashed the previous search's results on reopen, because the debounced query outlived the reset by 150ms. (2) Escape is also handled at the **window level** in `App.tsx`, because the palette's own keydown handler can't fire when focus has drifted to `<body>` (e.g. after clicking the non-focusable hint bar). Fetch errors are logged to the console with a `[CommandPalette]` tag and shown inline, rather than failing silently.
+- **Export CSV** on `/sites` is a plain `<a href>` to `GET /api/sites/export` (built by `buildSitesExportUrl` in `api/client.ts`), not a fetch — the server answers with `Content-Disposition: attachment`, so the browser downloads without navigating. The href is built from the same `debouncedFilters`/`sort` the table's own fetch uses, so the CSV always matches the rows on screen (the full filtered set, not just the current page). Renders as a disabled span when zero rows match.
 - `/sites` (filters + page + sort) and `/map` (filters) sync their state to the URL query string (`utils/urlFilters.ts`), using `history.replace` rather than `push` so rapid filter/sort/page changes don't flood browser history. Filtered/paginated/sorted links are shareable and survive a reload. Reads from and writes the same param names the backend accepts (`commodity`, `region`, `stage`, `site_type`, `search`, `sort`, `page`), so the URL bar and network tab always match.
 - `SitesTable`'s column headers are clickable to sort (toggles ascending/descending, ▲/▼ indicator on the active column). Sort and pagination changes bypass the 300ms filter debounce below — a header or pagination click is a discrete action, not a keystroke burst, so there's no typing to coalesce and the user expects an immediate reorder/page change.
 - `SitesMap` (Leaflet via `react-leaflet`) plots every site matching the current filters, colored by `stage`, with a popup linking to the site's detail page. `CircleMarker` is used instead of the default `Marker` to avoid Vite's broken default-icon-path issue. `.map-container` sets `isolation: isolate` — without it, Leaflet's own panes/controls (z-index up to 1000) escape their container and render above sibling page content like the filter dropdowns (z-index: 10).

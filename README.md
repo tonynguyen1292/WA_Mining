@@ -83,7 +83,7 @@ npm run dev
 ### Step 6 — Verify the app
 
 Open http://localhost:5173 — the Dashboard should load with KPI cards (421 total sites, 356 total projects) and three breakdown charts (stage/commodity/region). From there:
-- **Sites** in the nav bar → a filterable, sortable, paginated table of all 421 sites (filters/sort/page are synced to the URL, so the link is shareable)
+- **Sites** in the nav bar → a filterable, sortable, paginated table of all 421 sites (filters/sort/page are synced to the URL, so the link is shareable; **Export CSV** downloads the current filtered view in full)
 - **Map** in the nav bar → all matching sites plotted on a map, colored by stage, with the same filters
 - Click any site → its full detail page
 - Press **Ctrl+K** (or **⌘K**) anywhere, or click **Search sites** in the header → a global command palette; type to search, ↑/↓ to move, Enter to open a site directly
@@ -115,6 +115,7 @@ Both run in CI on every push/PR to `main`. See `backend/README.md` and `frontend
 |---|---|
 | `GET /health` | Liveness check |
 | `GET /api/sites` | Paginated site list; filter with `commodity`, `region`, `stage`, `site_type` (each repeatable for multi-select, e.g. `?region=Pilbara&region=Kimberley`), `search`; sort with `sort` (e.g. `?sort=-stage`, allowlisted, invalid values return 422) |
+| `GET /api/sites/export` | The same filtered+sorted view as a CSV download (full result set, not one page); same `commodity`/`region`/`stage`/`site_type`/`search`/`sort` params |
 | `GET /api/sites/{site_code}` | Single site detail |
 | `GET /api/kpis` | Portfolio KPIs (totals + breakdowns by stage/type/commodity/region), same filters as above |
 | `GET /api/meta/filters` | Distinct filter values, for populating dropdowns |
