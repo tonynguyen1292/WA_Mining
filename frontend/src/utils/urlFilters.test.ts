@@ -42,6 +42,14 @@ describe("filtersFromSearchParams", () => {
       search: "mine",
     });
   });
+
+  it("reads the project filter, matching the links that produce it", () => {
+    // ?project=J00098 is what the dashboard's top-projects panel and the
+    // detail page's view-all link emit -- it must parse as a first-class
+    // filter so the sites page actually applies it after navigation.
+    const params = new URLSearchParams("project=J00098");
+    expect(filtersFromSearchParams(params)).toEqual({ project: ["J00098"] });
+  });
 });
 
 describe("writeFiltersToSearchParams", () => {

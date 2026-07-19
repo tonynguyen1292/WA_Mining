@@ -57,5 +57,6 @@ export interface SiteFilters {
   region?: string[];
   stage?: string[];
   site_type?: string[];
+  project?: string[];
   search?: string;
 }

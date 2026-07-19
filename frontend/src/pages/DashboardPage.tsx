@@ -91,8 +91,8 @@ export default function DashboardPage() {
                   {kpis.top_projects.map((project) => (
                     <li key={project.project_code}>
                       <Link
-                        to={`/sites?search=${encodeURIComponent(project.project_title ?? project.project_code)}`}
-                        title="Open the sites list searched to this project"
+                        to={`/sites?project=${encodeURIComponent(project.project_code)}`}
+                        title="Open every site in this project"
                       >
                         {project.project_title ?? project.project_code}
                       </Link>

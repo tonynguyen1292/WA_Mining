@@ -4,7 +4,10 @@ import type { SiteFilters } from "../types/site";
 // repeated query params (?commodity=Gold&commodity=Nickel) -- reusing the
 // same keys in the URL means the address bar and the network tab always
 // show identical query strings, with no separate translation layer.
-const ARRAY_FILTER_KEYS = ["commodity", "region", "stage", "site_type"] as const;
+// "project" filters by project_code and mostly arrives via links (the
+// dashboard's top-projects panel, a site's related-sites section) rather
+// than a FilterBar dropdown -- 356 projects is not dropdown material.
+const ARRAY_FILTER_KEYS = ["commodity", "region", "stage", "site_type", "project"] as const;
 
 export function filtersFromSearchParams(params: URLSearchParams): SiteFilters {
   const filters: SiteFilters = {};

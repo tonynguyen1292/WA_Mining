@@ -74,6 +74,27 @@ export default function FilterBar({ filters, onChange, showSearch = true }: Filt
         onChange={(values) => setList("site_type", values)}
       />
 
+      {/* project has no dropdown (356 projects isn't dropdown material; the
+          filter arrives via links -- dashboard top-projects, related-sites)
+          but an active-but-invisible filter would make the shortened list
+          look broken, so it surfaces as a dismissible chip. */}
+      {(filters.project ?? []).map((code) => (
+        <button
+          key={code}
+          type="button"
+          className="filter-chip"
+          title="Remove this project filter"
+          onClick={() =>
+            onChange({
+              ...filters,
+              project: filters.project?.filter((value) => value !== code),
+            })
+          }
+        >
+          Project: {code} ✕
+        </button>
+      ))}
+
       {hasAnyFilter() && (
         <button type="button" className="filter-clear" onClick={() => onChange({})}>
           Clear filters
