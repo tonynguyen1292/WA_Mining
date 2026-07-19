@@ -38,6 +38,22 @@ def test_repeated_query_param_is_multi_value_filter(client):
     assert body["total"] == 2
 
 
+def test_project_query_param_filters_to_that_projects_sites(client):
+    res = client.get("/api/sites", params={"project": "P01"})
+    body = res.json()
+    assert body["total"] == 2
+    assert {item["site_code"] for item in body["items"]} == {"S001", "S005"}
+
+
+def test_project_param_reaches_the_export_too(client):
+    # The export shares _apply_filters with the list, so ?project= must
+    # produce a project-scoped CSV rather than silently exporting everything.
+    res = client.get("/api/sites/export", params={"project": "P01"})
+    assert res.status_code == 200
+    data_rows = [line for line in res.text.lstrip("\ufeff").splitlines()[1:] if line]
+    assert len(data_rows) == 2
+
+
 def test_site_detail_returns_full_record(client):
     res = client.get("/api/sites/S001")
     assert res.status_code == 200

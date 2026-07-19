@@ -109,6 +109,22 @@ class TestListSitesFiltering:
         items, total = list_sites(seeded_session, search="mine")
         assert total == 3  # Alpha Mine, Beta Mine, Echo Mine
 
+    def test_filter_by_project_code(self, seeded_session):
+        # P01 is the fixture's multi-site project (S001 + S005) -- the exact
+        # query the site detail page's "related sites" section runs.
+        items, total = list_sites(seeded_session, project=["P01"])
+        assert total == 2
+        assert {s.site_code for s in items} == {"S001", "S005"}
+
+    def test_project_filter_combines_with_other_filters(self, seeded_session):
+        # Within P01, only S005 is in Pilbara AND... both are: S001 Pilbara,
+        # S005 Pilbara. Use stage=Operating + region to prove AND semantics
+        # via a filter that actually excludes: S001+S005 are both Operating,
+        # so filter by search instead ("Echo" matches only S005's title).
+        items, total = list_sites(seeded_session, project=["P01"], search="Echo")
+        assert total == 1
+        assert items[0].site_code == "S005"
+
     def test_no_filters_returns_everything(self, seeded_session):
         _, total = list_sites(seeded_session)
         assert total == 5

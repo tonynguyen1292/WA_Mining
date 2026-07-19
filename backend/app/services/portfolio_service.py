@@ -64,6 +64,7 @@ def _apply_filters(
     stage: list[str] | None,
     site_type: list[str] | None,
     search: str | None,
+    project: list[str] | None = None,
 ):
     if commodity:
         stmt = stmt.where(Site.target_group_name.in_(commodity))
@@ -73,6 +74,14 @@ def _apply_filters(
         stmt = stmt.where(Site.stage.in_(stage))
     if site_type:
         stmt = stmt.where(Site.site_type.in_(site_type))
+    if project:
+        # Filters by project_code (the stable identifier), not project_title
+        # -- titles are display text; codes are what sites actually share.
+        # This one filter serves both "related sites" on the detail page and
+        # the dashboard's top-projects links, and inherits sort, URL sync,
+        # and CSV export from the shared pipeline instead of needing a
+        # dedicated /related endpoint.
+        stmt = stmt.where(Site.project_code.in_(project))
     if search:
         like = f"%{search}%"
         stmt = stmt.where(
@@ -114,6 +123,7 @@ def list_sites(
     stage: list[str] | None = None,
     site_type: list[str] | None = None,
     search: str | None = None,
+    project: list[str] | None = None,
     sort: str | None = None,
     page: int = 1,
     page_size: int = 25,
@@ -125,6 +135,7 @@ def list_sites(
         stage=stage,
         site_type=site_type,
         search=search,
+        project=project,
     )
 
     total = db.scalar(select(func.count()).select_from(base_stmt.subquery())) or 0
@@ -146,6 +157,7 @@ def list_sites_for_export(
     stage: list[str] | None = None,
     site_type: list[str] | None = None,
     search: str | None = None,
+    project: list[str] | None = None,
     sort: str | None = None,
 ) -> list[Site]:
     """The full filtered+sorted result set, unpaginated, for CSV export.
@@ -161,6 +173,7 @@ def list_sites_for_export(
         stage=stage,
         site_type=site_type,
         search=search,
+        project=project,
     )
     return list(db.scalars(_apply_order(stmt, sort)).all())
 
@@ -238,6 +251,7 @@ def get_kpis(
     region: list[str] | None = None,
     stage: list[str] | None = None,
     site_type: list[str] | None = None,
+    project: list[str] | None = None,
 ) -> dict:
     base_stmt = _apply_filters(
         select(Site),
@@ -246,6 +260,7 @@ def get_kpis(
         stage=stage,
         site_type=site_type,
         search=None,
+        project=project,
     )
     filtered = base_stmt.subquery()
 

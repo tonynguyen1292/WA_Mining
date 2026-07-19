@@ -14,8 +14,9 @@ def get_kpis(
     region: list[str] | None = Query(None, description="Filter by development_region (repeatable)"),
     stage: list[str] | None = Query(None, description="Filter by stage (repeatable)"),
     site_type: list[str] | None = Query(None, description="Filter by site_type (repeatable)"),
+    project: list[str] | None = Query(None, description="Filter by project_code (repeatable)"),
     db: Session = Depends(get_db),
 ) -> KpiSummary:
     return portfolio_service.get_kpis(
-        db, commodity=commodity, region=region, stage=stage, site_type=site_type
+        db, commodity=commodity, region=region, stage=stage, site_type=site_type, project=project
     )

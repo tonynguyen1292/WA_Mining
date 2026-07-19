@@ -18,6 +18,9 @@ def list_sites(
     stage: list[str] | None = Query(None, description="Filter by stage (repeatable)"),
     site_type: list[str] | None = Query(None, description="Filter by site_type (repeatable)"),
     search: str | None = Query(None, description="Free-text match on title / project / site code"),
+    project: list[str] | None = Query(
+        None, description="Filter by project_code (repeatable) -- e.g. ?project=J00098 for all of a project's sites"
+    ),
     sort: str | None = Query(
         None,
         description=(
@@ -37,6 +40,7 @@ def list_sites(
             stage=stage,
             site_type=site_type,
             search=search,
+            project=project,
             sort=sort,
             page=page,
             page_size=page_size,
@@ -56,6 +60,7 @@ def export_sites(
     stage: list[str] | None = Query(None, description="Same filter as the list endpoint (repeatable)"),
     site_type: list[str] | None = Query(None, description="Same filter as the list endpoint (repeatable)"),
     search: str | None = Query(None, description="Same free-text match as the list endpoint"),
+    project: list[str] | None = Query(None, description="Same project_code filter as the list endpoint (repeatable)"),
     sort: str | None = Query(
         None,
         description=(
@@ -75,6 +80,7 @@ def export_sites(
             stage=stage,
             site_type=site_type,
             search=search,
+            project=project,
             sort=sort,
         )
     except InvalidSortField as exc:
