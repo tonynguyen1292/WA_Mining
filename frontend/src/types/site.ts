@@ -28,6 +28,12 @@ export interface BreakdownItem {
   count: number;
 }
 
+export interface ProjectBreakdownItem {
+  project_code: string;
+  project_title: string | null;
+  site_count: number;
+}
+
 export interface KpiSummary {
   total_sites: number;
   total_projects: number;
@@ -35,6 +41,8 @@ export interface KpiSummary {
   by_site_type: BreakdownItem[];
   by_commodity: BreakdownItem[];
   by_region: BreakdownItem[];
+  by_lga: BreakdownItem[];
+  top_projects: ProjectBreakdownItem[];
 }
 
 export interface FilterOptions {

@@ -239,6 +239,60 @@ a {
   font-size: 14.5px;
 }
 
+.chart-grid + .chart-grid {
+  margin-top: 16px;
+}
+
+.chart-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.top-projects {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13.5px;
+}
+
+.top-projects li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--bg);
+}
+
+.top-projects li:last-child {
+  border-bottom: none;
+}
+
+.top-projects a {
+  text-decoration: none;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-projects-count {
+  color: var(--muted);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.provenance {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
 .empty-note,
 .error-note,
 .loading-note {

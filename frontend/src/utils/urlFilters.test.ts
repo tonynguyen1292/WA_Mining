@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   filtersFromSearchParams,
   pageFromSearchParams,
+  sitesLinkForBreakdown,
   sortFromSearchParams,
   writeFiltersToSearchParams,
 } from "./urlFilters";
@@ -114,5 +115,25 @@ describe("sortFromSearchParams", () => {
 
   it("returns the sort value verbatim, including the descending prefix", () => {
     expect(sortFromSearchParams(new URLSearchParams("sort=-stage"))).toBe("-stage");
+  });
+});
+
+describe("sitesLinkForBreakdown", () => {
+  it("builds a /sites link with the field as a filter param", () => {
+    expect(sitesLinkForBreakdown("stage", "Operating")).toBe("/sites?stage=Operating");
+    expect(sitesLinkForBreakdown("commodity", "Iron Ore")).toBe("/sites?commodity=Iron+Ore");
+  });
+
+  it("URL-encodes labels the same way the filter bar's own sync does", () => {
+    // Round-trip: the link it builds must parse back to the same filter.
+    const link = sitesLinkForBreakdown("region", "Goldfields-Esperance");
+    const params = new URLSearchParams(link!.split("?")[1]);
+    expect(filtersFromSearchParams(params)).toEqual({ region: ["Goldfields-Esperance"] });
+  });
+
+  it("returns null for the synthetic Unspecified bucket", () => {
+    // "Unspecified" stands for NULL, which /sites can't filter on -- a
+    // link would land on an empty-looking, misleading result.
+    expect(sitesLinkForBreakdown("stage", "Unspecified")).toBeNull();
   });
 });

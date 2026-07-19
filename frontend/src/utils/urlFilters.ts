@@ -35,6 +35,20 @@ export function writeFiltersToSearchParams(
   return next;
 }
 
+// Maps a dashboard breakdown chart to the /sites filter its bars can deep-
+// link into. Returns null for the synthetic "Unspecified" bucket (it stands
+// for NULL, which the sites list can't filter on) -- callers render those
+// bars as plain, non-clickable marks rather than dead links.
+export function sitesLinkForBreakdown(
+  field: "stage" | "commodity" | "region" | "site_type",
+  label: string
+): string | null {
+  if (label === "Unspecified") return null;
+  const params = new URLSearchParams();
+  params.append(field, label);
+  return `/sites?${params.toString()}`;
+}
+
 export function pageFromSearchParams(params: URLSearchParams): number {
   const raw = params.get("page");
   const parsed = raw ? Number.parseInt(raw, 10) : 1;
