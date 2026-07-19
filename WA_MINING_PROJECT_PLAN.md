@@ -124,15 +124,21 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - Stage × commodity stacked composition (two-dimension KPI query + stacked bars)
 - An LGA filter on `/sites` — would also let the LGA chart's bars become clickable like the other three
 
+### 1.14 Related sites by project — ✅ Done (2026-07-19, WMDP2-65)
+**Why:** The data model's core insight (one project can have multiple sites — mine, processing plant, port) wasn't visible anywhere in the UI. A site detail page for a Waroonga site didn't show that "Agnew - Emu" has two more.
+- [x] Design decision the plan left open, resolved in favor of the **`project` filter on `/api/sites`** over a dedicated `/related` endpoint: one mechanism serves both the detail page's related-sites section *and* the dashboard's top-projects links, and it inherits URL sync, sorting, and CSV export for free through the shared `_apply_filters` pipeline (`?project=J00098` is now a shareable, sortable, exportable view). Filters by `project_code` (the stable identifier), not title. Added to `/api/kpis` too, keeping the "same filter params everywhere" invariant intact
+- [x] `SiteDetailPage`: a "Related sites in this project" section listing siblings (self excluded — it's already the page heading), each linking to its own detail page, plus a "View all N sites in this project →" link into the project-filtered sites view. A failed related-fetch degrades to the section not rendering, never an error state — related sites are supplementary
+- [x] Edge case as planned: a single-site project (most of them) renders **no section at all**, not an empty heading — pinned by test
+- [x] The dashboard's top-projects links upgraded from the interim `?search=<title>` to real `?project=<code>` links, as 1.13 promised
+- [x] `FilterBar` renders an active project filter as a dismissible chip ("Project: J00098 ✕") — the filter has no dropdown (356 projects isn't dropdown material; it arrives via links), and an active-but-invisible filter would make the shortened list look broken
+- [x] Tests: 4 backend (service filter + AND-composition, route param, export inherits the filter) and 4 frontend (URL parsing, related-sites rendering with self-exclusion, view-all href, single-site renders nothing) — `SiteDetailPage`'s first-ever test file
+- [x] Verified end-to-end via Playwright against live data: Waroonga detail → 2 siblings listed (self excluded) → sibling click navigates → view-all lands on `/sites?project=J00098` with the chip and exactly 3 sites → chip dismissal clears → dashboard links carry `?project=` → single-site Abra Underground (J00545, confirmed 1 site) renders no section
+
 ---
 
-## 2. Next up (approved priority order)
+## 2. Next up
 
-### 2.1 Related sites by project — 🔜 Next
-**Why:** The data model's core insight (one project can have multiple sites — mine, processing plant, port) isn't visible anywhere in the UI yet. A site detail page for "Boorara Open Pit" doesn't show that "Boorara / Horizon" also has other sites.
-- [ ] Backend: either a new `GET /api/sites/{site_code}/related` endpoint, or expose `project_code` filtering on the existing `/api/sites` list endpoint and let the frontend reuse it
-- [ ] Frontend: a "Related sites in this project" section on `SiteDetailPage.tsx`, linking to each sibling site
-- [ ] Edge case: a project with only one site (most of them) should render nothing extra, not an empty "Related sites" heading
+**The originally-approved feature sequence is now fully delivered** (sortable columns → URL sync → map → CSV export → related sites, plus everything added along the way). Next work comes from the [platform / infrastructure roadmap](#3-platform--infrastructure-roadmap) below — deploy execution, coverage expansion, Node pinning — or from a fresh feature brainstorm (the parked 1.13 ideas are the warmest candidates: an LGA filter on `/sites` would also unlock LGA-bar clickability).
 
 ---
 

@@ -73,7 +73,7 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 - ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — Done, on the board. See section 1.9.
 - ~~Story: CSV export of filtered view~~ — Done, on the board (covers the export endpoint, header labels, and no-store caching). See sections 1.10 and 1.12.
 - ~~Story: Cleaned-data pipeline consolidation~~ — Done, on the board. See section 1.11.
-- Story: Related sites by project (WMDP2-65) — **in WMDP2 Sprint 3**, next up per the roadmap (section 2.1).
+- ~~Story: Related sites by project (WMDP2-65)~~ — **Done, on the board** (transitioned in the same sitting the feature shipped). A `?project=` filter on `/api/sites` powers the detail page's related-sites section, the dashboard's project links, and project-scoped exports — see WA_MINING_PROJECT_PLAN.md section 1.14. With WMDP2-17 also Done, **Sprint 3's scope is now fully complete** — the sprint can be closed whenever you're ready (a ceremony call, left to you).
 
 ## Board reconciliation log (2026-07-19)
 

@@ -81,7 +81,7 @@ Filters (`commodity`, `region`, `stage`, `site_type`) accept multiple values by 
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/health` | Liveness check |
-| GET | `/api/sites` | Paginated list. Query params: `commodity`, `region`, `stage`, `site_type` (each repeatable), `search`, `sort` (allowlisted column, prefix `-` for descending, e.g. `-stage`; invalid values return 422), `page`, `page_size` |
+| GET | `/api/sites` | Paginated list. Query params: `commodity`, `region`, `stage`, `site_type`, `project` (project_code; each repeatable), `search`, `sort` (allowlisted column, prefix `-` for descending, e.g. `-stage`; invalid values return 422), `page`, `page_size`. `?project=` is how the frontend's related-sites section and dashboard project links work — one shared filter, not a dedicated `/related` endpoint |
 | GET | `/api/sites/export` | The filtered+sorted list as a CSV attachment (`wa_mining_sites.csv`) — full result set, unpaginated. Same filter/`sort` params as the list; UTF-8 BOM included for Excel; `Cache-Control: no-store` so a re-seed is never masked by a cached download. Header row uses the UI's labels ("Local Government Area", not `lga_name`) via `EXPORT_COLUMN_LABELS`. Registered before `/{site_code}` so the path param doesn't capture it |
 | GET | `/api/sites/{site_code}` | Single site detail; 404 if not found |
 | GET | `/api/kpis` | Portfolio totals + breakdowns by stage/site type/commodity/region, plus `by_lga` (top 10 — 65 distinct LGAs would swamp a chart) and `top_projects` (multi-site projects only, `HAVING count >= 2`, ranked by site count with a `project_code` tiebreaker). Same filter params as `/api/sites` (minus `search`) |
@@ -109,6 +109,7 @@ Tests run against an in-memory SQLite database, not a real Postgres — `conftes
 - `test_sites_routes.py` — the HTTP layer on top: does an invalid `sort` actually come back as 422 (not 500), do query params reach the service layer correctly, does an unknown `site_code` 404
 - `test_export.py` — `sites_to_csv`'s escaping (commas, quotes, embedded newlines, NULLs) and header labeling (every export column must have a label; the header row is the labels, not attribute names) as pure units, plus `/api/sites/export` route behavior: download headers + BOM + `Cache-Control: no-store`, filters/sort applied, invalid sort 422, and a regression guard that `/export` isn't captured by the `/{site_code}` path param
 - `test_kpis.py` — `/api/kpis` totals (site count vs. distinct-project count), breakdown count-descending ordering and NULL bucketing, `by_lga` aggregation, and `top_projects` (multi-site projects only; respects filters, including filtering down to zero)
+- The `project` filter is covered across layers: service-level (`test_portfolio_service.py` — membership + AND-composition with other filters) and route-level (`test_sites_routes.py` — the query param on the list, and a guard that the export inherits it through the shared `_apply_filters`)
 
 Runs in CI alongside linting. Not exhaustive — `/api/meta/filters` has no tests yet.
 
