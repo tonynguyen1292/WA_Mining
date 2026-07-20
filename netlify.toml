@@ -1,0 +1,35 @@
+# Netlify configuration for the WA Mining Portfolio dashboard.
+#
+# The React/Vite frontend is built to a static bundle and served from the CDN;
+# the FastAPI backend has been reimplemented as Netlify Functions (under
+# netlify/functions) backed by Netlify Database, so the whole app runs on the
+# site's own domain with no separate server.
+
+[build]
+  # Root package.json deps (Functions + Drizzle + Netlify Database) are
+  # installed automatically at the base directory before this runs; this step
+  # installs the frontend's own deps and produces the static bundle.
+  command = "npm --prefix frontend ci && npm --prefix frontend run build"
+  publish = "frontend/dist"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Local development (`netlify dev`): run the Vite dev server in frontend/ and
+# let Netlify proxy the Functions and redirects in front of it, mirroring the
+# deployed topology.
+[dev]
+  command = "npm --prefix frontend run dev"
+  targetPort = 5173
+  framework = "#custom"
+  publish = "frontend/dist"
+
+# SPA fallback: the app uses client-side routing (react-router BrowserRouter),
+# so deep links like /sites/S0000008 must return index.html. This rule has no
+# `force`, so it only applies when nothing else matches -- real static assets
+# and the /api/* + /health Functions take precedence.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

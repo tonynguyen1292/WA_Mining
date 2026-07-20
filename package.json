@@ -1,0 +1,20 @@
+{
+  "name": "wa-mining",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "WA Mining Portfolio dashboard — static frontend + Netlify Functions API over Netlify Database.",
+  "scripts": {
+    "build:frontend": "npm --prefix frontend ci && npm --prefix frontend run build",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@netlify/database": "^1.1.0",
+    "@netlify/functions": "^3.1.10",
+    "drizzle-orm": "^1.0.0-beta.22"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "drizzle-kit": "^1.0.0-beta.22"
+  }
+}

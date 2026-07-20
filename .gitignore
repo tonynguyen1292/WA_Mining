@@ -24,3 +24,15 @@ frontend/dist/
 frontend/.env
 frontend/*.tsbuildinfo
 
+# Root (Netlify Functions + Drizzle + Netlify Database)
+node_modules/
+deno.lock
+
+# Netlify CLI local runtime state (created by `netlify dev`)
+.netlify/state.json
+.netlify/functions-serve/
+.netlify/functions-internal/
+.netlify/blobs-serve/
+.netlify/db/
+.netlify/v1/
+
