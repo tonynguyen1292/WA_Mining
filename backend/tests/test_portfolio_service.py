@@ -109,6 +109,20 @@ class TestListSitesFiltering:
         items, total = list_sites(seeded_session, search="mine")
         assert total == 3  # Alpha Mine, Beta Mine, Echo Mine
 
+    def test_search_treats_like_wildcards_as_literals(self, seeded_session):
+        # Wildcard-pinning (sprint-review C2): before escaping, "_" matched
+        # every record (any single character) and "%" over-matched -- wrong
+        # results with no error, inherited by the CSV export through the
+        # shared pipeline.
+        _, total = list_sites(seeded_session, search="_")
+        assert total == 0  # no title/project/code contains a literal underscore
+
+        _, total = list_sites(seeded_session, search="a_M")
+        assert total == 0  # previously matched "Alpha Mine" via 'a' + any + 'M'
+
+        _, total = list_sites(seeded_session, search="100%")
+        assert total == 0  # literal, not "anything containing 100"
+
     def test_filter_by_project_code(self, seeded_session):
         # P01 is the fixture's multi-site project (S001 + S005) -- the exact
         # query the site detail page's "related sites" section runs.

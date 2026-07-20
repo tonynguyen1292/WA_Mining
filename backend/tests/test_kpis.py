@@ -26,6 +26,28 @@ def test_breakdowns_are_ordered_by_count_descending(client):
     assert {"label": "Unspecified", "count": 1} in body["by_stage"]
 
 
+def test_breakdown_ties_are_deterministically_ordered(client):
+    # Tie-pinning (sprint-review C1): tied counts must order alphabetically
+    # by label, NULL bucket last -- without the tiebreaker, tied entries
+    # reorder arbitrarily between identical requests, and by_lga's LIMIT 10
+    # cutoff would make LGAs randomly enter/leave the dashboard chart.
+    body = _get_kpis(client)
+    # by_stage: Proposed (1) and the NULL bucket (1) are tied -- Proposed
+    # must come first (real values before NULL), giving one exact order.
+    assert body["by_stage"] == [
+        {"label": "Operating", "count": 3},
+        {"label": "Proposed", "count": 1},
+        {"label": "Unspecified", "count": 1},
+    ]
+    # by_site_type: Deposit (1) and Infrastructure (1) are tied -- must be
+    # alphabetical, so the full list has exactly one valid ordering.
+    assert body["by_site_type"] == [
+        {"label": "Mine", "count": 3},
+        {"label": "Deposit", "count": 1},
+        {"label": "Infrastructure", "count": 1},
+    ]
+
+
 def test_by_lga_present_and_count_ordered(client):
     # Fixture rows carry no lga_name, so the whole set buckets into
     # "Unspecified" -- what matters here is the field exists, aggregates,

@@ -83,11 +83,17 @@ def _apply_filters(
         # dedicated /related endpoint.
         stmt = stmt.where(Site.project_code.in_(project))
     if search:
-        like = f"%{search}%"
+        # Escape LIKE metacharacters so user input matches literally --
+        # without this, searching "100%" over-matches (% is a wildcard) and
+        # "_" matches every record (any single character), silently
+        # returning wrong results with no error. Backslash first, since
+        # it's the escape character itself.
+        escaped = search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        like = f"%{escaped}%"
         stmt = stmt.where(
-            Site.title.ilike(like)
-            | Site.project_title.ilike(like)
-            | Site.site_code.ilike(like)
+            Site.title.ilike(like, escape="\\")
+            | Site.project_title.ilike(like, escape="\\")
+            | Site.site_code.ilike(like, escape="\\")
         )
     return stmt
 
@@ -271,10 +277,15 @@ def get_kpis(
 
     def breakdown(column_name: str, limit: int | None = None) -> list[dict]:
         col = filtered.c[column_name]
+        # Alphabetical tiebreaker on the label, same determinism rationale
+        # as _apply_order's site_code and top_projects' project_code below:
+        # tied counts are the norm here, and for by_lga the LIMIT 10 cutoff
+        # means nondeterministic ties would make LGAs arbitrarily appear and
+        # disappear from the dashboard between identical requests.
         stmt = (
             select(col, func.count().label("count"))
             .group_by(col)
-            .order_by(func.count().desc())
+            .order_by(func.count().desc(), col.asc().nulls_last())
         )
         if limit is not None:
             stmt = stmt.limit(limit)
