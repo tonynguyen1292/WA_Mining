@@ -134,11 +134,31 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - [x] Tests: 4 backend (service filter + AND-composition, route param, export inherits the filter) and 4 frontend (URL parsing, related-sites rendering with self-exclusion, view-all href, single-site renders nothing) — `SiteDetailPage`'s first-ever test file
 - [x] Verified end-to-end via Playwright against live data: Waroonga detail → 2 siblings listed (self excluded) → sibling click navigates → view-all lands on `/sites?project=J00098` with the chip and exactly 3 sites → chip dismissal clears → dashboard links carry `?project=` → single-site Abra Underground (J00545, confirmed 1 site) renders no section
 
+### 1.15 End-of-sprint code review + immediate fixes — ✅ Done (2026-07-20)
+**Why:** Sprint-close review of the full July 18–19 delivery (`06bda5a..afe574c`), strict and evidence-based: every finding carries file/line evidence, and one suspected issue (a stale-closure risk in `SitesPage`'s URL-sync effect) was investigated and dismissed rather than reported. Outcome: no critical or security-class issues; three confirmed fixables, four monitored risks, six named test gaps.
+- [x] **C1 fixed** — `breakdown()` in `portfolio_service.py` ordered by count only, violating the file's own documented determinism convention (`_apply_order`'s `site_code` and `top_projects`' `project_code` tiebreakers). With `by_lga`'s `LIMIT 10`, tied LGAs could arbitrarily enter/leave the dashboard chart between identical requests. Fix: `col.asc().nulls_last()` secondary order + a tie-pinning test asserting the single valid ordering of `by_stage` and `by_site_type` (both contain deliberate ties in the fixture)
+- [x] **C2 fixed** — `search` passed user-typed `%`/`_`/`\` to `ILIKE` as wildcards: searching `_` matched every record, `100%` over-matched, and the CSV export inherited the wrong rows through the shared pipeline. Fix: escape all three metacharacters (backslash first) with `escape="\\"` + three literal-matching tests, including `search="_"` → 0 (previously would have been all rows)
+- [x] Backend suite now 47 tests; live-API re-verification deferred to next stack start (Docker not running in the review session — the pinning tests and CI cover both fixes; `ilike(escape=)` and the tiebreaker compile identically on SQLite/Postgres)
+- [x] Everything not fixed on the spot logged below (2.1, 2.2) and on the board — no findings live only in a chat transcript
+
 ---
 
-## 2. Next up
+## 2. Next up (from the sprint review, in priority order)
 
-**The originally-approved feature sequence is now fully delivered** (sortable columns → URL sync → map → CSV export → related sites, plus everything added along the way). Next work comes from the [platform / infrastructure roadmap](#3-platform--infrastructure-roadmap) below — deploy execution, coverage expansion, Node pinning — or from a fresh feature brainstorm (the parked 1.13 ideas are the warmest candidates: an LGA filter on `/sites` would also unlock LGA-bar clickability).
+### 2.1 Data-refresh guardrails — 📋 Planned (board: see JIRA_BACKLOG.md)
+**Why:** Review finding C3 + risks R1–R3: the app now hardcodes dataset facts in places a data refresh won't touch, and three code paths assume the ~421-row shape. None are live bugs; all become bugs the first time `DATABASES/raw/` is refreshed.
+- [ ] C3: append an "after refreshing, also update" checklist to `DATABASES/README_database.md` — Dashboard provenance strip numbers/date, README Business Context counts, `data_dictionary.md` snapshot date, screenshots; verify new row count ≤ `MAP_PAGE_SIZE` (500) and largest project ≤ `RELATED_FETCH_SIZE` (100)
+- [ ] R1: decide CSV formula-injection handling (`sites_to_csv` writes cells verbatim; a future value starting `=`/`+`/`-`/`@` executes in Excel) — either prefix-quote such cells or record an explicit won't-fix with rationale
+- [ ] R2: consider a seed-time warning when the dataset crosses the hardcoded caps, so truncation is loud instead of silent
+- [ ] R3: guard `top_projects`' `GROUP BY (project_code, project_title)` against title drift within one code (seed-time consistency check, or group by code only)
+
+### 2.2 Platform hygiene — 📋 Planned (board: see JIRA_BACKLOG.md)
+**Why:** Two of these are incident-justified carry-overs (the npm 10/11 lockfile CI failure; the literal-U+FEFF hazard that recurred twice in one sprint), one is review risk R4.
+- [ ] Pin dev and CI to the same Node major: `.nvmrc` + `engines` in `frontend/package.json`
+- [ ] CI guard: fail on literal U+FEFF characters in source files (a one-line grep step)
+- [ ] R4: explicit `Cache-Control: no-store` on the JSON endpoints (`/api/sites`, `/api/kpis`) — the export already has it; the JSON routes currently rely on browsers' default XHR behavior
+
+Beyond these: the [platform / infrastructure roadmap](#3-platform--infrastructure-roadmap) below (deploy execution, coverage expansion) and the parked 1.13 ideas (an LGA filter on `/sites` would also unlock LGA-bar clickability).
 
 ---
 
@@ -147,7 +167,7 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 Carried over from the README's Future Improvements, organized here as actionable items rather than a flat list:
 
 - 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials.
-- 💡 **Expand test coverage** — the suite has grown with every feature (45 backend + 41 frontend tests as of 1.14) but is focused, not exhaustive. Remaining gaps: `/api/meta/filters`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage`. (`/api/kpis`, once on this list, gained direct coverage in 1.13.)
+- 💡 **Expand test coverage** — the suite has grown with every feature (47 backend + 41 frontend tests as of 1.15) but is focused, not exhaustive. Remaining gaps, per the sprint review: `/api/meta/filters`, `MultiSelect`, the URL-sync effects in `SitesPage`/`MapPage`, `App.tsx`'s shortcut wiring (Ctrl/Cmd+K toggle, window-level Escape), and `FilterBar`'s project-chip dismissal. (`/api/kpis`, once on this list, gained direct coverage in 1.13.)
 - 💡 **Pin dev and CI to the same Node major** (`.nvmrc` + `engines`) — the durable guard against the npm 10 vs 11 lockfile-skew CI failure of 2026-07-18.
 - 💡 **TLS + custom domain** — e.g. Let's Encrypt via certbot in the nginx container.
 - 💡 **Automated CD** — deploy to EC2 on push to `main`, instead of the current manual runbook.

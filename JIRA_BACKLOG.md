@@ -75,6 +75,15 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 - ~~Story: Cleaned-data pipeline consolidation~~ — Done, on the board. See section 1.11.
 - ~~Story: Related sites by project (WMDP2-65)~~ — **Done, on the board** (transitioned in the same sitting the feature shipped). A `?project=` filter on `/api/sites` powers the detail page's related-sites section, the dashboard's project links, and project-scoped exports — see WA_MINING_PROJECT_PLAN.md section 1.14. With WMDP2-17 also Done, **Sprint 3's scope is now fully complete** — the sprint can be closed whenever you're ready (a ceremony call, left to you).
 
+## Pending board sync (2026-07-20) — blocked on browser access, execute when Chrome is available
+
+The 2026-07-20 sprint review produced three stories that belong on the board. Chrome wasn't running in the review session, so they're specified here exactly and should be created verbatim (same flow as the 2026-07-19 reconciliation):
+1. **Story, Done, parent WMDP2-59 Product Polish:** "Code-review fixes: breakdown tie ordering + search wildcard escaping" — shipped same-day with pinning tests (plan 1.15, C1+C2).
+2. **Story, To Do, parent WMDP2-5 Post-Deployment Hardening, backlog:** "Data-refresh guardrails" — refresh checklist, CSV formula-injection decision, cap warnings, project-title drift guard (plan 2.1).
+3. **Story, To Do, parent WMDP2-5 Post-Deployment Hardening, backlog:** "Platform hygiene: Node pin, U+FEFF CI guard, JSON cache headers" (plan 2.2).
+
+Once created, replace this section with their keys in the lists above/below.
+
 ## Board reconciliation log (2026-07-19)
 
 The board drifted while the repo shipped (every item above previously carried a "done, not yet reflected in the live Jira board" note). Reconciled in one pass, executed through the Jira UI:
