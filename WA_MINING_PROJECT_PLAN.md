@@ -145,14 +145,14 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 
 ## 2. Next up (from the sprint review, in priority order)
 
-### 2.1 Data-refresh guardrails — 📋 Planned (board: see JIRA_BACKLOG.md)
+### 2.1 Data-refresh guardrails — 📋 Planned (board: WMDP2-68)
 **Why:** Review finding C3 + risks R1–R3: the app now hardcodes dataset facts in places a data refresh won't touch, and three code paths assume the ~421-row shape. None are live bugs; all become bugs the first time `DATABASES/raw/` is refreshed.
 - [ ] C3: append an "after refreshing, also update" checklist to `DATABASES/README_database.md` — Dashboard provenance strip numbers/date, README Business Context counts, `data_dictionary.md` snapshot date, screenshots; verify new row count ≤ `MAP_PAGE_SIZE` (500) and largest project ≤ `RELATED_FETCH_SIZE` (100)
 - [ ] R1: decide CSV formula-injection handling (`sites_to_csv` writes cells verbatim; a future value starting `=`/`+`/`-`/`@` executes in Excel) — either prefix-quote such cells or record an explicit won't-fix with rationale
 - [ ] R2: consider a seed-time warning when the dataset crosses the hardcoded caps, so truncation is loud instead of silent
 - [ ] R3: guard `top_projects`' `GROUP BY (project_code, project_title)` against title drift within one code (seed-time consistency check, or group by code only)
 
-### 2.2 Platform hygiene — 📋 Planned (board: see JIRA_BACKLOG.md)
+### 2.2 Platform hygiene — 📋 Planned (board: WMDP2-69)
 **Why:** Two of these are incident-justified carry-overs (the npm 10/11 lockfile CI failure; the literal-U+FEFF hazard that recurred twice in one sprint), one is review risk R4.
 - [ ] Pin dev and CI to the same Node major: `.nvmrc` + `engines` in `frontend/package.json`
 - [ ] CI guard: fail on literal U+FEFF characters in source files (a one-line grep step)
