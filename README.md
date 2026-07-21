@@ -378,7 +378,7 @@ Differences from the dev compose file: the backend runs without `--reload` and *
 
 ### CI
 
-`.github/workflows/ci.yml` runs on every push/PR to `main`: backend lint (`ruff`) + compile check + tests (`pytest`), and frontend tests (`vitest`) + typecheck + build (`tsc -b && vite build`). All must pass before merging.
+`.github/workflows/ci.yml` runs on every push/PR to `main`: a source-hygiene job (fails on literal U+FEFF byte-order marks in source files — an invisible-paste hazard that has recurred four times in this repo; CSVs are exempt since the raw DMIRS download legitimately starts with one), backend lint (`ruff`) + compile check + tests (`pytest`), and frontend tests (`vitest`) + typecheck + build (`tsc -b && vite build`) on the same Node major local dev uses (24 — pinned by `frontend/.nvmrc`, the `engines` field, and the CI config together, after a dev-vs-CI npm major skew broke a lockfile in CI on 2026-07-18). All must pass before merging.
 
 ### Cloud Deployment (AWS)
 

@@ -28,8 +28,10 @@ backend/
 │   ├── conftest.py             # in-memory SQLite fixtures + TestClient
 │   ├── test_portfolio_service.py  # sort/filter/tiebreaker/NULL-handling logic
 │   ├── test_sites_routes.py    # /api/sites HTTP-layer behavior (422s, filters, 404s)
-│   ├── test_export.py          # CSV escaping units + /api/sites/export route behavior
-│   └── test_kpis.py            # /api/kpis totals, breakdown ordering, by_lga, top_projects
+│   ├── test_export.py          # CSV escaping + formula-cell neutralization + /api/sites/export route behavior
+│   ├── test_kpis.py            # /api/kpis totals, breakdown ordering, by_lga, top_projects
+│   ├── test_cache_headers.py   # /api-wide Cache-Control: no-store middleware
+│   └── test_seed_guardrails.py # seed-time dataset-shape warnings (refresh guardrails)
 ├── requirements.txt
 ├── requirements-dev.txt        # + ruff, pytest, httpx, for CI/local linting + testing
 ├── Dockerfile
@@ -107,11 +109,13 @@ Tests run against an in-memory SQLite database, not a real Postgres — `conftes
 
 - `test_portfolio_service.py` — `resolve_sort`'s allowlist/parsing, and `list_sites`'s sort direction, `NULLS LAST` on both directions, the `site_code` tiebreaker's determinism across repeated calls, and filter composition (single value, multiple values as OR, multiple fields as AND, free-text search)
 - `test_sites_routes.py` — the HTTP layer on top: does an invalid `sort` actually come back as 422 (not 500), do query params reach the service layer correctly, does an unknown `site_code` 404
-- `test_export.py` — `sites_to_csv`'s escaping (commas, quotes, embedded newlines, NULLs) and header labeling (every export column must have a label; the header row is the labels, not attribute names) as pure units, plus `/api/sites/export` route behavior: download headers + BOM + `Cache-Control: no-store`, filters/sort applied, invalid sort 422, and a regression guard that `/export` isn't captured by the `/{site_code}` path param
+- `test_export.py` — `sites_to_csv`'s escaping (commas, quotes, embedded newlines, NULLs), header labeling (every export column must have a label; the header row is the labels, not attribute names), and formula-cell neutralization (text cells starting `=`/`+`/`-`/`@`/tab/CR get a `'` prefix so a refreshed dataset can't turn the export into CSV injection; negative float coordinates explicitly untouched) as pure units, plus `/api/sites/export` route behavior: download headers + BOM + `Cache-Control: no-store`, filters/sort applied, invalid sort 422, and a regression guard that `/export` isn't captured by the `/{site_code}` path param
 - `test_kpis.py` — `/api/kpis` totals (site count vs. distinct-project count), breakdown count-descending ordering and NULL bucketing, `by_lga` aggregation, and `top_projects` (multi-site projects only; respects filters, including filtering down to zero)
+- `test_cache_headers.py` — the `/api`-wide `Cache-Control: no-store` middleware: JSON endpoints (and even 404s under `/api`) are stamped, a route's own `Cache-Control` wins without double-stamping (the export sets its own), and `/health` stays untouched as proof of `/api` scoping
+- `test_seed_guardrails.py` — `_dataset_shape_warnings`, the seed step's refresh guardrails: warnings when the dataset outgrows the map page's single-fetch cap or a project outgrows the related-sites fetch cap (naming the project), when one `project_code` carries two spellings of its title, the exactly-at-cap boundary, NULL project fields not counting as drift, and warning accumulation — the first test coverage of anything in `app.db.seed`
 - The `project` filter is covered across layers: service-level (`test_portfolio_service.py` — membership + AND-composition with other filters) and route-level (`test_sites_routes.py` — the query param on the list, and a guard that the export inherits it through the shared `_apply_filters`)
 
-Runs in CI alongside linting. Not exhaustive — `/api/meta/filters` has no tests yet.
+Runs in CI alongside linting. Not exhaustive — `/api/meta/filters` still has no content tests (only an incidental 200-plus-cache-header check in `test_cache_headers.py`).
 
 ## Known scope limits
 

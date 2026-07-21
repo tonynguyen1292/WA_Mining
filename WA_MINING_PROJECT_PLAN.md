@@ -139,26 +139,28 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 - [x] **C1 fixed** — `breakdown()` in `portfolio_service.py` ordered by count only, violating the file's own documented determinism convention (`_apply_order`'s `site_code` and `top_projects`' `project_code` tiebreakers). With `by_lga`'s `LIMIT 10`, tied LGAs could arbitrarily enter/leave the dashboard chart between identical requests. Fix: `col.asc().nulls_last()` secondary order + a tie-pinning test asserting the single valid ordering of `by_stage` and `by_site_type` (both contain deliberate ties in the fixture)
 - [x] **C2 fixed** — `search` passed user-typed `%`/`_`/`\` to `ILIKE` as wildcards: searching `_` matched every record, `100%` over-matched, and the CSV export inherited the wrong rows through the shared pipeline. Fix: escape all three metacharacters (backslash first) with `escape="\\"` + three literal-matching tests, including `search="_"` → 0 (previously would have been all rows)
 - [x] Backend suite now 47 tests; live-API re-verification deferred to next stack start (Docker not running in the review session — the pinning tests and CI cover both fixes; `ilike(escape=)` and the tiebreaker compile identically on SQLite/Postgres)
-- [x] Everything not fixed on the spot logged below (2.1, 2.2) and on the board — no findings live only in a chat transcript
+- [x] Everything not fixed on the spot logged into the plan (as then-sections 2.1/2.2 — delivered the same day as 1.16/1.17 below) and on the board — no findings live only in a chat transcript
+
+### 1.16 Data-refresh guardrails — ✅ Done (2026-07-20, WMDP2-68)
+**Why:** Sprint-review finding C3 + risks R1–R3, all one family: the app hardcodes dataset facts and shape assumptions that a refresh of `DATABASES/raw/` won't touch. None were live bugs; every one becomes a bug the first time the data is refreshed. Shipped as three guardrails — a checklist for the human, a serializer guard for the export, and seed-time warnings for the shape assumptions — so the refresh path fails loud instead of drifting silent.
+- [x] C3: an "After refreshing: what else to update" checklist appended to `DATABASES/README_database.md` — watch the seed output for warnings, then the Dashboard provenance strip's hardcoded shape/date, the root README's Business Context counts, `data_dictionary.md`'s snapshot date, screenshots, and a full backend test run
+- [x] R1 resolved as **prefix-quote, not won't-fix**: `_neutralize_formula_cell` in `portfolio_service.py` prefixes `'` onto text cells starting `=`/`+`/`-`/`@`/tab/CR, the classic CSV-injection vector when an export opens in Excel/LibreOffice. Only `str` cells are touched — longitude/latitude are floats, and neutralizing them would corrupt every southern-hemisphere latitude (they all start with `-`). A full-column scan proved the current 421-row snapshot has **zero** affected cells, so today's export is byte-identical; the guard exists for the first refresh that isn't
+- [x] R2: `_dataset_shape_warnings` in `seed.py` — deliberately warnings, not errors (the rows are valid; it's frontend constants that need revisiting, and blocking the seed would hold the app hostage to a display-layer cap): rows > `MAP_PAGE_SIZE` (500 — the map fetches one page and silently drops the rest) and any project > `RELATED_FETCH_SIZE` (100 — the detail page's related-sites fetch), naming the offending project codes
+- [x] R3: the same function warns when one `project_code` carries more than one distinct `project_title` — `top_projects` groups by (code, title), so title drift would split a real project into undercounted rows
+- [x] Tests: +9 backend — 2 in `test_export.py` (trigger cells neutralized, including tab-prefixed; ordinary text and negative float coordinates untouched) and 7 in a new `test_seed_guardrails.py` (no-warnings baseline at the real dataset's shape, warning past the map cap but not at exactly 500, oversized project named, title drift, NULL project fields not counted as drift, warnings accumulate) — the first test coverage of anything in `app.db.seed`
+
+### 1.17 Platform hygiene — ✅ Done (2026-07-20, WMDP2-69)
+**Why:** Two incident-justified carry-overs — the 2026-07-18 npm 10/11 lockfile-skew CI failure, and the literal-U+FEFF paste hazard, which by shipping time had recurred **four** times (the fourth landed while writing this very story, see below) — plus review risk R4.
+- [x] One Node major everywhere: `frontend/.nvmrc` (24), `engines: { "node": "24.x" }` in `package.json`, and CI's `node-version` bumped 20 → 24 — dev (Node 24 / npm 11.9) and CI now agree by construction, which is the durable fix the lockfile incident pointed at. Resyncing the lockfile under npm 11 removed the 27 platform-specific entries the npm-10 regeneration had added (the mirror image of the original incident — the two npm majors literally cannot agree on this file, which is why pinning is the fix). Verified the way the incident taught: full `npm ci` from the new lockfile (exit 0) + suite + build, under the same npm major CI now runs
+- [x] CI gains a `hygiene` job that fails on any literal U+FEFF in tracked source files (`*.py/.ts/.tsx/.css/.html/.yml/.json/.md`; CSVs exempt — the raw DMIRS download legitimately begins with a BOM). **Validated the hard way:** while writing the job's own comment text, a literal U+FEFF landed in `ci.yml` (occurrence #4, same invisible-paste mechanism as the other three), was caught by running the guard's grep locally before commit, and fixed at codepoint level — the exact loop the job now automates on every push, demonstrated on itself
+- [x] R4: an `/api`-wide `Cache-Control: no-store` middleware in `main.py` for every response that doesn't set its own — the same staleness argument that put the header on the export in 1.12 (after a re-seed, a cached JSON payload shows old data with no error anywhere, and this dataset is small enough that re-fetching always beats debugging staleness). Route-set headers win (the export keeps its own, no double-stamping); `/health` and `/docs` sit outside `/api` and stay unstamped on purpose
+- [x] Tests: +4 backend in a new `test_cache_headers.py` (JSON endpoints and even `/api` 404s stamped; the export's route-level header not duplicated; `/health` untouched as proof of scoping). Suite now **60 backend + 41 frontend**, both green, plus `tsc -b && vite build` clean
 
 ---
 
-## 2. Next up (from the sprint review, in priority order)
+## 2. Next up — Sprint 4 shaping (decision pending)
 
-### 2.1 Data-refresh guardrails — 📋 Planned (board: WMDP2-68)
-**Why:** Review finding C3 + risks R1–R3: the app now hardcodes dataset facts in places a data refresh won't touch, and three code paths assume the ~421-row shape. None are live bugs; all become bugs the first time `DATABASES/raw/` is refreshed.
-- [ ] C3: append an "after refreshing, also update" checklist to `DATABASES/README_database.md` — Dashboard provenance strip numbers/date, README Business Context counts, `data_dictionary.md` snapshot date, screenshots; verify new row count ≤ `MAP_PAGE_SIZE` (500) and largest project ≤ `RELATED_FETCH_SIZE` (100)
-- [ ] R1: decide CSV formula-injection handling (`sites_to_csv` writes cells verbatim; a future value starting `=`/`+`/`-`/`@` executes in Excel) — either prefix-quote such cells or record an explicit won't-fix with rationale
-- [ ] R2: consider a seed-time warning when the dataset crosses the hardcoded caps, so truncation is loud instead of silent
-- [ ] R3: guard `top_projects`' `GROUP BY (project_code, project_title)` against title drift within one code (seed-time consistency check, or group by code only)
-
-### 2.2 Platform hygiene — 📋 Planned (board: WMDP2-69)
-**Why:** Two of these are incident-justified carry-overs (the npm 10/11 lockfile CI failure; the literal-U+FEFF hazard that recurred twice in one sprint), one is review risk R4.
-- [ ] Pin dev and CI to the same Node major: `.nvmrc` + `engines` in `frontend/package.json`
-- [ ] CI guard: fail on literal U+FEFF characters in source files (a one-line grep step)
-- [ ] R4: explicit `Cache-Control: no-store` on the JSON endpoints (`/api/sites`, `/api/kpis`) — the export already has it; the JSON routes currently rely on browsers' default XHR behavior
-
-Beyond these: the [platform / infrastructure roadmap](#3-platform--infrastructure-roadmap) below (deploy execution, coverage expansion) and the parked 1.13 ideas (an LGA filter on `/sites` would also unlock LGA-bar clickability).
+The sprint review's full fix-list is cleared (1.15–1.17), so Sprint 4 is a blank slate. Its composition hinges on one open decision: **deploy a free-tier live demo now** (static host for the frontend + a free container host for the API + a managed free Postgres — Netlify alone can't run FastAPI/Postgres) **or keep deployment blocked on AWS credentials** (`DEPLOYMENT.md` runbook ready; WMDP2-18/19 flagged). The options were analysed and presented on 2026-07-20; the call is the owner's. Everything else queued lives in the roadmap below and the parked 1.13 ideas (an LGA filter on `/sites` would also unlock LGA-bar clickability).
 
 ---
 
@@ -166,9 +168,8 @@ Beyond these: the [platform / infrastructure roadmap](#3-platform--infrastructur
 
 Carried over from the README's Future Improvements, organized here as actionable items rather than a flat list:
 
-- 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials.
-- 💡 **Expand test coverage** — the suite has grown with every feature (47 backend + 41 frontend tests as of 1.15) but is focused, not exhaustive. Remaining gaps, per the sprint review: `/api/meta/filters`, `MultiSelect`, the URL-sync effects in `SitesPage`/`MapPage`, `App.tsx`'s shortcut wiring (Ctrl/Cmd+K toggle, window-level Escape), and `FilterBar`'s project-chip dismissal. (`/api/kpis`, once on this list, gained direct coverage in 1.13.)
-- 💡 **Pin dev and CI to the same Node major** (`.nvmrc` + `engines`) — the durable guard against the npm 10 vs 11 lockfile-skew CI failure of 2026-07-18.
+- 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials. (A free-tier split deploy — static frontend host + free container backend + managed free Postgres — was analysed 2026-07-20 as the unblocked alternative; whether to do it before/instead of AWS is the open Sprint 4 decision, see section 2.)
+- 💡 **Expand test coverage** — the suite has grown with every feature (60 backend + 41 frontend tests as of 1.17) but is focused, not exhaustive. Remaining gaps, per the sprint review: `/api/meta/filters` (content — it now has an incidental cache-header check), `MultiSelect`, the URL-sync effects in `SitesPage`/`MapPage`, `App.tsx`'s shortcut wiring (Ctrl/Cmd+K toggle, window-level Escape), and `FilterBar`'s project-chip dismissal. (`/api/kpis`, once on this list, gained direct coverage in 1.13; `app.db.seed` gained its first coverage in 1.16.)
 - 💡 **TLS + custom domain** — e.g. Let's Encrypt via certbot in the nginx container.
 - 💡 **Automated CD** — deploy to EC2 on push to `main`, instead of the current manual runbook.
 - 💡 **Bundle size** — `vite build` warns on a >500kB chunk (Leaflet + deps); consider code-splitting the map route with `React.lazy` so `/sites` and `/` don't pay for Leaflet on first load.

@@ -3,8 +3,8 @@
 This is the Epic → Story → Subtask breakdown for the [WMDP2 Jira project](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/summary), organized into sprints, aligned to what's actually in this repository (both what's already built and what's ahead).
 
 **Live in Jira** as WMDP2-1..24 (the original import: 5 Epics, 19 Stories, 17 Subtasks) plus WMDP2-59..66 (the Product Polish epic and its stories, added on the board 2026-07-19 as features shipped). Current board shape after the 2026-07-19 reconciliation (see the log below):
-- **WMDP2 Sprint 3** (19 Jul – 2 Aug) — WMDP2-17 (Done) and WMDP2-65 (Done); scope complete, sprint closable
-- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials), WMDP2-20, 21, 24
+- **WMDP2 Sprint 3** (19 Jul – 2 Aug) — **completed 2026-07-20** with its whole scope Done (WMDP2-17, 65, 67); the Confluence-retrospective offer at close was declined (solo project — this file and the plan *are* the retro). Jira auto-created an empty **Sprint 4** shell (2 Aug – 16 Aug), left un-started: its composition is the open deployment decision
+- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials) and 20, 21, 24 To Do; WMDP2-68/69 **Done** (2026-07-20, completed between sprints — see the sync log)
 - The original Sprint 1/2 objects were deleted during reconciliation — the import's sprint-matching failure had left them as empty, never-started shells while their stories (WMDP2-6..16, all Done) sat outside them
 - Keys 25–41 are the subtasks under stories 6–19; keys 42–58 were consumed by the import incident's duplicate subtasks (created, then deleted — see the note below), which is why the Product Polish epic starts at 59
 
@@ -39,7 +39,9 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 - Story: Frontend — `MultiSelect` checkbox-dropdown component, wired into `FilterBar`
 - Story: Seed script data validation — row-count floor, duplicate `SITE_CODE` check, post-insert count verification
 
-## Sprint 3 — AWS Cloud Deployment (current)
+## Sprint 3 — AWS Cloud Deployment (completed 2026-07-20)
+
+> What actually finished inside the sprint: WMDP2-17 (hardening), WMDP2-65 (Related sites), WMDP2-67 (review fixes). The AWS provisioning/deploy stories (18/19) had already moved to the backlog on 2026-07-19 so the sprint carried only workable scope.
 
 **Epic: AWS Cloud Deployment**
 - Story: Harden the app for public deployment
@@ -64,6 +66,8 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 - ~~Story: URL-synced filters and pagination (WMDP2-22)~~ — **Done, on the board.** Shipped in the app: `/sites` (filters + page + sort) and `/map` (filters) both read/write their state to the URL query string. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.7.
 - ~~Story: Automated test suite (WMDP2-23)~~ — **Done, on the board.** Backend pytest + frontend Vitest/RTL suites, both required CI steps. See WA_MINING_PROJECT_PLAN.md section 1.8 and the platform roadmap for what's still uncovered.
 - Story: Path to managed infrastructure if traffic grows (WMDP2-24) — RDS instead of containerized Postgres, horizontal scaling
+- ~~Story: Data-refresh guardrails (WMDP2-68)~~ — **Done, on the board** (2026-07-20). Refresh checklist, CSV formula-cell neutralization, seed-time shape warnings. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.16.
+- ~~Story: Platform hygiene (WMDP2-69)~~ — **Done, on the board** (2026-07-20). Node 24 pinned across dev/CI, literal-BOM CI guard, `/api`-wide `no-store`. See section 1.17.
 
 Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastructure** and **WMDP2-19 Deploy and verify on EC2**, both flagged in Jira as blocked on AWS credentials — the `DEPLOYMENT.md` runbook is ready to execute the moment an account is configured. Moved out of the active sprint so it only carries workable scope.
 
@@ -73,7 +77,7 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 - ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — Done, on the board. See section 1.9.
 - ~~Story: CSV export of filtered view~~ — Done, on the board (covers the export endpoint, header labels, and no-store caching). See sections 1.10 and 1.12.
 - ~~Story: Cleaned-data pipeline consolidation~~ — Done, on the board. See section 1.11.
-- ~~Story: Related sites by project (WMDP2-65)~~ — **Done, on the board** (transitioned in the same sitting the feature shipped). A `?project=` filter on `/api/sites` powers the detail page's related-sites section, the dashboard's project links, and project-scoped exports — see WA_MINING_PROJECT_PLAN.md section 1.14. With WMDP2-17 also Done, **Sprint 3's scope is now fully complete** — the sprint can be closed whenever you're ready (a ceremony call, left to you).
+- ~~Story: Related sites by project (WMDP2-65)~~ — **Done, on the board** (transitioned in the same sitting the feature shipped). A `?project=` filter on `/api/sites` powers the detail page's related-sites section, the dashboard's project links, and project-scoped exports — see WA_MINING_PROJECT_PLAN.md section 1.14. With WMDP2-17 also Done, **Sprint 3's scope is now fully complete** — and the sprint was closed on 2026-07-20 (see the sync log).
 
 ## Board sync log (2026-07-20)
 
@@ -82,7 +86,13 @@ The sprint review's three stories, created on the board once Chrome was availabl
 - **WMDP2-68** — "Data-refresh guardrails" — To Do, parent WMDP2-5 Post-Deployment Hardening, backlog (plan 2.1).
 - **WMDP2-69** — "Platform hygiene: Node pin, U+FEFF CI guard, JSON cache headers" — To Do, parent WMDP2-5, backlog (plan 2.2).
 
-Sprint 3 now holds WMDP2-17, 65, 67 — all Done; the backlog holds 18/19 (flagged, AWS-blocked), 20, 21, 24, 68, 69.
+Sprint 3 at that point held WMDP2-17, 65, 67 — all Done; the backlog held 18/19 (flagged, AWS-blocked), 20, 21, 24, 68, 69.
+
+Later the same sitting (sprint close + the two hardening stories):
+- **Sprint 3 completed** through the backlog's Complete-sprint flow — the dialog confirmed "3 completed work items. That's all of them." The offered Confluence retrospective was declined (ceremony without a team; this log and the plan file carry the retro content). Jira auto-created an empty **Sprint 4** (2 Aug – 16 Aug), left un-started while the deployment direction (free-tier live demo now vs. wait for AWS credentials) is an open decision.
+- **WMDP2-68 Data-refresh guardrails**: To Do → In Progress when implementation started → **Done** once both suites passed (plan 1.16).
+- **WMDP2-69 Platform hygiene**: same flow, same sitting → **Done** (plan 1.17).
+- 68/69 were deliberately **not** dragged into the Sprint 4 shell: the work happened between sprints, and back-filling a future sprint with already-finished items would fake its velocity report. Done-in-backlog is the truthful record.
 
 ## Board reconciliation log (2026-07-19)
 
