@@ -67,6 +67,44 @@ class TestSitesToCsv:
         assert row["Stage"] == ""
         assert row["Longitude"] == ""
 
+    def test_formula_leading_text_cells_are_neutralized(self):
+        # CSV injection (sprint-review R1): a text value starting with =,
+        # +, -, @, tab, or CR executes as a formula when the export is
+        # opened in Excel/LibreOffice. No current value triggers this --
+        # the guard exists for the first dataset refresh that does.
+        site = Site(
+            site_code="S001",
+            title="=HYPERLINK(\"http://evil.example\",\"click\")",
+            project_title="@SUM(A1:A9)",
+            short_title="+61 8 9222",
+            stage="-Not A Stage",
+            subtype="\t=1+2",
+        )
+        rows = _parse(sites_to_csv([site]))
+        row = dict(zip(rows[0], rows[1]))
+        assert row["Site Title"].startswith("'=")
+        assert row["Project"] == "'@SUM(A1:A9)"
+        assert row["Short Title"] == "'+61 8 9222"
+        assert row["Stage"] == "'-Not A Stage"
+        assert row["Subtype"] == "'\t=1+2"
+
+    def test_formula_guard_leaves_ordinary_text_and_floats_alone(self):
+        # The guard must only touch str cells that start with a trigger:
+        # negative coordinates are floats (every southern-hemisphere
+        # latitude starts with "-"), and prefixing those would corrupt
+        # the whole export in the name of protecting it.
+        site = Site(
+            site_code="S001",
+            title="Alpha Mine",
+            longitude=121.5,
+            latitude=-33.86,
+        )
+        rows = _parse(sites_to_csv([site]))
+        row = dict(zip(rows[0], rows[1]))
+        assert row["Site Title"] == "Alpha Mine"
+        assert row["Longitude"] == "121.5"
+        assert row["Latitude"] == "-33.86"
+
 
 class TestExportRoute:
     def test_export_is_not_captured_by_the_site_code_path_param(self, client):

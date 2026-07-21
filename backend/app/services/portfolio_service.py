@@ -230,6 +230,30 @@ EXPORT_COLUMN_LABELS: dict[str, str] = {
 }
 
 
+# Leading characters spreadsheet apps interpret as "this cell is a formula"
+# when opening a CSV (=, +, -, @, and the tab/CR variants Excel also
+# accepts). A crafted value like "=HYPERLINK(...)" in a future dataset
+# refresh would execute on open -- classic CSV injection.
+_FORMULA_TRIGGERS = ("=", "+", "-", "@", "\t", "\r")
+
+
+def _neutralize_formula_cell(value):
+    """Prefix formula-triggering *text* cells with a literal ' quote.
+
+    Only str values are touched: longitude/latitude are floats, and
+    neutralizing them would corrupt every negative coordinate in the
+    export (all southern-hemisphere latitudes start with "-"). The
+    current dataset has zero affected text cells, so this changes no
+    bytes of today's export -- it exists so a refreshed snapshot can't
+    turn the export into a code-execution vector. Cost when it does
+    fire: a visible leading apostrophe on that cell, which reads as
+    intent ("this is text") rather than corruption.
+    """
+    if isinstance(value, str) and value.startswith(_FORMULA_TRIGGERS):
+        return "'" + value
+    return value
+
+
 def sites_to_csv(items: list[Site]) -> str:
     """Serialize sites to CSV text (labeled header row + one row per site).
 
@@ -242,7 +266,9 @@ def sites_to_csv(items: list[Site]) -> str:
     writer = csv.writer(buffer)
     writer.writerow([EXPORT_COLUMN_LABELS[column] for column in EXPORT_COLUMNS])
     for site in items:
-        writer.writerow([getattr(site, column) for column in EXPORT_COLUMNS])
+        writer.writerow(
+            [_neutralize_formula_cell(getattr(site, column)) for column in EXPORT_COLUMNS]
+        )
     return buffer.getvalue()
 
 

@@ -36,6 +36,16 @@ from app.models.site import Site
 
 MIN_EXPECTED_ROWS = 100  # sanity floor; the known-good snapshot has 421
 
+# Mirrors of frontend constants whose values quietly assume the current
+# dataset shape (~421 rows, largest project 5 sites). If a refreshed
+# snapshot crosses either cap, the UI doesn't error -- it silently
+# truncates (map pins / related-sites lists) -- so the seed step is where
+# the crossing gets said out loud. Keep in sync with:
+#   frontend/src/pages/MapPage.tsx        MAP_PAGE_SIZE
+#   frontend/src/pages/SiteDetailPage.tsx RELATED_FETCH_SIZE
+MAP_PAGE_SIZE = 500
+RELATED_FETCH_SIZE = 100
+
 # backend/app/db/seed.py -> backend/app -> backend -> repo root
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CSV_PATH = REPO_ROOT / "DATABASES" / "Cleaned_Mining_Data" / "Major_Resource_Projects_Cleaned.csv"
@@ -116,6 +126,60 @@ def _validate_rows(rows: list[Site]) -> None:
         )
 
 
+def _dataset_shape_warnings(rows: list[Site]) -> list[str]:
+    """Non-fatal checks for UI assumptions a data refresh can break.
+
+    Warnings, not errors, on purpose: unlike _validate_rows' checks these
+    aren't data *corruption* -- the rows are fine -- they're signals that
+    frontend constants or docs need revisiting. Blocking the seed would
+    hold the whole app hostage to a display-layer constant. The "after
+    refreshing" checklist in DATABASES/README_database.md explains what
+    to do about each one.
+    """
+    warnings: list[str] = []
+
+    if len(rows) > MAP_PAGE_SIZE:
+        warnings.append(
+            f"Dataset has {len(rows)} rows, more than MAP_PAGE_SIZE ({MAP_PAGE_SIZE}): "
+            "the map page fetches a single page of that size and will silently "
+            "drop the rest of the pins. Raise MAP_PAGE_SIZE in "
+            "frontend/src/pages/MapPage.tsx or paginate the map fetch."
+        )
+
+    project_sizes = Counter(
+        row.project_code for row in rows if row.project_code is not None
+    )
+    oversized = {
+        code: count
+        for code, count in project_sizes.items()
+        if count > RELATED_FETCH_SIZE
+    }
+    for code, count in sorted(oversized.items()):
+        warnings.append(
+            f"Project {code} has {count} sites, more than RELATED_FETCH_SIZE "
+            f"({RELATED_FETCH_SIZE}): the site detail page fetches related sites "
+            "in a single page of that size and will silently omit the overflow. "
+            "Raise RELATED_FETCH_SIZE in frontend/src/pages/SiteDetailPage.tsx."
+        )
+
+    titles_by_code: dict[str, set[str]] = {}
+    for row in rows:
+        if row.project_code is not None and row.project_title is not None:
+            titles_by_code.setdefault(row.project_code, set()).add(row.project_title)
+    for code, titles in sorted(titles_by_code.items()):
+        if len(titles) > 1:
+            warnings.append(
+                f"Project {code} has {len(titles)} distinct titles "
+                f"({', '.join(repr(t) for t in sorted(titles))}): /api/kpis' "
+                "top_projects groups by (project_code, project_title), so one "
+                "real project would split into multiple rows and undercount. "
+                "Fix the titles in the source data, or make them consistent "
+                "in the SQL cleaning pipeline."
+            )
+
+    return warnings
+
+
 def seed() -> None:
     if not CSV_PATH.exists():
         raise FileNotFoundError(
@@ -128,6 +192,8 @@ def seed() -> None:
     Base.metadata.create_all(bind=engine)
     rows = _load_rows()
     _validate_rows(rows)
+    for warning in _dataset_shape_warnings(rows):
+        print(f"WARNING: {warning}")
 
     db = SessionLocal()
     try:

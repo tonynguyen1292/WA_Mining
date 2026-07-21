@@ -64,3 +64,34 @@ app's live database would error against an already-existing table rather
 than silently overwriting anything — but keeping the pipeline run
 completely separate avoids that failure mode entirely, and avoids any
 chance of the app reading a half-populated table mid-run.
+
+## After refreshing: what else to update
+
+Reseeding loads the new rows, but several places in the repo state facts
+*about* the current snapshot, and nothing updates them automatically. After
+a refresh, walk this list:
+
+1. **Watch the seed output for `WARNING:` lines.** The seed step checks the
+   new snapshot against UI assumptions that don't error when broken, they
+   silently truncate: total rows vs. the map's single-fetch cap
+   (`MAP_PAGE_SIZE`, 500), largest project vs. the detail page's
+   related-sites cap (`RELATED_FETCH_SIZE`, 100), and one `project_code`
+   carrying two spellings of its title (which would split that project into
+   undercounted rows in the dashboard's top-projects panel). Each warning
+   says what to change and where; don't ship a refresh with unexplained
+   warnings.
+2. **Dashboard provenance strip** — `frontend/src/pages/DashboardPage.tsx`
+   hardcodes the dataset shape (421 sites / 356 projects / 10 regions /
+   65 LGAs) and the snapshot date (May 2026). These are deliberate
+   hardcodes (provenance describes the *snapshot*, not the query of the
+   moment), which means a refresh must update them by hand.
+3. **README "Business Context" counts** — the root `README.md` cites the
+   same 421/356 numbers in prose. Search the repo for `421` to catch every
+   surface at once.
+4. **`data_dictionary.md`** — the snapshot date it describes.
+5. **Screenshots** — `screenshots/` captures the old data's charts and
+   counts; regenerate them if the visible numbers changed.
+6. **Run the backend test suite** (`cd backend && pytest`). The suite seeds
+   its own fixture data so it won't catch *content* drift, but it pins the
+   contracts a refresh is most likely to stress (export shape, KPI
+   ordering, formula-cell neutralization in the CSV export).
