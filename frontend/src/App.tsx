@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Route, Routes } from "react-router-dom";
 import CommandPalette from "./components/CommandPalette";
+import AboutPage from "./pages/AboutPage";
 import DashboardPage from "./pages/DashboardPage";
 import MapPage from "./pages/MapPage";
 import SiteDetailPage from "./pages/SiteDetailPage";
@@ -41,6 +42,7 @@ export default function App() {
           </NavLink>
           <NavLink to="/sites">Sites</NavLink>
           <NavLink to="/map">Map</NavLink>
+          <NavLink to="/about">About</NavLink>
         </nav>
         <button
           type="button"
@@ -57,6 +59,7 @@ export default function App() {
           <Route path="/sites" element={<SitesPage />} />
           <Route path="/sites/:siteCode" element={<SiteDetailPage />} />
           <Route path="/map" element={<MapPage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </main>
 

@@ -790,3 +790,261 @@ a {
     font-size: 12px;
   }
 }
+
+/* About page. Deliberately its own blue/cyan accent, scoped to .about so
+   the rest of the app keeps the warm --accent: the page is about the
+   project and its author rather than the mining data, and the visual
+   shift marks that boundary. */
+.about {
+  --about-blue: #0b5c9e;
+  --about-blue-deep: #0b3a5c;
+  --about-cyan: #0891b2;
+  --about-tint: #e8f4fb;
+}
+
+.about a {
+  color: var(--about-blue);
+}
+
+.about-hero {
+  background: linear-gradient(135deg, var(--about-blue-deep) 0%, var(--about-blue) 55%, var(--about-cyan) 100%);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 32px 34px;
+  margin-bottom: 28px;
+}
+
+.about-hero h1 {
+  margin: 0 0 10px;
+  font-size: 26px;
+  color: #ffffff;
+}
+
+.about-hero-tagline {
+  margin: 0;
+  max-width: 640px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.about-hero-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+}
+
+.about-hero-facts li {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+}
+
+.about-hero-facts strong {
+  font-size: 14px;
+}
+
+.about-section {
+  margin-bottom: 28px;
+}
+
+.about-section h2 {
+  font-size: 16px;
+  margin: 0 0 12px;
+  color: var(--about-blue-deep);
+}
+
+.about-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 22px;
+  border-left: 2px solid var(--about-cyan);
+}
+
+.about-timeline li {
+  position: relative;
+  padding: 0 0 18px;
+}
+
+.about-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.about-timeline li::before {
+  content: "";
+  position: absolute;
+  left: -28px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--about-cyan);
+  border: 2px solid var(--surface);
+}
+
+.about-timeline h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.about-timeline p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.about-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.about-stack-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--about-cyan);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.about-stack-card h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.about-tags li {
+  background: var(--about-tint);
+  color: var(--about-blue);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12.5px;
+}
+
+.about-data-note {
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.about-author {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: var(--about-tint);
+  border: 1px solid #cfe6f4;
+  border-radius: 10px;
+  padding: 22px 26px;
+  margin-bottom: 28px;
+}
+
+.about-author h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+  color: var(--about-blue-deep);
+}
+
+.about-author p {
+  margin: 0;
+  max-width: 520px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.about-author-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+a.about-button-primary,
+a.about-button-secondary {
+  display: inline-block;
+  text-align: center;
+  border-radius: 6px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a.about-button-primary {
+  background: var(--about-blue);
+  color: #ffffff;
+}
+
+a.about-button-primary:hover {
+  background: var(--about-blue-deep);
+}
+
+a.about-button-secondary {
+  border: 1px solid var(--about-blue);
+  color: var(--about-blue);
+  background: var(--surface);
+}
+
+a.about-button-secondary:hover {
+  background: var(--about-tint);
+}
+
+.about-explore {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.about-explore a {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.about-explore a:hover {
+  border-color: var(--about-cyan);
+}
+
+@media (max-width: 720px) {
+  .about-hero {
+    padding: 22px 20px;
+  }
+
+  .about-author {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 18px;
+  }
+
+  .about-author-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
