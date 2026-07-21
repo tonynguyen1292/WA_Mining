@@ -2,9 +2,9 @@
 
 This is the Epic → Story → Subtask breakdown for the [WMDP2 Jira project](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/summary), organized into sprints, aligned to what's actually in this repository (both what's already built and what's ahead).
 
-**Live in Jira** as WMDP2-1..24 (the original import: 5 Epics, 19 Stories, 17 Subtasks) plus WMDP2-59..66 (the Product Polish epic and its stories, added on the board 2026-07-19 as features shipped). Current board shape after the 2026-07-19 reconciliation (see the log below):
-- **WMDP2 Sprint 3** (19 Jul – 2 Aug) — **completed 2026-07-20** with its whole scope Done (WMDP2-17, 65, 67); the Confluence-retrospective offer at close was declined (solo project — this file and the plan *are* the retro). Jira auto-created an empty **Sprint 4** shell (2 Aug – 16 Aug), left un-started: its composition is the open deployment decision
-- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials) and 20, 21, 24 To Do; WMDP2-68/69 **Done** (2026-07-20, completed between sprints — see the sync log)
+**Live in Jira** as WMDP2-1..24 (the original import: 5 Epics, 19 Stories, 17 Subtasks) plus WMDP2-59..71 (the Product Polish epic and the post-import stories, added on the board as features shipped). Current board shape (see the sync logs below):
+- **WMDP2 Sprint 3** (19 Jul – 2 Aug) — **completed 2026-07-20** with its whole scope Done (WMDP2-17, 65, 67); the Confluence-retrospective offer at close was declined (solo project — this file and the plan *are* the retro). Jira auto-created an empty **Sprint 4** shell (2 Aug – 16 Aug), left un-started: its composition is the Sprint 4 planning call
+- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials), 20 (re-scoped: custom domain only) and 24 To Do; WMDP2-21, 68, 69, 70, 71 **Done** between sprints (see the 2026-07-20/21 sync logs)
 - The original Sprint 1/2 objects were deleted during reconciliation — the import's sprint-matching failure had left them as empty, never-started shells while their stories (WMDP2-6..16, all Done) sat outside them
 - Keys 25–41 are the subtasks under stories 6–19; keys 42–58 were consumed by the import incident's duplicate subtasks (created, then deleted — see the note below), which is why the Product Polish epic starts at 59
 
@@ -60,9 +60,9 @@ Note on the import itself: the CSV importer's own Sprint-name matching didn't wo
 
 ## Backlog — Future Work (not yet scheduled)
 
-**Epic: Post-Deployment Hardening** (WMDP2-5, In Progress)
-- Story: TLS + custom domain (WMDP2-20) — e.g. Let's Encrypt via certbot in the nginx container
-- Story: Automated CD (WMDP2-21) — deploy to EC2 on push to `main`, instead of the current manual runbook
+**Epic: Post-Deployment Hardening** (WMDP2-5, **Done** — auto-completed by Jira's parent automation when WMDP2-69, its last open board child, closed on 2026-07-20. Its board children are 22/23/68/69 + 21; WMDP2-20/24 were never epic-linked on the board — an import-era gap found during the 2026-07-21 sync, left for Sprint 4 planning since re-parenting open stories would reopen the epic)
+- Story: TLS + custom domain (WMDP2-20) — **re-scoped 2026-07-21** (comment on the story): TLS now comes free with the live netlify.app deployment, so only the custom-domain half remains. To Do, unparented on the board
+- ~~Story: Automated CD (WMDP2-21)~~ — **Done, on the board** (2026-07-21, with explanatory comment): overtaken for the production surface — Netlify rebuilds and redeploys on every push to `main`. CD to EC2 would be new scope under the AWS epic. Board parent fixed to WMDP2-5 during the sync
 - ~~Story: URL-synced filters and pagination (WMDP2-22)~~ — **Done, on the board.** Shipped in the app: `/sites` (filters + page + sort) and `/map` (filters) both read/write their state to the URL query string. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.7.
 - ~~Story: Automated test suite (WMDP2-23)~~ — **Done, on the board.** Backend pytest + frontend Vitest/RTL suites, both required CI steps. See WA_MINING_PROJECT_PLAN.md section 1.8 and the platform roadmap for what's still uncovered.
 - Story: Path to managed infrastructure if traffic grows (WMDP2-24) — RDS instead of containerized Postgres, horizontal scaling
@@ -77,16 +77,23 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 - ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — Done, on the board. See section 1.9.
 - ~~Story: CSV export of filtered view~~ — Done, on the board (covers the export endpoint, header labels, and no-store caching). See sections 1.10 and 1.12.
 - ~~Story: Cleaned-data pipeline consolidation~~ — Done, on the board. See section 1.11.
-- ~~Story: About page with portfolio referral~~ — **Done** (2026-07-21). `/about` with the case-study narrative and the outbound referral to the owner's portfolio site. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.18. *Board story pending — see the sync spec in the log below (Chrome was offline when this shipped).*
+- ~~Story: About page with portfolio referral (WMDP2-71)~~ — **Done, on the board** (2026-07-21). `/about` with the case-study narrative and the outbound referral to the owner's portfolio site. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.18.
 - ~~Story: Related sites by project (WMDP2-65)~~ — **Done, on the board** (transitioned in the same sitting the feature shipped). A `?project=` filter on `/api/sites` powers the detail page's related-sites section, the dashboard's project links, and project-scoped exports — see WA_MINING_PROJECT_PLAN.md section 1.14. With WMDP2-17 also Done, **Sprint 3's scope is now fully complete** — and the sprint was closed on 2026-07-20 (see the sync log).
 
-## Pending board sync (2026-07-21) — execute when Chrome is available
+## Board sync log (2026-07-21)
 
-Two stories to create (the browser extension disconnected in the sitting where these shipped; same spec-now-execute-later pattern as the 2026-07-20 sync below):
-- **"About page with portfolio referral"** — parent **WMDP2-59 Product Polish**, **no sprint** (completed between sprints, same done-in-backlog reasoning as WMDP2-68/69), status **Done**. Scope shipped 2026-07-21: `/about` route + nav link, scoped blue/cyan design, portfolio + GitHub referral links, 5 tests (plan 1.18). Watch the Create dialog's retained fields: the last create left Parent at WMDP2-5 — it must be changed to WMDP2-59, and Sprint must stay empty.
-- **"Netlify production deployment + agent-PR postmortem"** — parent: the **AWS Cloud Deployment epic** (the one holding WMDP2-18/19 — verify its key on the board), **no sprint**, status **Done**. Scope shipped 2026-07-21: merged agent PR #2 (Functions API + managed Postgres + netlify.toml), follow-up hardening (literal-BOM fix in `sites.mts`, CI guard extended to `*.mts`/`*.cts`/`*.toml`, `NODE_VERSION=24` pin), live at wa-mining.netlify.app (plan 1.19). While there: re-scope or close **WMDP2-20** (TLS is free on netlify.app; only custom domain remains) and **WMDP2-21** (Netlify auto-builds `main` on push — overtaken for the demo surface), and consider un-flagging language on 18/19 (AWS is now the canonical-stack path, not the only path to production).
+The 2026-07-21 pending-sync spec this section previously held, executed once Chrome reconnected. A deliberate decision first: the About page and Netlify deployment were **not** added to the completed Sprint 3, even though 21 Jul falls inside its original 19 Jul–2 Aug window — the sprint closed on 20 Jul with 100% of its scope done, and reopening a completed sprint to back-fill it would corrupt the sprint report the same way pre-filling Sprint 4 would fake velocity. Done-in-backlog remains the truthful record (owner approved this reasoning before execution).
 
-Once created, replace this section with the stories' keys in the epic lists above and the sync log.
+Created and transitioned:
+- **WMDP2-70** — "Netlify production deployment + agent-PR postmortem" — Story, parent **WMDP2-4 AWS Cloud Deployment**, no sprint, **Done**, description linking plan 1.19. (Created via the epic page's inline child row, which sidesteps the Create dialog's retained-fields trap — but its type selector defaults to Task and the first Story click didn't register; the type was corrected on the item afterward. Verify the type icon after inline creation.)
+- **WMDP2-71** — "About page with portfolio referral" — Story, parent **WMDP2-59 Product Polish**, no sprint, **Done**, description linking plan 1.18.
+- **WMDP2-21 Automated CD** — Done with explanatory comment (Netlify auto-builds `main`; EC2 CD would be new AWS-epic scope), and its missing epic link fixed to WMDP2-5.
+- **WMDP2-20 TLS and custom domain** — scope-note comment added (TLS free via netlify.app; custom domain is the remaining half), stays To Do for Sprint 4 planning.
+- **WMDP2-18/19** — untouched, still flagged: genuinely blocked on AWS credentials.
+
+Drift discovered during the sync (recorded, not silently fixed):
+- **The import never epic-linked 17/18/19/20/24** — WMDP2-4 "AWS Cloud Deployment" (In Progress) had zero children until WMDP2-70; the backlog rows' hierarchy icons belong to their subtasks, not epic links. This file's epic groupings described intent, not board reality.
+- **WMDP2-5 auto-completed** on 2026-07-20 when WMDP2-69 closed (its only board children were 22/23/68/69, all Done). Re-parenting the open 20/24 under it would reopen it — a real option, but a Sprint 4 planning call, not a unilateral sync action.
 
 ## Board sync log (2026-07-20)
 
