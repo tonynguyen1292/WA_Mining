@@ -77,7 +77,13 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 - ~~Story: Command palette / global search (Ctrl/Cmd+K)~~ — Done, on the board. See section 1.9.
 - ~~Story: CSV export of filtered view~~ — Done, on the board (covers the export endpoint, header labels, and no-store caching). See sections 1.10 and 1.12.
 - ~~Story: Cleaned-data pipeline consolidation~~ — Done, on the board. See section 1.11.
+- ~~Story: About page with portfolio referral~~ — **Done** (2026-07-21). `/about` with the case-study narrative and the outbound referral to the owner's portfolio site. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.18. *Board story pending — see the sync spec in the log below (Chrome was offline when this shipped).*
 - ~~Story: Related sites by project (WMDP2-65)~~ — **Done, on the board** (transitioned in the same sitting the feature shipped). A `?project=` filter on `/api/sites` powers the detail page's related-sites section, the dashboard's project links, and project-scoped exports — see WA_MINING_PROJECT_PLAN.md section 1.14. With WMDP2-17 also Done, **Sprint 3's scope is now fully complete** — and the sprint was closed on 2026-07-20 (see the sync log).
+
+## Pending board sync (2026-07-21) — execute when Chrome is available
+
+One story to create (the browser extension disconnected in the sitting where the feature shipped; same spec-now-execute-later pattern as the 2026-07-20 sync below):
+- **"About page with portfolio referral"** — parent **WMDP2-59 Product Polish**, **no sprint** (completed between sprints, same done-in-backlog reasoning as WMDP2-68/69), status **Done**. Scope shipped 2026-07-21: `/about` route + nav link, scoped blue/cyan design, portfolio + GitHub referral links, 5 tests (plan 1.18). Watch the Create dialog's retained fields: the last create left Parent at WMDP2-5 — it must be changed to WMDP2-59, and Sprint must stay empty. Once created, replace this section with the story's key in the Product Polish list above and the sync log.
 
 ## Board sync log (2026-07-20)
 

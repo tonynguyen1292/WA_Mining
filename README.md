@@ -45,6 +45,10 @@ A PostgreSQL-backed system for Western Australia's public Major Resources Projec
 
 ![Command palette](screenshots/command-palette.png)
 
+**About** — the project's story in the product itself: pipeline-to-app timeline, stack, data licensing, and the author referral linking out to the [portfolio site](https://vynguyen-perth.netlify.app):
+
+![About page](screenshots/about.png)
+
 ### Power BI dashboard (legacy)
 
 **Overview page** — portfolio-wide snapshot (commodity, stage, region breakdowns):
@@ -323,7 +327,7 @@ WA_Mining/
 │   ├── src/
 │   │   ├── main.tsx, App.tsx          # entrypoint, routing, nav, command palette hook-in
 │   │   ├── api/client.ts              # typed fetch wrapper over the backend API
-│   │   ├── pages/                     # DashboardPage, SitesPage, SiteDetailPage, MapPage
+│   │   ├── pages/                     # DashboardPage, SitesPage, SiteDetailPage, MapPage, AboutPage
 │   │   ├── components/                # FilterBar, KpiCard, SitesTable, SitesMap, CommandPalette, charts/
 │   │   ├── hooks/useDebouncedValue.ts
 │   │   ├── utils/urlFilters.ts        # parse/serialize filters+page+sort <-> URL query params
