@@ -7,6 +7,25 @@ on:
     branches: [main]
 
 jobs:
+  hygiene:
+    name: Source hygiene (no literal BOM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # A literal U+FEFF pasted into a source file recurred three times in
+      # one sprint (editors and shell heredocs love to smuggle it in), and
+      # each time it read as a mystery syntax/render bug. Source files must
+      # use the "\ufeff" escape instead; CSVs are exempt because the raw
+      # DMIRS download legitimately starts with a BOM.
+      - name: Fail on literal U+FEFF in source files
+        run: |
+          if git grep -In $'\xEF\xBB\xBF' -- '*.py' '*.ts' '*.tsx' '*.css' '*.html' '*.yml' '*.json' '*.md'; then
+            echo '::error::Literal U+FEFF byte-order mark found in the files above. Use the "\ufeff" escape in code instead of the raw character.'
+            exit 1
+          fi
+          echo "No literal BOM characters in source files."
+
   backend:
     name: Backend (lint + compile + test)
     runs-on: ubuntu-latest
@@ -41,9 +60,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Same Node major as local dev (see frontend/.nvmrc and the engines
+      # field in frontend/package.json). Dev on Node 24/npm 11 with CI on
+      # Node 20/npm 10 is what caused the 2026-07-18 lockfile-skew CI
+      # failure -- npm 10 rejected a lockfile npm 11 wrote.
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 

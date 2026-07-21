@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import health, meta, portfolio, sites
@@ -17,6 +17,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def api_responses_are_not_cacheable(request: Request, call_next):
+    """Stamp `Cache-Control: no-store` on /api responses that don't set their own.
+
+    Same staleness argument that put no-store on the CSV export: after a
+    re-seed, a cached JSON payload for an identical request URL would show
+    old data with no error anywhere -- and this dataset is small enough
+    that re-fetching it is always cheaper than debugging staleness. Routes
+    that set their own Cache-Control (the export does) keep it; /health and
+    /docs are deliberately outside the /api prefix and stay unstamped.
+    """
+    response = await call_next(request)
+    if request.url.path.startswith("/api") and "cache-control" not in response.headers:
+        response.headers["cache-control"] = "no-store"
+    return response
 
 app.include_router(health.router)
 app.include_router(sites.router)
