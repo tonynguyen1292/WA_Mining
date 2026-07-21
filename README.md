@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/tonynguyen1292/WA_Mining/actions/workflows/ci.yml/badge.svg)](https://github.com/tonynguyen1292/WA_Mining/actions/workflows/ci.yml)
 
+**Live demo: [wa-mining.netlify.app](https://wa-mining.netlify.app)** — the full app (dashboard, sites, map, CSV export) running on Netlify; see [Production / Deployment](#production--deployment) for how it's hosted.
+
 A PostgreSQL-backed system for Western Australia's public Major Resources Projects dataset (MINEDEX): a SQL data pipeline that cleans and models the raw government export, and a FastAPI + React application built on top of it for exploring the portfolio interactively. A Power BI dashboard remains available as an alternative reporting surface on the same data.
 
 ## Contents
@@ -384,9 +386,15 @@ Differences from the dev compose file: the backend runs without `--reload` and *
 
 `.github/workflows/ci.yml` runs on every push/PR to `main`: a source-hygiene job (fails on literal U+FEFF byte-order marks in source files — an invisible-paste hazard that has recurred four times in this repo; CSVs are exempt since the raw DMIRS download legitimately starts with one), backend lint (`ruff`) + compile check + tests (`pytest`), and frontend tests (`vitest`) + typecheck + build (`tsc -b && vite build`) on the same Node major local dev uses (24 — pinned by `frontend/.nvmrc`, the `engines` field, and the CI config together, after a dev-vs-CI npm major skew broke a lockfile in CI on 2026-07-18). All must pass before merging.
 
+### Live demo (Netlify)
+
+The production deployment at [wa-mining.netlify.app](https://wa-mining.netlify.app) runs the whole app on one Netlify site: the React frontend as a static CDN build, and the API as **Netlify Functions** (TypeScript ports of the FastAPI routes, under `netlify/functions/`) backed by a managed Netlify Postgres database that deploy-time migrations create and seed with the full 421-row cleaned snapshot. `netlify.toml` holds the build (pinned to the same Node 24 as dev and CI), the SPA fallback, and the local `netlify dev` setup.
+
+One thing to be clear-eyed about: the Functions are a **hosting adapter, not the canonical API**. The Python/FastAPI implementation remains the source of truth — it's what the 60-test backend suite, CI, Docker stack, and the AWS runbook below all exercise. If the two ever disagree, the Python behavior wins; contract-testing the Functions against the backend suite's expectations is tracked as future work.
+
 ### Cloud Deployment (AWS)
 
-[DEPLOYMENT.md](DEPLOYMENT.md) is a step-by-step runbook for deploying this same `docker-compose.prod.yml` stack to a single free-tier-eligible AWS EC2 instance — architecture, an explicit cost/billing gate (checked before creating anything), launch/configure/deploy/verify steps, and teardown. **Not yet executed** — it requires AWS credentials this environment doesn't have configured.
+[DEPLOYMENT.md](DEPLOYMENT.md) is a step-by-step runbook for deploying the `docker-compose.prod.yml` stack (nginx + FastAPI + Postgres — the canonical architecture) to a single free-tier-eligible AWS EC2 instance — architecture, an explicit cost/billing gate (checked before creating anything), launch/configure/deploy/verify steps, and teardown. **Not yet executed** — it requires AWS credentials this environment doesn't have configured; it stays the documented path for running the real backend in production.
 
 ## Setup / How to Run (legacy SQL + Power BI)
 

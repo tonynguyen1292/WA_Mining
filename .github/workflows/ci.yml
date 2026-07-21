@@ -20,7 +20,7 @@ jobs:
       # DMIRS download legitimately starts with a BOM.
       - name: Fail on literal U+FEFF in source files
         run: |
-          if git grep -In $'\xEF\xBB\xBF' -- '*.py' '*.ts' '*.tsx' '*.css' '*.html' '*.yml' '*.json' '*.md'; then
+          if git grep -In $'\xEF\xBB\xBF' -- '*.py' '*.ts' '*.mts' '*.cts' '*.tsx' '*.css' '*.html' '*.yml' '*.json' '*.md' '*.toml'; then
             echo '::error::Literal U+FEFF byte-order mark found in the files above. Use the "\ufeff" escape in code instead of the raw character.'
             exit 1
           fi

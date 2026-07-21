@@ -12,6 +12,13 @@
   command = "npm --prefix frontend ci && npm --prefix frontend run build"
   publish = "frontend/dist"
 
+[build.environment]
+  # Same Node major as frontend/.nvmrc, the engines field, and CI. Netlify
+  # doesn't read frontend/.nvmrc from a repo-root base, and its default
+  # image's npm 10 rejects lockfiles written by npm 11 -- the 2026-07-18 CI
+  # incident, which this pin keeps off a third platform.
+  NODE_VERSION = "24"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"

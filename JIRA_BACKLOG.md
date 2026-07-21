@@ -82,8 +82,11 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 
 ## Pending board sync (2026-07-21) — execute when Chrome is available
 
-One story to create (the browser extension disconnected in the sitting where the feature shipped; same spec-now-execute-later pattern as the 2026-07-20 sync below):
-- **"About page with portfolio referral"** — parent **WMDP2-59 Product Polish**, **no sprint** (completed between sprints, same done-in-backlog reasoning as WMDP2-68/69), status **Done**. Scope shipped 2026-07-21: `/about` route + nav link, scoped blue/cyan design, portfolio + GitHub referral links, 5 tests (plan 1.18). Watch the Create dialog's retained fields: the last create left Parent at WMDP2-5 — it must be changed to WMDP2-59, and Sprint must stay empty. Once created, replace this section with the story's key in the Product Polish list above and the sync log.
+Two stories to create (the browser extension disconnected in the sitting where these shipped; same spec-now-execute-later pattern as the 2026-07-20 sync below):
+- **"About page with portfolio referral"** — parent **WMDP2-59 Product Polish**, **no sprint** (completed between sprints, same done-in-backlog reasoning as WMDP2-68/69), status **Done**. Scope shipped 2026-07-21: `/about` route + nav link, scoped blue/cyan design, portfolio + GitHub referral links, 5 tests (plan 1.18). Watch the Create dialog's retained fields: the last create left Parent at WMDP2-5 — it must be changed to WMDP2-59, and Sprint must stay empty.
+- **"Netlify production deployment + agent-PR postmortem"** — parent: the **AWS Cloud Deployment epic** (the one holding WMDP2-18/19 — verify its key on the board), **no sprint**, status **Done**. Scope shipped 2026-07-21: merged agent PR #2 (Functions API + managed Postgres + netlify.toml), follow-up hardening (literal-BOM fix in `sites.mts`, CI guard extended to `*.mts`/`*.cts`/`*.toml`, `NODE_VERSION=24` pin), live at wa-mining.netlify.app (plan 1.19). While there: re-scope or close **WMDP2-20** (TLS is free on netlify.app; only custom domain remains) and **WMDP2-21** (Netlify auto-builds `main` on push — overtaken for the demo surface), and consider un-flagging language on 18/19 (AWS is now the canonical-stack path, not the only path to production).
+
+Once created, replace this section with the stories' keys in the epic lists above and the sync log.
 
 ## Board sync log (2026-07-20)
 

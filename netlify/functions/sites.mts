@@ -22,7 +22,7 @@ export default async (req: Request, _context: Context): Promise<Response> => {
       const rows = await listSitesForExport(filters, sort);
       const csv = sitesToCsv(rows);
       // UTF-8 BOM so Excel on Windows opens it in the right encoding.
-      return new Response("﻿" + csv, {
+      return new Response("\uFEFF" + csv, {
         headers: {
           "Content-Type": "text/csv; charset=utf-8",
           "Content-Disposition": 'attachment; filename="wa_mining_sites.csv"',
