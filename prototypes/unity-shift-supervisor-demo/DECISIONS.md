@@ -130,3 +130,41 @@ confirmed by reading the actual generated `.unity` file and checking that
 fields like `siteMarkerPrefab` referenced a real GUID rather than
 `{fileID: 0}` (Unity's "unassigned" value) — not just trusting that the
 script ran without throwing.
+
+## Editor version for the WebGL build: Unity 6 (6000.5.4f1), reversing the 2022.3 pin
+
+**Decision (2026-07-22):** the v2 branch's WebGL builds run on Unity
+6000.5.4f1, migrating the project off the original 2022.3.50f1 pin. The
+owner initially chose to stay on 2022.3 LTS (avoiding a project
+migration); that decision was reversed on evidence after the 2022.3 path
+consumed four failed attempts at installing its missing WebGL Build
+Support module:
+
+1. Two headless `Unity Hub -- --headless install-modules` runs downloaded
+   the ~1 GB module successfully but failed at the install step with
+   "The Windows elevation prompt was cancelled or timed out" — in an
+   unattended run, nobody is there to click the UAC dialog, which appears
+   on the secure desktop and expires quietly.
+2. A manual Hub GUI install reported visual completion but landed no
+   module for 2022.3.50f1 anywhere on disk (both editors'
+   `PlaybackEngines` folder timestamps stayed at their original install
+   date) — the Hub's queue swallows the elevation failure in a way that
+   is indistinguishable from success in its UI.
+3. A further headless attempt while the Hub GUI was open did nothing at
+   all: the Hub is single-instance, and the headless invocation lost to
+   the running GUI's lock.
+
+**Why reversal was right:** 6000.5.4f1 was already installed *with*
+WebGL support, needs zero downloads and zero elevation, and the
+migration risk for this project is minimal — five small scripts on
+Built-in RP + legacy UGUI + legacy Input, all still supported in Unity 6.
+The change is confined to this branch (`main` keeps the 2022.3 project
+untouched) and is a `git checkout` away from reverting. The pin's
+remaining value did not justify a fifth attempt at a module installer
+that fails invisibly.
+
+**Trace:** the full failure sequence with timestamps lives in
+TROUBLESHOOTING_LOG.md; the headless build command itself is
+`Assets/_ShiftSupervisorDemo/Editor/WebGLBuildScript.cs`, so the build
+is reproducible regardless of which editor version future maintainers
+have installed — the script pins nothing version-specific.
