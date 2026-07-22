@@ -1,14 +1,14 @@
-# Feature Specification — "Inspection Round" (v1.0, proposed 2026-07-22)
+# Feature Specification — "Inspection Round" (v1.0, approved 2026-07-22)
 
 The concrete feature this branch builds next: a guided **shift-inspection
 training scenario** on top of the existing five-site scene. This document
 is the solution artifact that [DISCOVERY.md](DISCOVERY.md) promised — every
 requirement below traces to an elicited fact there, not to enthusiasm.
 
-**Status: proposed — awaiting owner approval before implementation.**
-The active story (WMDP2-73, "Ship the link") is unchanged: the WebGL
-baseline build and shareable URL land first; this feature starts only
-after that story closes.
+**Status: approved by the owner 2026-07-22** (same day WMDP2-73 "Ship
+the link" closed with the live URL at wa-mining-unity.netlify.app).
+Implementation begins with increment I1 in the next work session; the
+board story lives under epic WMDP2-72.
 
 ## 1. The feature in one paragraph
 
