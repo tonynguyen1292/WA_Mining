@@ -6,6 +6,15 @@ like, for industrial and XR-adjacent visualization. **This is a learning
 and portfolio prototype, not a product build** — see Scope below for
 exactly what it is and isn't.
 
+**▶ Live build: [wa-mining-unity.netlify.app](https://wa-mining-unity.netlify.app)** —
+the WebGL build, playable in any desktop browser (~32 MB first load;
+desktop recommended). Deployed from this folder's `Builds/WebGL` output —
+see [Building & deploying](#building--deploying) below. The v2 evolution
+of this prototype (requirements discovery, feature spec) lives on the
+`feature/unity-shift-supervisor-v2` branch — see
+[DISCOVERY.md](DISCOVERY.md) and
+[FEATURE_INSPECTION_ROUND.md](FEATURE_INSPECTION_ROUND.md).
+
 ## Why this exists
 
 The rest of this repository is a data pipeline and a FastAPI + React web
@@ -63,6 +72,27 @@ unity-shift-supervisor-demo/
 1. Unity Hub → **Open** → select this folder.
 2. Open `Assets/_ShiftSupervisorDemo/Scenes/ShiftSupervisorDemo.unity`.
 3. Press **Play**. Left-click a marker for its details; left-drag to orbit; scroll to zoom.
+
+## Building & deploying
+
+The WebGL build is produced by a committed Editor script, not remembered
+menu clicks (see DECISIONS.md for the editor-version note — builds run on
+Unity 6000.5.4f1):
+
+```
+"<Unity 6000.x path>\Unity.exe" -batchmode -nographics -quit ^
+  -projectPath <this folder> -buildTarget WebGL ^
+  -executeMethod WAMining.ShiftSupervisorDemo.EditorTools.WebGLBuildScript.Build
+```
+
+Output lands in `Builds/WebGL/` (gitignored — build artifacts stay out of
+history). Deploying to the live site is one command against the dedicated
+Netlify project (`wa-mining-unity`, kept separate from the web app's site
+so the two release cadences never couple):
+
+```
+npx netlify-cli deploy --prod --dir Builds/WebGL --site eddecb01-a54a-4d3f-8d0a-f2290602b9b6
+```
 
 ## Further reading
 
