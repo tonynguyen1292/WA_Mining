@@ -438,7 +438,7 @@ The full, current roadmap — delivered features, what's next and why, and the p
 
 ## Related Experiments
 
-- **[prototypes/unity-shift-supervisor-demo/](prototypes/unity-shift-supervisor-demo/)** — a small, separate Unity/C# prototype: a single-scene 3D view of a handful of the same mining sites, colored by stage, clickable for details. Built to explore what a spatial/XR-adjacent visualization direction could look like, and to demonstrate picking up the Unity/C# stack. **Not part of the analytics pipeline or the FastAPI/React app** — no shared code, no networking between them, different tech stack entirely. See its own README for exact scope (deliberately no backend, auth, multiplayer, or headset integration).
+- **[prototypes/unity-shift-supervisor-demo/](prototypes/unity-shift-supervisor-demo/)** — a small, separate Unity/C# prototype: a single-scene 3D view of a handful of the same mining sites, colored by stage, clickable for details. Built to explore what a spatial/XR-adjacent visualization direction could look like, and to demonstrate picking up the Unity/C# stack. **Not part of the analytics pipeline or the FastAPI/React app** — no shared code, no networking between them, different tech stack entirely. See its own README for exact scope (deliberately no backend, auth, multiplayer, or headset integration). **Live WebGL build: [wa-mining-unity.netlify.app](https://wa-mining-unity.netlify.app)** (desktop recommended, ~32 MB first load) — deployed to its own Netlify site so demo releases never couple to this app's pipeline. Active development continues on the `feature/unity-shift-supervisor-v2` branch (requirements discovery + feature spec live there); it merges here at milestone quality.
 
 ## Further Reading
 
