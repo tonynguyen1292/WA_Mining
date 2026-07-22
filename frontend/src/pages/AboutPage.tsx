@@ -5,6 +5,11 @@ import { Link } from "react-router-dom";
 // between dev and prod, and a typo'd URL should fail a test, not a deploy.
 const PORTFOLIO_URL = "https://vynguyen-perth.netlify.app";
 const GITHUB_REPO_URL = "https://github.com/tonynguyen1292/WA_Mining";
+// The Unity experiment's own Netlify site -- deliberately separate from
+// this app's hosting so the two release cadences never couple.
+const UNITY_DEMO_URL = "https://wa-mining-unity.netlify.app";
+const UNITY_PROTOTYPE_URL =
+  "https://github.com/tonynguyen1292/WA_Mining/tree/main/prototypes/unity-shift-supervisor-demo";
 
 // Same dataset facts the Dashboard's provenance strip hardcodes -- both are
 // snapshot descriptions, and both are on the "after refreshing" checklist
@@ -113,6 +118,47 @@ export default function AboutPage() {
           </a>
           , and the cleaning rules are plain SQL you can read in the repository.
         </p>
+      </section>
+
+      {/* Deliberately a low-key card here rather than a nav-level button:
+          the prototype isn't a product peer of this app (same reasoning as
+          its prototypes/ placement in the repo), and the label sets honest
+          expectations before anyone clicks. */}
+      <section className="about-section">
+        <h2>Related experiment</h2>
+        <div className="about-experiment">
+          <div>
+            <h3>Unity shift-supervisor prototype</h3>
+            <p>
+              The same question — "what's the status of my sites?" — explored
+              spatially instead of as a dashboard: a Unity/C# scene of
+              stage-coloured site markers as a training-simulation direction
+              study. v2, a guided inspection-round scenario, is in development
+              on its own branch.
+            </p>
+            <p className="about-experiment-meta">
+              Unity · WebGL · ~30 MB first load · desktop recommended
+            </p>
+          </div>
+          <div className="about-author-links">
+            <a
+              className="about-button-primary"
+              href={UNITY_DEMO_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open the 3D demo
+            </a>
+            <a
+              className="about-button-secondary"
+              href={UNITY_PROTOTYPE_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              How it's built
+            </a>
+          </div>
+        </div>
       </section>
 
       <section className="about-author">

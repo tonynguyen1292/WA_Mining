@@ -46,6 +46,23 @@ describe("AboutPage", () => {
     expect(screen.getByRole("link", { name: "Map" })).toHaveAttribute("href", "/map");
   });
 
+  it("links to the Unity demo in a new tab, with honest expectations set", () => {
+    // The referral is milestone-gated by design (About card now, nav-level
+    // later if the v2 scenario earns it) -- what must never regress is the
+    // link contract and the expectation-setting copy next to it.
+    renderAbout();
+    const demo = screen.getByRole("link", { name: "Open the 3D demo" });
+    expect(demo).toHaveAttribute("href", "https://wa-mining-unity.netlify.app");
+    expect(demo).toHaveAttribute("target", "_blank");
+    expect(demo).toHaveAttribute("rel", "noreferrer");
+    const source = screen.getByRole("link", { name: "How it's built" });
+    expect(source).toHaveAttribute(
+      "href",
+      "https://github.com/tonynguyen1292/WA_Mining/tree/main/prototypes/unity-shift-supervisor-demo"
+    );
+    expect(screen.getByText(/desktop recommended/i)).toBeInTheDocument();
+  });
+
   it("shows the same dataset facts the dashboard's provenance strip carries", () => {
     // Both surfaces hardcode the snapshot shape on purpose; the refresh
     // checklist finds them by searching for 421 -- this test pins that
