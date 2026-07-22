@@ -2,9 +2,10 @@
 
 This is the Epic → Story → Subtask breakdown for the [WMDP2 Jira project](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/summary), organized into sprints, aligned to what's actually in this repository (both what's already built and what's ahead).
 
-**Live in Jira** as WMDP2-1..24 (the original import: 5 Epics, 19 Stories, 17 Subtasks) plus WMDP2-59..71 (the Product Polish epic and the post-import stories, added on the board as features shipped). Current board shape (see the sync logs below):
+**Live in Jira** as WMDP2-1..24 (the original import: 5 Epics, 19 Stories, 17 Subtasks) plus WMDP2-59..75 (the post-import epics and stories, added on the board as features shipped). Current board shape (see the sync logs below):
 - **WMDP2 Sprint 3** (19 Jul – 2 Aug) — **completed 2026-07-20** with its whole scope Done (WMDP2-17, 65, 67); the Confluence-retrospective offer at close was declined (solo project — this file and the plan *are* the retro). Jira auto-created an empty **Sprint 4** shell (2 Aug – 16 Aug), left un-started: its composition is the Sprint 4 planning call
-- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials), 20 (re-scoped: custom domain only) and 24 To Do; WMDP2-21, 68, 69, 70, 71 **Done** between sprints (see the 2026-07-20/21 sync logs)
+- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials), 20 (re-scoped: custom domain only) and 24 To Do; WMDP2-21, 68, 69, 70, 71, 73, 75 **Done** between sprints (see the 2026-07-20/21/22 sync logs); WMDP2-74 To Do (the approved Unity Inspection Round work)
+- **Unity Simulation Showcase epic (WMDP2-72, In Progress)** — the C#/Unity track, created 2026-07-22; runs parallel to web-app sprints on its own branch and capacity (2–3 h/week), never sprint-mixed by design
 - The original Sprint 1/2 objects were deleted during reconciliation — the import's sprint-matching failure had left them as empty, never-started shells while their stories (WMDP2-6..16, all Done) sat outside them
 - Keys 25–41 are the subtasks under stories 6–19; keys 42–58 were consumed by the import incident's duplicate subtasks (created, then deleted — see the note below), which is why the Product Polish epic starts at 59
 
@@ -78,7 +79,24 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 - ~~Story: CSV export of filtered view~~ — Done, on the board (covers the export endpoint, header labels, and no-store caching). See sections 1.10 and 1.12.
 - ~~Story: Cleaned-data pipeline consolidation~~ — Done, on the board. See section 1.11.
 - ~~Story: About page with portfolio referral (WMDP2-71)~~ — **Done, on the board** (2026-07-21). `/about` with the case-study narrative and the outbound referral to the owner's portfolio site. See [WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md) section 1.18.
+- ~~Story: Unity demo referral card on the About page (WMDP2-75)~~ — **Done, on the board** (2026-07-22, commit f177b75). The milestone-gated referral decision executed: a "Related experiment" card on `/about` (honest ~30 MB / desktop-recommended labeling, href-pinned by test) rather than a nav-level button — promotion to prominent placement is gated on the Inspection Round scenario landing (WMDP2-74).
 - ~~Story: Related sites by project (WMDP2-65)~~ — **Done, on the board** (transitioned in the same sitting the feature shipped). A `?project=` filter on `/api/sites` powers the detail page's related-sites section, the dashboard's project links, and project-scoped exports — see WA_MINING_PROJECT_PLAN.md section 1.14. With WMDP2-17 also Done, **Sprint 3's scope is now fully complete** — and the sprint was closed on 2026-07-20 (see the sync log).
+
+**Epic: Unity Simulation Showcase** (WMDP2-72, In Progress — created on the board 2026-07-22)
+
+The C#/Unity track (Viewport XR-aligned simulation showcase + freelance portfolio piece). Requirements discovery, the validated 5W1H, and the approved feature spec live on branch `feature/unity-shift-supervisor-v2` (`prototypes/unity-shift-supervisor-demo/DISCOVERY.md` and `FEATURE_INSPECTION_ROUND.md`); the epic's description carries the branch discipline (main only receives milestone-quality merges) and the 2–3 h/week capacity.
+- ~~Story: Ship the link: WebGL build published at a shareable URL (WMDP2-73)~~ — **Done, on the board** (2026-07-22). Unity 6 headless WebGL build (32 MB, 0 errors, built by the committed `WebGLBuildScript.cs`) live at **https://wa-mining-unity.netlify.app** on its own dedicated Netlify site; verified in production with Playwright (scene render + marker click → correct MINEDEX record); cross-linked from the prototype README (with the build/deploy runbook) and the root README's Related Experiments. The editor-pin reversal (2022.3 → Unity 6) and the four-failure module-install saga are documented in the prototype's DECISIONS.md and TROUBLESHOOTING_LOG.md #3.
+- Story: Inspection Round scenario — increments I1+I2 (WMDP2-74) — **To Do**, the approved spec's implementation vehicle (spec approved 2026-07-22): I1 = pure-C# `InspectionRound` core with EditMode tests, I2 = the playable loop UI (F1–F7). Starts when the next 2–3 h work session starts, per the spec's own increment design.
+
+## Board sync log (2026-07-22)
+
+The Unity track materialized on the board, all verified by page reads after each mutation:
+- **WMDP2-72 "Unity Simulation Showcase"** — epic created via the Create dialog (work type corrected from the dialog's retained "Epic→Story" state... the dialog retains the last-used type; verify it every time), set In Progress, assigned, described.
+- **WMDP2-73** — created as the Option 1 story ("Ship the link"), In Progress during the build/publish work, **Done** with a closing comment carrying the live URL, build facts, and doc pointers.
+- **WMDP2-74** — created under the epic with the approved spec scope in its description, assigned, left **To Do** deliberately.
+- **WMDP2-75** — created under Product Polish for the About-page referral card, **Done** (the work shipped in the same sitting, commit f177b75).
+- Repair: **WMDP2-5's assignee restored** (an earlier stray-keystroke mishap had unassigned it).
+- Process note, again for the record: Jira's single-key shortcuts (c = create, i = assign-toggle, m = comment) fire whenever a click misses its input target — this sitting they briefly unassigned WMDP2-72 and WMDP2-75 and opened stray Create dialogs, all caught by the click→screenshot-verify→type protocol and repaired within the minute. Treat every type-after-click on this board as unverified until a screenshot proves focus.
 
 ## Board sync log (2026-07-21)
 

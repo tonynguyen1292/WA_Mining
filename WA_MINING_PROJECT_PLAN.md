@@ -176,7 +176,11 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 
 ## 2. Next up — Sprint 4 shaping
 
-The 2026-07-20 deploy-now-vs-wait decision **resolved itself a day later**: the owner ran Netlify's agent, and after the 1.19 postmortem/merge the app is live at wa-mining.netlify.app. Two board stories need re-scoping in Sprint 4 planning as a result: **WMDP2-20 (TLS + custom domain)** — TLS now comes free with the netlify.app domain, so only the custom-domain half remains, if wanted; and **WMDP2-21 (automated CD)** — Netlify already rebuilds production on every push to `main`, so the story either closes as overtaken or re-scopes to the AWS path. Strongest new Sprint 4 candidates: contract-testing the Netlify Functions against the backend suite's expectations (the drift risk 1.19 documents), the named coverage gaps, and the parked 1.13 ideas (an LGA filter on `/sites` would also unlock LGA-bar clickability).
+The 2026-07-20 deploy-now-vs-wait decision **resolved itself a day later**: the owner ran Netlify's agent, and after the 1.19 postmortem/merge the app is live at wa-mining.netlify.app. WMDP2-21 (automated CD) has since closed as overtaken (Netlify rebuilds `main` on every push) and WMDP2-20 re-scoped to the custom-domain half only — see the backlog's 2026-07-21 sync log.
+
+**Sprint 4 scope was picked by the owner on 2026-07-21** — the Netlify-Functions contract-testing story plus WMDP2-20's custom domain — but its board execution (create the contract story, pull both into the Sprint 4 shell, start the sprint) is still pending: the sitting pivoted to the Unity track before the shell was filled. Execute at the next web-app planning sitting.
+
+**The Unity track now runs beside the sprints, not inside them**: epic **WMDP2-72 Unity Simulation Showcase** (created 2026-07-22) tracks the C#/Unity work on `feature/unity-shift-supervisor-v2` at 2–3 h/week — discovery and the approved Inspection Round spec live on that branch. Shipped so far: the live WebGL demo at **wa-mining-unity.netlify.app** (WMDP2-73, dedicated Netlify site) and the About page's milestone-gated referral card (WMDP2-75, commit f177b75). Next: WMDP2-74, the Inspection Round increments I1+I2.
 
 ---
 
