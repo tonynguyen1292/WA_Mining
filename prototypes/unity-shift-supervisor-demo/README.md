@@ -15,6 +15,19 @@ of this prototype (requirements discovery, feature spec) lives on the
 [DISCOVERY.md](DISCOVERY.md) and
 [FEATURE_INSPECTION_ROUND.md](FEATURE_INSPECTION_ROUND.md).
 
+### What it looks like
+
+Captured from the deployed WebGL build (increment I2 — the playable
+inspection round):
+
+| Shift briefing | Making a call at a site |
+|---|---|
+| ![Shift briefing card with Start shift button](Screenshots/final_briefing.png) | ![HUD and Log OK / Flag issue choice row](Screenshots/final_inspecting.png) |
+
+| Flagging with a reason | End-of-shift report |
+|---|---|
+| ![Safety / Equipment / Output reason row](Screenshots/final_reasons.png) | ![Summary of every decision, shift time, and verdict](Screenshots/final_summary.png) |
+
 ## Why this exists
 
 The rest of this repository is a data pipeline and a FastAPI + React web
@@ -28,6 +41,7 @@ on the web app.
 
 **What this is:**
 - One scene (`ShiftSupervisorDemo.unity`), five clickable 3D markers representing sample mining sites
+- **A playable inspection round** (v2 increment I2): briefing → a status call at every site (Log OK / Flag issue with a reason) → an end-of-shift report with your decisions, time, and whether the troubled site was caught → restart. The scenario rules live in a pure-C# core covered by EditMode tests
 - Marker color reflects `stage` (Operating / Care and Maintenance / other)
 - Click a marker → see its details (name, type, stage, commodity, region) in a UI panel
 - Simple mouse-drag orbit + scroll zoom camera
@@ -87,9 +101,14 @@ or headless:
   -testResults <absolute path>\editmode-results.xml
 ```
 
-In play mode, an Editor-only debug panel (`DebugRoundDriver`) drives a
-full inspection round end-to-end until the real I2 UI exists — it
-self-spawns, needs no scene setup, and never ships in builds.
+The inspection round itself is fully playable (increment I2): press
+Play (or open the live build) → **Start shift** → make a call at each
+site (**Log OK**, or **Flag issue…** with a Safety/Equipment/Output
+reason) → the end-of-shift report shows every decision, your time, and
+whether the genuinely troubled site was caught → **Restart shift**. The
+scenario UI is generated and wired by a committed Editor script
+(`Editor/ScenarioUiBuilder.cs`, menu: *Tools → WA Mining Demo → Build
+Scenario UI*) — see DECISIONS.md for why it stays in the repo.
 
 ## Building & deploying
 
