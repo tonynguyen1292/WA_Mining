@@ -73,6 +73,24 @@ unity-shift-supervisor-demo/
 2. Open `Assets/_ShiftSupervisorDemo/Scenes/ShiftSupervisorDemo.unity`.
 3. Press **Play**. Left-click a marker for its details; left-drag to orbit; scroll to zoom.
 
+## Testing
+
+The scenario core (`Scripts/Scenario/`) is plain C# behind an assembly
+definition, covered by EditMode tests in `Tests/Editor/` (see
+DECISIONS.md, "Scenario core: pure C# behind assembly definitions").
+Run them in the Editor via **Window → General → Test Runner → EditMode**,
+or headless:
+
+```
+"<Unity 6000.x path>\Unity.exe" -batchmode -nographics ^
+  -projectPath <this folder> -runTests -testPlatform EditMode ^
+  -testResults <absolute path>\editmode-results.xml
+```
+
+In play mode, an Editor-only debug panel (`DebugRoundDriver`) drives a
+full inspection round end-to-end until the real I2 UI exists — it
+self-spawns, needs no scene setup, and never ships in builds.
+
 ## Building & deploying
 
 The WebGL build is produced by a committed Editor script, not remembered

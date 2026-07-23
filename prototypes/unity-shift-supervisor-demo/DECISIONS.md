@@ -168,3 +168,40 @@ TROUBLESHOOTING_LOG.md; the headless build command itself is
 `Assets/_ShiftSupervisorDemo/Editor/WebGLBuildScript.cs`, so the build
 is reproducible regardless of which editor version future maintainers
 have installed — the script pins nothing version-specific.
+
+## Scenario core: pure C# behind assembly definitions, not MonoBehaviour logic
+
+**Decision (2026-07-23, increment I1):** the Inspection Round's rules
+(`Scripts/Scenario/InspectionRound.cs` + `RoundTypes.cs`) are plain C#
+with zero `UnityEngine` dependencies — time arrives via `Tick(delta)`
+from whoever drives the round — and the project gained its first
+assembly definitions: `WAMining.ShiftSupervisorDemo` over `Scripts/`
+and an Editor-only test assembly over `Tests/Editor/`.
+
+**Why pure C#:** the scenario's correctness (sequencing, decision
+validation, the win condition, free-roam re-sequencing) is exactly the
+kind of logic that silently rots inside a MonoBehaviour where only
+play-mode clicking exercises it. As plain C# it runs under the Unity
+Test Framework's EditMode runner in milliseconds with no scene — the
+same philosophy as the main repo's backend testing against SQLite:
+test the rules, not the engine. Presentation stays in I2's
+controllers, which will be thin enough to verify visually.
+
+**Why asmdefs became necessary now:** an EditMode test assembly cannot
+reference Unity's predefined `Assembly-CSharp`, so testable code must
+live in a named assembly — no asmdef, no tests, full stop. One
+consequence to know about: a custom runtime asmdef no longer
+auto-references package assemblies, so `UnityEngine.UI` had to be
+listed explicitly for `ShiftSupervisorUIController` to keep compiling —
+the same UGUI dependency that bit as entry #1 in TROUBLESHOOTING_LOG,
+resurfacing structurally. `Editor/WebGLBuildScript.cs` deliberately
+stays outside any asmdef (predefined `Assembly-CSharp-Editor` is fine
+for it, and it references nothing of ours).
+
+**Why the placeholder UI is an Editor-gated IMGUI driver:**
+`DebugRoundDriver.cs` is wrapped in `#if UNITY_EDITOR` and self-spawns
+via `RuntimeInitializeOnLoadMethod` only when the scene contains a
+`SiteDatabase`. That makes the round demonstrable end-to-end in play
+mode with **zero scene edits and zero WebGL-build impact** — the
+committed scene stays untouched until I2 builds the real UGUI flow,
+and a debug panel can never ship to the live site by accident.
