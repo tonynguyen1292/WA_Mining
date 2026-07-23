@@ -3,8 +3,9 @@
 This is the Epic → Story → Subtask breakdown for the [WMDP2 Jira project](https://tonynguyen1996jb.atlassian.net/jira/software/projects/WMDP2/summary), organized into sprints, aligned to what's actually in this repository (both what's already built and what's ahead).
 
 **Live in Jira** as WMDP2-1..24 (the original import: 5 Epics, 19 Stories, 17 Subtasks) plus WMDP2-59..75 (the post-import epics and stories, added on the board as features shipped). Current board shape (see the sync logs below):
-- **WMDP2 Sprint 3** (19 Jul – 2 Aug) — **completed 2026-07-20** with its whole scope Done (WMDP2-17, 65, 67); the Confluence-retrospective offer at close was declined (solo project — this file and the plan *are* the retro). Jira auto-created an empty **Sprint 4** shell (2 Aug – 16 Aug), left un-started: its composition is the Sprint 4 planning call
-- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials), 20 (re-scoped: custom domain only) and 24 To Do; WMDP2-21, 68, 69, 70, 71, 73, 75 **Done** between sprints (see the 2026-07-20/21/22 sync logs); WMDP2-74 To Do (the approved Unity Inspection Round work)
+- **WMDP2 Sprint 3** (19 Jul – 2 Aug) — **completed 2026-07-20** with its whole scope Done (WMDP2-17, 65, 67); the Confluence-retrospective offer at close was declined (solo project — this file and the plan *are* the retro)
+- **WMDP2 Sprint 4** — **started 2026-07-23** (runs to 16 Aug) with exactly the owner's picked scope: **WMDP2-76** (contract-test the Netlify Functions, created under WMDP2-5) and **WMDP2-20** (custom domain). Sprint goal: protect the live demo's API fidelity with a CI contract check, and resolve the custom-domain half of 20
+- **Backlog** — WMDP2-18/19 (flagged: blocked on AWS credentials) and 24 To Do; WMDP2-21, 68, 69, 70, 71, 73, 75 **Done** between sprints (see the sync logs); **WMDP2-74 In Progress** (Inspection Round — I1 shipped 2026-07-23, I2 next)
 - **Unity Simulation Showcase epic (WMDP2-72, In Progress)** — the C#/Unity track, created 2026-07-22; runs parallel to web-app sprints on its own branch and capacity (2–3 h/week), never sprint-mixed by design
 - The original Sprint 1/2 objects were deleted during reconciliation — the import's sprint-matching failure had left them as empty, never-started shells while their stories (WMDP2-6..16, all Done) sat outside them
 - Keys 25–41 are the subtasks under stories 6–19; keys 42–58 were consumed by the import incident's duplicate subtasks (created, then deleted — see the note below), which is why the Product Polish epic starts at 59
@@ -87,6 +88,14 @@ Also parked here from Sprint 3 (2026-07-19): **WMDP2-18 Provision AWS infrastruc
 The C#/Unity track (Viewport XR-aligned simulation showcase + freelance portfolio piece). Requirements discovery, the validated 5W1H, and the approved feature spec live on branch `feature/unity-shift-supervisor-v2` (`prototypes/unity-shift-supervisor-demo/DISCOVERY.md` and `FEATURE_INSPECTION_ROUND.md`); the epic's description carries the branch discipline (main only receives milestone-quality merges) and the 2–3 h/week capacity.
 - ~~Story: Ship the link: WebGL build published at a shareable URL (WMDP2-73)~~ — **Done, on the board** (2026-07-22). Unity 6 headless WebGL build (32 MB, 0 errors, built by the committed `WebGLBuildScript.cs`) live at **https://wa-mining-unity.netlify.app** on its own dedicated Netlify site; verified in production with Playwright (scene render + marker click → correct MINEDEX record); cross-linked from the prototype README (with the build/deploy runbook) and the root README's Related Experiments. The editor-pin reversal (2022.3 → Unity 6) and the four-failure module-install saga are documented in the prototype's DECISIONS.md and TROUBLESHOOTING_LOG.md #3.
 - Story: Inspection Round scenario — increments I1+I2 (WMDP2-74) — **To Do**, the approved spec's implementation vehicle (spec approved 2026-07-22): I1 = pure-C# `InspectionRound` core with EditMode tests, I2 = the playable loop UI (F1–F7). Starts when the next 2–3 h work session starts, per the spec's own increment design.
+
+## Board sync log (2026-07-23)
+
+Sprint 4 executed and the Unity increment started, same sitting:
+- **WMDP2-76 "Contract-test the Netlify Functions against the FastAPI reference"** created — Story, parent WMDP2-5, assigned, full differential-testing scope in the description — and placed into Sprint 4.
+- **WMDP2-20** placed into Sprint 4 (its re-scoped custom-domain-only remit stands).
+- **Sprint 4 started** (2026-07-23 → 16 Aug, goal recorded in Jira): exactly the two stories the owner picked on 2026-07-21, nothing back-filled.
+- **WMDP2-74 → In Progress** as Inspection Round increment I1 shipped on the branch (`dc09417`: pure-C# scenario core + 23 EditMode tests, all green headless). I2 (the playable loop UI) is the story's remaining scope.
 
 ## Board sync log (2026-07-22)
 

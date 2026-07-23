@@ -178,9 +178,9 @@ Each feature has a **Status**, a one-line **Why**, and its constituent **Tasks**
 
 The 2026-07-20 deploy-now-vs-wait decision **resolved itself a day later**: the owner ran Netlify's agent, and after the 1.19 postmortem/merge the app is live at wa-mining.netlify.app. WMDP2-21 (automated CD) has since closed as overtaken (Netlify rebuilds `main` on every push) and WMDP2-20 re-scoped to the custom-domain half only — see the backlog's 2026-07-21 sync log.
 
-**Sprint 4 scope was picked by the owner on 2026-07-21** — the Netlify-Functions contract-testing story plus WMDP2-20's custom domain — but its board execution (create the contract story, pull both into the Sprint 4 shell, start the sprint) is still pending: the sitting pivoted to the Unity track before the shell was filled. Execute at the next web-app planning sitting.
+**Sprint 4 is live (started 2026-07-23, runs to 16 Aug)** with the owner's picked scope executed on the board: **WMDP2-76** (the Netlify-Functions contract-testing story, full differential-testing scope in its description) and **WMDP2-20** (custom domain). The sprint goal is recorded in Jira.
 
-**The Unity track now runs beside the sprints, not inside them**: epic **WMDP2-72 Unity Simulation Showcase** (created 2026-07-22) tracks the C#/Unity work on `feature/unity-shift-supervisor-v2` at 2–3 h/week — discovery and the approved Inspection Round spec live on that branch. Shipped so far: the live WebGL demo at **wa-mining-unity.netlify.app** (WMDP2-73, dedicated Netlify site) and the About page's milestone-gated referral card (WMDP2-75, commit f177b75). Next: WMDP2-74, the Inspection Round increments I1+I2.
+**The Unity track now runs beside the sprints, not inside them**: epic **WMDP2-72 Unity Simulation Showcase** (created 2026-07-22) tracks the C#/Unity work on `feature/unity-shift-supervisor-v2` at 2–3 h/week — discovery and the approved Inspection Round spec live on that branch. Shipped so far: the live WebGL demo at **wa-mining-unity.netlify.app** (WMDP2-73), the About page's referral card (WMDP2-75), and — as of 2026-07-23 — **Inspection Round increment I1** (WMDP2-74 In Progress): the pure-C# scenario core with 23 green EditMode tests behind the project's first assembly definitions. Next: I2, the playable loop UI, which redeploys the live demo.
 
 ---
 
