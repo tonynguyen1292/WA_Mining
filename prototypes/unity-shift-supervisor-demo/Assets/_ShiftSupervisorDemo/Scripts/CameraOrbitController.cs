@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace WAMining.ShiftSupervisorDemo
 {
@@ -6,6 +7,10 @@ namespace WAMining.ShiftSupervisorDemo
     /// Minimal orbit camera for looking around the site layout: left-mouse
     /// drag to rotate, scroll wheel to zoom. No physics, no VR/XR headset
     /// input -- just enough to explore a small scene from a desktop.
+    ///
+    /// Ignores input while the pointer is over UI: without that guard,
+    /// every scenario-button click also spun the world behind the panels
+    /// (found by the I2 WebGL click-through, not in the Editor).
     /// </summary>
     public class CameraOrbitController : MonoBehaviour
     {
@@ -30,6 +35,10 @@ namespace WAMining.ShiftSupervisorDemo
 
         private void Update()
         {
+            bool pointerOverUi = EventSystem.current != null
+                && EventSystem.current.IsPointerOverGameObject();
+            if (pointerOverUi) return;
+
             if (Input.GetMouseButton(0))
             {
                 _yaw += Input.GetAxis("Mouse X") * rotateSpeed * Time.deltaTime;

@@ -83,3 +83,47 @@ session — same result, zero risk of a second-instance conflict.
 No error actually occurred here; recorded because it's the kind of
 silent-corruption risk that's worth having checked for rather than
 gotten lucky on.
+
+## 3. WebGL Build Support module: four failed installs for 2022.3.50f1 (2026-07-22)
+
+**Goal:** produce the first WebGL build (feature spec's "Ship the link"
+story). 2022.3.50f1 was installed with only Windows Standalone support.
+
+**Failure sequence, in order:**
+
+1. **Headless install, unattended** (`"Unity Hub.exe" -- --headless
+   install-modules --version 2022.3.50f1 -m webgl`): the ~1 GB download
+   completed to 100%, then:
+   `[WebGL Build Support] failed to install. Error given: The Windows
+   elevation prompt was cancelled or timed out.`
+   The UAC dialog appears on Windows' secure desktop; in an unattended
+   run nothing can click it, and it expires. The Hub exits "Completed
+   with errors" but with the download cached.
+2. **Headless retry with the owner nearby:** same elevation timeout —
+   the prompt fired before the owner saw it.
+3. **Manual Hub GUI install:** progress completed visually, but no
+   `WebGLSupport` folder appeared under the 2022.3.50f1 editor — and the
+   6000.5.4f1 editor's module folder timestamp also stayed at its
+   original 2026-07-17 install date. Conclusion: the GUI queue swallows
+   the elevation failure invisibly; "it finished" and "it installed"
+   are different claims (the same lesson as entry #1's "the files are
+   all there" vs "it compiles").
+4. **Headless attempt while the Hub GUI was open:** produced only
+   Chromium quota-database errors and no module action at all — the Hub
+   is single-instance, and the headless run lost to the GUI's lock.
+
+**Diagnosis method:** never trust the installer's word — verify
+`Editor/Data/PlaybackEngines/WebGLSupport` exists (and check its
+timestamp) after every attempt. The build log's
+`Native extension for WindowsStandalone target not found` +
+`Targeting platform: WebGL` combination is the on-disk signature of
+"module missing for the requested target."
+
+**Resolution:** reversed the editor pin and built with the
+already-installed Unity 6000.5.4f1 (WebGL support present, license
+verified in earlier logs) — see DECISIONS.md, "Editor version for the
+WebGL build." Also relevant: two batch builds aborted on
+`It looks like another Unity instance is running with this project
+open` while the owner's Editor session held `Temp/UnityLockfile` —
+entry #2's predicted risk, observed for real, resolved by a
+close-detection watcher rather than ever killing the live session.
