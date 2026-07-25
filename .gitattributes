@@ -1,0 +1,7 @@
+# Shell scripts must arrive with LF endings regardless of the checkout
+# platform. This repo is developed on Windows with core.autocrlf=true, which
+# would otherwise write .sh files with CRLF on clone. A CRLF script does not
+# always fail loudly -- Git Bash runs the shebang fine, but the trailing \r
+# attaches itself to word-split values, so a `case "$stage" in ...` dispatch
+# silently stops matching and stages get skipped rather than reported.
+*.sh text eol=lf
