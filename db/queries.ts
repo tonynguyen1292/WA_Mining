@@ -269,10 +269,48 @@ function csvCell(value: unknown): string {
   return s;
 }
 
+// Leading characters spreadsheet apps interpret as "this cell is a formula"
+// when opening a CSV (=, +, -, @, and the tab/CR variants Excel also
+// accepts). A crafted value like "=HYPERLINK(...)" in a future dataset
+// refresh would execute on open -- classic CSV injection.
+const FORMULA_TRIGGERS = ["=", "+", "-", "@", "\t", "\r"];
+
+/**
+ * Prefix formula-triggering *text* cells with a literal ' quote.
+ *
+ * Ports `_neutralize_formula_cell` from backend/app/services/
+ * portfolio_service.py, which the Python export has applied since
+ * WMDP2-68 -- this port predated that guard and never gained it, so the
+ * deployed export was the only surface still unprotected.
+ *
+ * The `typeof value === "string"` check is load-bearing, not defensive:
+ * `serializeSite` has already cast longitude/latitude to `number`, and
+ * neutralizing those would corrupt every southern-hemisphere latitude
+ * (they all start with "-"). Applying this before `String()` in `csvCell`
+ * is what keeps the numbers out of range of the guard.
+ *
+ * The current 421-row snapshot has zero affected text cells, so this
+ * changes no bytes of today's export -- it exists so a refreshed snapshot
+ * can't turn the export into a code-execution vector. Cost when it does
+ * fire: a visible leading apostrophe on that cell, which reads as intent
+ * ("this is text") rather than corruption.
+ */
+function neutralizeFormulaCell(value: unknown): unknown {
+  if (typeof value === "string" && FORMULA_TRIGGERS.some((t) => value.startsWith(t))) {
+    return "'" + value;
+  }
+  return value;
+}
+
 export function sitesToCsv(rows: ReturnType<typeof serializeSite>[]): string {
+  // The header row carries our own labels, not dataset values, so it is
+  // trusted and left un-neutralized -- matching the Python writer, which
+  // only maps the guard over the data rows.
   const lines = [EXPORT_COLUMNS.map(([, label]) => csvCell(label)).join(",")];
   for (const row of rows) {
-    lines.push(EXPORT_COLUMNS.map(([col]) => csvCell((row as any)[col])).join(","));
+    lines.push(
+      EXPORT_COLUMNS.map(([col]) => csvCell(neutralizeFormulaCell((row as any)[col]))).join(","),
+    );
   }
   return lines.join("\r\n") + "\r\n";
 }
