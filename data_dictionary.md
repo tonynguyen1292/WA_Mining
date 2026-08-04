@@ -18,6 +18,14 @@ as a reference for data analysts, BI developers, and stakeholders reviewing the 
 
 ## Fields
 
+**These are the *raw* source values, as downloaded** — before `SQL/02`/`03`'s cleaning.
+Several differ from what the app displays, which is the point of the pipeline: the
+suffix-laden `DEVELOPMENT_REGION` and `LGA_NAME` values below become clean names,
+and the uppercase `TARGET_GROUP_NAME` values become title case. One of those
+transforms is a known defect rather than an improvement: `INITCAP` also title-cases
+the conjunction in `STAGE`, so the raw `Care and Maintenance` below reaches the app
+as `Care And Maintenance` (see the root README's Future Improvements).
+
 | Field | Description | Example |
 |-------|-------------|---------|
 | SITE_CODE | Unique identifier for each site (mine, infrastructure, etc.) | S0001709 |

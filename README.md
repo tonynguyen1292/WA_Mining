@@ -167,7 +167,7 @@ The most-exercised part of this flow is the `/api/sites` ↔ `SitesPage.tsx` rou
 | Region/LGA names with inconsistent suffixes (e.g. ", SHIRE OF") | Handled in SQL with `CASE`-based text transforms during the clean-table insert |
 | Site-to-project duplicate counting | Exposed both project-level and site-level counts as separate measures in Power BI, rather than picking one and hiding the ambiguity |
 | No capital-cost field in the source dataset | Out of scope for this version — noted explicitly in `data_dictionary.md` rather than estimated or backfilled |
-| `05_portfolio_summary.sql` only buckets 4 of the 6 real `STAGE` values (`Operating`, `Proposed`, `Care and Maintenance`, `Under Development`) | Known gap — `Undeveloped` (33 sites) and `Shut` (3 sites) currently fall outside the per-stage breakdown, though they're still included in `total_sites`. Not fixed in this pass; tracked in Future Improvements |
+| `05_portfolio_summary.sql` only buckets 4 of the 6 real `STAGE` values (`Operating`, `Proposed`, `Care And Maintenance`, `Under Development`) | Known gap — `Undeveloped` (33 sites) and `Shut` (3 sites) currently fall outside the per-stage breakdown, though they're still included in `total_sites`. Not fixed in this pass; tracked in Future Improvements |
 
 ## Tech Stack
 
@@ -293,20 +293,29 @@ Both run in CI on every push/PR to `main`. See `backend/README.md` and `frontend
 ```
 WA_Mining/
 ├── README.md
+├── CLAUDE.md                          # standing working agreements (commit/board/docs lockstep, known traps)
 ├── data_dictionary.md
 ├── DEPLOYMENT.md                      # AWS EC2 deployment runbook (not yet executed)
 ├── WA_MINING_PROJECT_PLAN.md          # current feature roadmap: delivered, next up, and why
 ├── JIRA_BACKLOG.md                    # Epic/Story/Subtask backlog plan, live in Jira as WMDP2-1..41
 ├── jira_backlog_import.csv            # same plan, formatted for Jira's CSV importer
 ├── .gitignore
+├── .gitattributes                     # pins *.sh to LF so shell scripts survive a Windows checkout
 ├── docker-compose.yml                 # Postgres + backend, local dev (hot reload)
 ├── docker-compose.prod.yml            # full stack, production-like build (nginx frontend)
-├── .github/workflows/ci.yml           # backend lint/compile/test + frontend test/typecheck/build
+├── package.json                       # root deps: Netlify Functions + Drizzle (the live-demo hosting layer)
+├── tsconfig.json                      # typecheck-only config over netlify/ + db/ (CI's netlify-api job)
+├── drizzle.config.ts                  # generates the migrations under netlify/database/
+├── netlify.toml                       # Netlify build, Node pin, SPA fallback, `netlify dev` setup
+├── .claude/                           # repo-scoped agent config: commit hook, unity-webgl-release skill
+├── .github/workflows/ci.yml           # BOM hygiene + backend lint/compile/test + netlify typecheck + frontend test/build
 ├── screenshots/                       # app screenshots used above
 │   ├── dashboard.png
 │   ├── sites-table.png
 │   ├── map-view.png
-│   └── command-palette.png
+│   ├── command-palette.png
+│   ├── about.png
+│   └── Portfolio Snapshot - *.png     # owner-captured snapshots of the finished app (19 Jul 2026)
 ├── image.png                          # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── image-1.png                        # legacy screenshot, superseded by POWER_BI/screenshots/ (pending cleanup)
 ├── backend/                           # FastAPI app: API + DB seed pipeline
@@ -341,6 +350,14 @@ WA_Mining/
 │   ├── .dockerignore
 │   ├── .env.example
 │   └── README.md                      # frontend-specific setup, structure, scripts
+├── netlify/                           # the live demo's hosting adapter -- NOT the canonical API (see Live demo)
+│   ├── functions/                     # TypeScript ports of the FastAPI routes (sites, kpis, filters, health)
+│   ├── lib/http.ts                    # shared query parsing, JSON/error responses, no-store stamping
+│   └── database/migrations/           # deploy-time schema + 421-row seed for the managed Netlify Postgres
+├── db/                                # Drizzle schema + query layer behind the Functions
+│   ├── schema.ts                      # mirrors backend/app/models/site.py and SQL/02's columns
+│   ├── queries.ts                     # port of portfolio_service.py: filters, sort allowlist, KPIs, CSV
+│   └── index.ts
 ├── DATABASES/
 │   ├── README_database.md             # provenance of both folders below + how to regenerate the cleaned one
 │   ├── raw/
@@ -416,7 +433,7 @@ Running this pipeline standalone is useful for two things: the Power BI dashboar
 
 ## Business Context
 
-The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and covers WA's mining, mineral processing, and petroleum sites. In the CSV snapshot currently in this repo: 229 Mine sites, 158 Infrastructure sites, 33 Deposit sites, and 1 Other site, across 356 distinct projects. By stage: 261 Operating, 74 Proposed, 40 Care and Maintenance, 33 Undeveloped, 10 Under Development, and 3 Shut. Projects cluster regionally (e.g. iron ore concentrated in the Pilbara, gold in the Goldfields), which is one of the drill-downs the dashboard supports.
+The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and covers WA's mining, mineral processing, and petroleum sites. In the CSV snapshot currently in this repo: 229 Mine sites, 158 Infrastructure sites, 33 Deposit sites, and 1 Other site, across 356 distinct projects. By stage: 261 Operating, 74 Proposed, 40 `Care And Maintenance`, 33 Undeveloped, 10 Under Development, and 3 Shut. (The capital "And" is the cleaned value, not a typo — `INITCAP` in `SQL/03` title-cases the conjunction that the raw DMIRS export gets right. It is what the app's filters and charts display; see Future Improvements.) Projects cluster regionally (e.g. iron ore concentrated in the Pilbara, gold in the Goldfields), which is one of the drill-downs the dashboard supports.
 
 ## Data Source
 
@@ -431,14 +448,15 @@ The dataset is sourced from DMIRS's MINEDEX Major Resource Projects export and c
 The full, current roadmap — delivered features, what's next and why, and the platform/infra backlog — lives in **[WA_MINING_PROJECT_PLAN.md](WA_MINING_PROJECT_PLAN.md)**. The notes below are narrower, code-level items worth keeping close to the code they describe:
 
 - Not yet covered by `docker-compose.prod.yml` or the AWS deployment: TLS/custom domain, horizontal scaling, and full CD (CI lints, tests, and builds, but deployment itself is manual; see [Cloud Deployment (AWS)](#cloud-deployment-aws)).
-- Test coverage is a starter set, not exhaustive — `backend/tests/` covers sort/filter logic and the `/api/sites` route; frontend covers `urlFilters` and `SitesTable`'s sort cycle. `/api/kpis`, `MultiSelect`, and the URL-sync effects in `SitesPage`/`MapPage` still have no direct tests.
+- Test coverage is focused, not exhaustive (60 backend + 47 frontend as of 2026-08-04). `backend/tests/` covers the sort/filter/KPI service logic, the `/api/sites` and `/api/kpis` routes, the CSV export, the `no-store` cache headers, and the seed guardrails; the frontend covers `urlFilters`, `SitesTable`'s sort cycle, `CommandPalette`, `SiteDetailPage`, `AboutPage`, and the API client. Still untested: `/api/meta/filters`'s content, `MultiSelect`, the URL-sync effects in `SitesPage`/`MapPage`, `App.tsx`'s shortcut wiring, and `FilterBar`'s project-chip dismissal.
+- **`INITCAP` over-capitalizes conjunctions.** `SQL/03`'s cleaning turns the raw export's correct `Care and Maintenance` into `Care And Maintenance`, which is then what the API returns, the filters and charts display, and `SiteMarker.cs`/`InspectionRound.TroubledStage` compare against. The cleaning step degrades a value the source already had right. Not fixed here because it is not a doc change: it means a title-case rule with a conjunction exception in `SQL/03`, re-running the pipeline, regenerating the cleaned CSV, re-seeding both databases (including the Netlify migration), and updating the Unity constants and their tests in lockstep.
 - The `STAGE` bucketing gap is fixed in the app (`GET /api/kpis` groups dynamically, so `Undeveloped` and `Shut` are included) but `SQL/05_portfolio_summary.sql`'s own `portfolio_summary` rollup table still only buckets 4 of 6 stages — left as-is since that specific table isn't consumed by the app (unlike `01`–`03`'s output, which now is, via `DATABASES/Cleaned_Mining_Data/`).
 - Decide whether to keep `POWER_BI/wa_mining_dashboard_v1.pbix` (superseded by v2) or remove it.
 - Remove or repurpose the legacy `image.png` / `image-1.png` at the repo root now that screenshots live under `screenshots/` and `POWER_BI/screenshots/`.
 
 ## Related Experiments
 
-- **[prototypes/unity-shift-supervisor-demo/](prototypes/unity-shift-supervisor-demo/)** — a small, separate Unity/C# prototype: a single-scene 3D view of a handful of the same mining sites, colored by stage, clickable for details. Built to explore what a spatial/XR-adjacent visualization direction could look like, and to demonstrate picking up the Unity/C# stack. **Not part of the analytics pipeline or the FastAPI/React app** — no shared code, no networking between them, different tech stack entirely. See its own README for exact scope (deliberately no backend, auth, multiplayer, or headset integration). **Live WebGL build: [wa-mining-unity.netlify.app](https://wa-mining-unity.netlify.app)** (desktop recommended, ~32 MB first load) — deployed to its own Netlify site so demo releases never couple to this app's pipeline. Active development continues on the `feature/unity-shift-supervisor-v2` branch (requirements discovery + feature spec live there); it merges here at milestone quality.
+- **[prototypes/unity-shift-supervisor-demo/](prototypes/unity-shift-supervisor-demo/)** — a small, separate Unity/C# prototype: a single-scene 3D view of a handful of the same mining sites, colored by stage, clickable for details. Built to explore what a spatial/XR-adjacent visualization direction could look like, and to demonstrate picking up the Unity/C# stack. **Not part of the analytics pipeline or the FastAPI/React app** — no shared code, no networking between them, different tech stack entirely. See its own README for exact scope (deliberately no backend, auth, multiplayer, or headset integration). **Live WebGL build: [wa-mining-unity.netlify.app](https://wa-mining-unity.netlify.app)** (desktop recommended, ~32 MB first load) — deployed to its own Netlify site so demo releases never couple to this app's pipeline. Since the I2 milestone merge the prototype's source, its requirements discovery, and the approved feature spec are all **on `main`**; increments I3/I4 continue on the `feature/unity-shift-supervisor-v2` branch, which merges here at milestone quality.
 
 ## Further Reading
 

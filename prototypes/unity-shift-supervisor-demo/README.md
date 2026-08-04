@@ -9,11 +9,12 @@ exactly what it is and isn't.
 **▶ Live build: [wa-mining-unity.netlify.app](https://wa-mining-unity.netlify.app)** —
 the WebGL build, playable in any desktop browser (~32 MB first load;
 desktop recommended). Deployed from this folder's `Builds/WebGL` output —
-see [Building & deploying](#building--deploying) below. The v2 evolution
-of this prototype (requirements discovery, feature spec) lives on the
-`feature/unity-shift-supervisor-v2` branch — see
-[DISCOVERY.md](DISCOVERY.md) and
-[FEATURE_INSPECTION_ROUND.md](FEATURE_INSPECTION_ROUND.md).
+see [Building & deploying](#building--deploying) below. The v2 evolution's
+planning artifacts — [DISCOVERY.md](DISCOVERY.md) (requirements) and
+[FEATURE_INSPECTION_ROUND.md](FEATURE_INSPECTION_ROUND.md) (the approved
+spec) — are **on `main` alongside this file** as of the I2 milestone
+merge; increments I3/I4 continue on `feature/unity-shift-supervisor-v2`,
+which merges here at milestone quality.
 
 ### What it looks like
 
@@ -42,10 +43,10 @@ on the web app.
 **What this is:**
 - One scene (`ShiftSupervisorDemo.unity`), five clickable 3D markers representing sample mining sites
 - **A playable inspection round** (v2 increment I2): briefing → a status call at every site (Log OK / Flag issue with a reason) → an end-of-shift report with your decisions, time, and whether the troubled site was caught → restart. The scenario rules live in a pure-C# core covered by EditMode tests
-- Marker color reflects `stage` (Operating / Care and Maintenance / other)
+- Marker color reflects `stage` (Operating / `Care And Maintenance` / other) — the capital "And" is not a typo here or below: it is the literal `SiteMarker.cs` and `InspectionRound.TroubledStage` compare against, produced by the SQL pipeline's `INITCAP` (the raw DMIRS value is "Care and Maintenance"). See the root README's Future Improvements.
 - Click a marker → see its details (name, type, stage, commodity, region) in a UI panel
 - Simple mouse-drag orbit + scroll zoom camera
-- Site data is a small bundled static JSON snapshot (`Assets/_ShiftSupervisorDemo/Data/sites_sample.json`) — four real site names/attributes from the public MINEDEX dataset already in this repo, plus one clearly-labeled demo entry for the "Care and Maintenance" color
+- Site data is a small bundled static JSON snapshot (`Assets/_ShiftSupervisorDemo/Data/sites_sample.json`) — four real site names/attributes from the public MINEDEX dataset already in this repo, plus one clearly-labeled demo entry for the `Care And Maintenance` color
 
 **What this deliberately is not** (per project scope — ask before assuming any of this should be added):
 - No backend, API calls, or networking of any kind
@@ -58,21 +59,36 @@ on the web app.
 
 ```
 unity-shift-supervisor-demo/
-├── README.md                   # this file
-├── DECISIONS.md                # why each non-obvious technical choice was made
+├── README.md                    # this file
+├── DISCOVERY.md                 # v2 requirements discovery: 5W1H, stakeholders, elicitation record
+├── FEATURE_INSPECTION_ROUND.md  # the approved feature spec (MoSCoW, increments I1-I4)
+├── DECISIONS.md                 # why each non-obvious technical choice was made
 ├── TROUBLESHOOTING_LOG.md       # real errors hit while building this, with full detail
 ├── SCENE_SETUP.md               # how the scene was assembled (kept for reference/reproducibility)
+├── Screenshots/                 # the four stages of the round, captured from the deployed build
 ├── .gitignore                   # Unity-specific, scoped to this folder only
-├── ProjectSettings/              # Unity-generated on first open (see DECISIONS.md)
-├── Packages/manifest.json        # Unity-generated + one manual addition (com.unity.ugui, see TROUBLESHOOTING_LOG.md)
+├── ProjectSettings/             # Unity-generated (ProjectVersion.txt pins the editor: Unity 6)
+├── Packages/manifest.json       # Unity-generated + one manual addition (com.unity.ugui, see TROUBLESHOOTING_LOG.md)
 └── Assets/
-    └── _ShiftSupervisorDemo/     # underscore keeps custom content sorted above package folders in the Editor
+    └── _ShiftSupervisorDemo/    # underscore keeps custom content sorted above package folders in the Editor
         ├── Scripts/
+        │   ├── WAMining.ShiftSupervisorDemo.asmdef  # runtime assembly -- required for the test assembly to reference it
         │   ├── SiteInfo.cs                   # plain data class (+ JSON wrapper)
-        │   ├── SiteDatabase.cs                # loads sites_sample.json at startup
-        │   ├── SiteMarker.cs                  # clickable marker, colored by stage
+        │   ├── SiteDatabase.cs               # loads sites_sample.json at startup
+        │   ├── SiteMarker.cs                 # clickable marker, colored by stage
         │   ├── ShiftSupervisorUIController.cs # spawns markers, shows the info panel
-        │   └── CameraOrbitController.cs       # mouse-drag orbit + scroll zoom
+        │   ├── CameraOrbitController.cs      # mouse-drag orbit + scroll zoom
+        │   └── Scenario/                     # the v2 inspection round
+        │       ├── InspectionRound.cs        # pure C#, zero UnityEngine deps: sequencing, decisions, scoring
+        │       ├── RoundTypes.cs             # RoundPhase, DecisionKind, FlagReason, SiteDecision, RoundSummary
+        │       ├── ShiftScenarioController.cs # bridge: owns the round, ticks it, maps clicks to decisions
+        │       └── ScenarioUIController.cs   # pure view: briefing, HUD, reasons, summary panels
+        ├── Editor/
+        │   ├── ScenarioUiBuilder.cs          # idempotent scenario-UI generator (Tools -> WA Mining Demo)
+        │   └── WebGLBuildScript.cs           # the repeatable -executeMethod WebGL build
+        ├── Tests/Editor/                     # EditMode suite over the pure-C# core (23 tests)
+        │   ├── InspectionRoundTests.cs
+        │   └── WAMining.ShiftSupervisorDemo.EditorTests.asmdef
         ├── Data/
         │   └── sites_sample.json
         ├── Scenes/

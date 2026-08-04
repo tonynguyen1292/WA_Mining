@@ -69,6 +69,6 @@ to see its details in the bottom-left panel; left-drag elsewhere to orbit;
 scroll to zoom.
 
 This matches what's already committed in this repo — 3 green (Operating:
-Abra Underground, Admiral, Bibra), 1 yellow (Care and Maintenance: the demo
+Abra Underground, Admiral, Bibra), 1 yellow (`Care And Maintenance`: the demo
 entry), 1 red (Anketell Port, Proposed — falls into the catch-all "other"
 color bucket, see `SiteMarker.cs`).

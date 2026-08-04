@@ -158,10 +158,18 @@ Support module:
 WebGL support, needs zero downloads and zero elevation, and the
 migration risk for this project is minimal — five small scripts on
 Built-in RP + legacy UGUI + legacy Input, all still supported in Unity 6.
-The change is confined to this branch (`main` keeps the 2022.3 project
-untouched) and is a `git checkout` away from reverting. The pin's
-remaining value did not justify a fifth attempt at a module installer
-that fails invisibly.
+At the time of writing the change was confined to the v2 branch and was
+a `git checkout` away from reverting. The pin's remaining value did not
+justify a fifth attempt at a module installer that fails invisibly.
+
+**Update (2026-08-04):** that containment no longer holds, and this entry
+said otherwise for eleven days. The I2 milestone merge (`e8dfe95`,
+2026-07-24) brought the migrated project onto `main`, so
+`ProjectSettings/ProjectVersion.txt` on the default branch now reads
+`6000.5.4f1`. **Unity 6 is the project's version, not the branch's** —
+open this folder with a 2022.3 editor and it will offer to upgrade.
+The reversal is no longer cheap to undo, which was always the expected
+outcome of merging it; only the sentence describing it was stale.
 
 **Trace:** the full failure sequence with timestamps lives in
 TROUBLESHOOTING_LOG.md; the headless build command itself is
