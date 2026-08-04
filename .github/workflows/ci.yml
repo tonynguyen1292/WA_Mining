@@ -51,6 +51,40 @@ jobs:
       - name: Test (pytest)
         run: pytest
 
+  netlify-api:
+    name: Netlify Functions (typecheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install root dependencies
+        run: npm ci
+
+      # The Functions under netlify/ and their Drizzle query layer in db/ are
+      # what actually serves wa-mining.netlify.app, and until this job existed
+      # no CI step looked at them at all -- the frontend job's `tsc -b` runs
+      # inside frontend/ and stops there, so the production API path was the
+      # only code in this repo with zero automated verification. Two Python-
+      # side hardenings (the CSV formula guard, the /api no-store header) had
+      # already drifted out of the port before anyone noticed.
+      #
+      # This is not the differential contract test WMDP2-76 describes -- a
+      # typecheck cannot catch behavioural drift. It is the half that can ship
+      # in minutes rather than a sprint, and it fails on the class of mistake
+      # (renamed column, changed return shape) most likely to break a port.
+      #
+      # --no-install: typescript reaches this tree via drizzle-kit rather than
+      # a direct devDependency, so npx must fail loudly if that ever stops
+      # being true, instead of silently fetching a floating version.
+      - name: Typecheck Netlify Functions + db layer
+        run: npx --no-install tsc --noEmit -p tsconfig.json
+
   frontend:
     name: Frontend (typecheck + test + build)
     runs-on: ubuntu-latest

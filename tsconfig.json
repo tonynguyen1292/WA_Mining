@@ -1,0 +1,29 @@
+{
+  // Typecheck-only config for the repo-root TypeScript that CI previously
+  // never looked at: the Netlify Functions serving the live demo, their
+  // Drizzle query layer, and the drizzle-kit config.
+  //
+  // The frontend has its own tsconfig chain (frontend/tsconfig*.json) and is
+  // checked by `tsc -b` in the frontend CI job; this file deliberately does
+  // not include frontend/ so the two never fight over lib/module settings.
+  //
+  // noEmit: nothing here is compiled by us -- Netlify bundles the Functions
+  // with esbuild (see netlify.toml). This exists purely so a type error in
+  // the production API path fails CI instead of reaching the deployed site.
+  "compilerOptions": {
+    "target": "ES2022",
+    // DOM supplies the fetch-platform globals the Functions runtime provides
+    // (Request, Response, URL, Headers); ES2022 alone does not declare them.
+    "lib": ["ES2022", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": ["db/**/*.ts", "netlify/**/*.ts", "netlify/**/*.mts", "drizzle.config.ts"]
+}
