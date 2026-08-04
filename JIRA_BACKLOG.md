@@ -99,6 +99,7 @@ To execute:
 - **Comment on WMDP2-76** recording that its cheap half shipped on 2026-08-04 outside the sprint — a root typecheck over `netlify/` + `db/` in CI, plus the two real drifts it existed to catch (CSV formula-cell neutralization and the `/api` `no-store` header, both missing from the deployed port; see plan 1.20). Remaining scope is the differential HTTP contract test against `netlify dev`. **Do not close it** — the behavioural half is the story.
 - **WMDP2-72 (Unity epic)** stays In Progress. Add a comment that Horizon 1 ended 2026-08-03 (the Viewport XR start date) and that I3/I4 are the open increments — plus the branch fact below, which is the trap waiting for whoever starts I3.
 - **WMDP2-18/19** — untouched, still flagged, still genuinely blocked on AWS credentials.
+- **Consider a new story for the `INITCAP` conjunction defect** (plan section 3, found in the 2026-08-04 review): `SQL/03` turns the raw export's correct `Care and Maintenance` into `Care And Maintenance`. Small change, wide blast radius — SQL rule, pipeline re-run, regenerated cleaned CSV, re-seed of both databases including the Netlify migration, plus the Unity constants and their tests. Sized as its own story rather than a cleanup bullet; parent WMDP2-59 Product Polish.
 
 Repo-side facts this sync should carry into the board's comments:
 
