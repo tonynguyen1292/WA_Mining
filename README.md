@@ -192,7 +192,7 @@ The app is a complete, runnable full-stack application (FastAPI + PostgreSQL + R
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) (running, not just installed) — or a local PostgreSQL install if you'd rather skip Docker (see Step 2's native option)
-- [Node.js](https://nodejs.org/) 18+ and npm, for the frontend
+- [Node.js](https://nodejs.org/) **24.x** and npm 11, for the frontend — pinned, not a floor: `frontend/package-lock.json` is written by npm 11 and npm 10 cannot install it (`frontend/.npmrc` sets `engine-strict` so a wrong version fails by name rather than as a lockfile error)
 
 ### Step 1 — Clone and enter the repo
 

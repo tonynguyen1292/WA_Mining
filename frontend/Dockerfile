@@ -1,5 +1,11 @@
-# Build the static production bundle
-FROM node:20-slim AS build
+# Build the static production bundle.
+#
+# Node 24, matching .nvmrc, package.json's engines field, CI, and
+# netlify.toml's NODE_VERSION. This image was left on node:20 when
+# WMDP2-69 pinned everywhere else to 24, which meant it ran npm 10
+# against a lockfile written by npm 11 -- the 2026-07-18 incident,
+# still live in the production Docker build.
+FROM node:24-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
