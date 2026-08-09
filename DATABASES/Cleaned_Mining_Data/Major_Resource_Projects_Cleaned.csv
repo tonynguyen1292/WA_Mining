@@ -1,11 +1,11 @@
 site_code,project_code,project_title,title,short_title,site_type,subtype,stage,target_group_name,commodity_group_name,development_region,lga_name,longitude,latitude,active_flag
 S0000008,J00007,Katanning Gold,Jinkas - Central Zone,Jinkas,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Great Southern,Shire Of Katanning,117.908152,-33.543356,Y
 S0000033,J00017,Cue Gold - Central Murchison,Big Bell Underground,Big Bell UG,Mine,Decline,Operating,Gold,Precious Metal,Mid-West,Shire Of Cue,117.655367,-27.318646,Y
-S0000053,J02851,Boorara / Horizon,Boorara Open Pit - Southern Stockworks,Southern Stockworks,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.644094,-30.809280,Y
+S0000053,J02851,Boorara / Horizon,Boorara Open Pit - Southern Stockworks,Southern Stockworks,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.644094,-30.809280,Y
 S0000137,J00075,Cork Tree Well - Delta,Cork Tree Well,Cork Tree Well,Mine,Openpit,Shut,Gold,Precious Metal,Goldfields-Esperance,Shire Of Laverton,122.404413,-28.338636,Y
 S0000247,J00126,Blue Spec / Novo,Blue Spec / Novo,Blue Spec,Mine,Shaft,Proposed,Gold,Precious Metal,Pilbara,Shire Of East Pilbara,120.273032,-21.820903,Y
 S0000258,J04956,Goongarrie Lady,Goongarrie Lady,Goongarrie Lady,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,121.184491,-30.081341,Y
-S0000352,J00170,Jeffreys Find,Jeffreys Find,Jeffreys,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Dundas,122.151147,-31.946420,Y
+S0000352,J00170,Jeffreys Find,Jeffreys Find,Jeffreys,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Dundas,122.151147,-31.946420,Y
 S0000357,J00256,Mt Morgans,Jupiter - Joanne - Doublejay,Jupiter,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Laverton,122.219297,-28.807175,Y
 S0000404,J01338,Phillips Find,Newhaven,Newhaven,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,120.965996,-30.612844,Y
 S0000426,J01616,Ironstone Well,Flushing Meadows,Flushing Meadows,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Mid-West,Shire Of Wiluna,120.781908,-26.840597,Y
@@ -14,23 +14,23 @@ S0000671,J00094,Porphyry - Northern Operations,Million Dollar North,Million Doll
 S0000689,J00084,Davyhurst - Lady Ida - Mulline - Riverina - Siberia Gold,Riverina Underground,Riverina UG,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,120.564810,-29.744010,Y
 S0000709,J02325,Linden Gold,Second Fortune,Second Fortune,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,122.435829,-29.376492,Y
 S0000732,J00338,Telfer / Greatland Resources,Telfer Main Dome,Main Dome,Mine,Openpit,Operating,Gold,Precious Metal,Pilbara,Shire Of East Pilbara,122.207128,-21.719551,Y
-S0000770,J00357,Edna May - Westonia,Edna May - Westonia,Edna May,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Wheatbelt,Shire Of Westonia,118.698549,-31.290245,Y
+S0000770,J00357,Edna May - Westonia,Edna May - Westonia,Edna May,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Wheatbelt,Shire Of Westonia,118.698549,-31.290245,Y
 S0000793,J00367,Youanmi Gold - OYG,Youanmi Deeps,Youanmi Deeps,Mine,Decline,Shut,Gold,Precious Metal,Mid-West,Shire Of Sandstone,118.839978,-28.610085,Y
-S0000811,J00424,Anglo Saxon - Trouser Legs,Anglo Saxon - Trouser Legs,Anglo Saxon,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,122.731489,-30.076767,Y
+S0000811,J00424,Anglo Saxon - Trouser Legs,Anglo Saxon - Trouser Legs,Anglo Saxon,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,122.731489,-30.076767,Y
 S0000849,J00014,Coolgardie Gold / Focus,Greenfields Openpit,Greenfields Pit,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,121.200923,-30.932811,Y
 S0000866,J00191,Ravensthorpe Gold,Harbour View,Harbour View,Mine,Decline,Proposed,Gold,Precious Metal,Goldfields-Esperance,Shire Of Ravensthorpe,120.196414,-33.681787,Y
 S0000933,J04770,Bellevue,Bellevue Underground,Bellevue UG,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Leonora,120.557630,-27.636059,Y
 S0001007,J00026,Boddington Gold,Wandoo South,Wandoo S,Mine,Openpit,Operating,Gold,Precious Metal,Peel,Shire Of Boddington,116.357530,-32.753064,Y
 S0001112,J00028,Bottle Creek,Emu - Bottle Creek,Emu,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,120.446810,-29.154026,Y
-S0001161,J04814,Mungari / Evolution,Rayjax,Rayjax,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,121.125901,-30.762610,Y
+S0001161,J04814,Mungari / Evolution,Rayjax,Rayjax,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,121.125901,-30.762610,Y
 S0001172,J00446,Sino - Cape Preston Iron,George Palmer Pit,George Palmer,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,City Of Karratha,116.141306,-21.081327,Y
 S0001178,J00452,Silver Swan - Black Swan,Black Swan - Gosling,Black Swan,Mine,Openpit,Proposed,Nickel,Steel Alloy Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.648884,-30.393485,Y
 S0001224,J00484,Robe River - Deepdale,"Deepdale Mesa J Pits 1-12, J Extended",Deepdale J,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.247364,-21.751424,Y
 S0001244,J00514,Eneabba / Iluka,Narngulu Dry Plant / Iluka,Narngulu Dry Plant/Iluka,Infrastructure,Processing Plant,Operating,Heavy Mineral Sands,Speciality Metal,Mid-West,City Of Greater Geraldton,114.678112,-28.817627,Y
 S0001256,J00527,Golden Grove,Gossan Hill Portal,Gossan Hill U/G,Mine,Decline,Operating,Copper - Lead - Zinc,Base Metal,Mid-West,Shire Of Yalgoo,116.962417,-28.765074,Y
-S0001288,J02628,Kambalda / Mincor,Durkin North,Durkin N,Mine,Decline,Care And Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.661211,-31.164036,Y
+S0001288,J02628,Kambalda / Mincor,Durkin North,Durkin N,Mine,Decline,Care and Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.661211,-31.164036,Y
 S0001346,J00573,Jimblebar-Wheelarra-Hashimoto / BHPB,Wheelarra 4,Wheelarra 4,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of East Pilbara,120.137110,-23.380316,Y
-S0001357,J00711,Whim Creek - Mons Cupri,Mons Cupri Oxide,Mons Cupri Ox,Mine,Openpit,Care And Maintenance,Copper - Lead - Zinc,Base Metal,Pilbara,City Of Karratha,117.808033,-20.881539,Y
+S0001357,J00711,Whim Creek - Mons Cupri,Mons Cupri Oxide,Mons Cupri Ox,Mine,Openpit,Care and Maintenance,Copper - Lead - Zinc,Base Metal,Pilbara,City Of Karratha,117.808033,-20.881539,Y
 S0001402,J00623,Newman / BHPB,Mt Whaleback,Mt Whaleback,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of East Pilbara,119.675410,-23.365347,Y
 S0001443,J00657,Salt Creek,Salt Creek,Salt Creek,Deposit,Unspecified,Undeveloped,Copper - Lead - Zinc,Base Metal,Pilbara,City Of Karratha,117.704508,-20.757098,Y
 S0001459,J00673,Sorby Hills,Sorby Pod D-E,Pod E,Mine,Openpit,Proposed,Copper - Lead - Zinc,Base Metal,Kimberley,Shire Of Wyndham-East Kimberley,128.980883,-15.452699,Y
@@ -43,14 +43,14 @@ S0001567,J00485,Cooljarloo / Tronox,Chandala - Muchea Synthetic Rutile Plant (SR
 S0001568,J00485,Cooljarloo / Tronox,Kwinana TiO2 Pigment Plant / Tronox,Kwinana TiO2/Tronox,Infrastructure,Processing Plant,Operating,Heavy Mineral Sands,Speciality Metal,Metro,City Of Kwinana,115.774344,-32.228146,Y
 S0001570,J02560,Dardanup / Doral,Picton Dry Plant,Picton Dry,Infrastructure,Processing Plant,Operating,Heavy Mineral Sands,Speciality Metal,South West,City Of Bunbury,115.702312,-33.351648,Y
 S0001573,J01034,Bunbury Area Operations / Tronox,North Shore MSP / Tronox,North Shore MSP / Tronox,Infrastructure,Processing Plant,Operating,Heavy Mineral Sands,Speciality Metal,South West,City Of Bunbury,115.654090,-33.320318,Y
-S0001585,J00440,Leinster,Perseverance  Underground,Perseverance UG,Mine,Decline,Care And Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Leonora,120.705608,-27.818105,Y
+S0001585,J00440,Leinster,Perseverance  Underground,Perseverance UG,Mine,Decline,Care and Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Leonora,120.705608,-27.818105,Y
 S0001599,J03123,Pilbara Iron / WA Iron,Rocklea South,Rocklea South,Deposit,Unspecified,Undeveloped,Iron Ore,Iron,Pilbara,Shire Of Ashburton,117.464709,-22.823375,Y
 S0001602,J01147,Cockatoo Island,Cockatoo Island Stage 3 (and seawall),Cockatoo Island 3,Mine,Openpit,Operating,Iron Ore,Iron,Kimberley,Shire Of Derby/West Kimberley,123.608019,-16.098391,Y
 S0001607,J00576,Mining Area C,MAC - Deposit C West Pit,MAC C West,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of East Pilbara,118.962611,-22.929836,Y
-S0001667,J00756,Mt Keith / BHP Billiton,Mt Keith Open Pit,Mt Keith Main Pit,Mine,Openpit,Care And Maintenance,Nickel,Steel Alloy Metal,Mid-West,Shire Of Wiluna,120.541750,-27.229585,Y
-S0001689,J00551,Kambalda / BHP,Kambalda Concentrator,Kambalda,Infrastructure,Processing Plant,Care And Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Coolgardie,121.668731,-31.189241,Y
-S0001691,J00766,Kalgoorlie Nickel Smelter,Kalgoorlie Nickel Smelter,Kalgoorlie Ni Smelter,Infrastructure,Processing Plant,Care And Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.484507,-30.874787,Y
-S0001692,J00767,Kwinana Nickel Refinery,Kwinana Nickel Refinery,Ni Refinery,Infrastructure,Processing Plant,Care And Maintenance,Nickel,Steel Alloy Metal,Metro,City Of Rockingham,115.764713,-32.251856,Y
+S0001667,J00756,Mt Keith / BHP Billiton,Mt Keith Open Pit,Mt Keith Main Pit,Mine,Openpit,Care and Maintenance,Nickel,Steel Alloy Metal,Mid-West,Shire Of Wiluna,120.541750,-27.229585,Y
+S0001689,J00551,Kambalda / BHP,Kambalda Concentrator,Kambalda,Infrastructure,Processing Plant,Care and Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Coolgardie,121.668731,-31.189241,Y
+S0001691,J00766,Kalgoorlie Nickel Smelter,Kalgoorlie Nickel Smelter,Kalgoorlie Ni Smelter,Infrastructure,Processing Plant,Care and Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.484507,-30.874787,Y
+S0001692,J00767,Kwinana Nickel Refinery,Kwinana Nickel Refinery,Ni Refinery,Infrastructure,Processing Plant,Care and Maintenance,Nickel,Steel Alloy Metal,Metro,City Of Rockingham,115.764713,-32.251856,Y
 S0001709,J00772,Mt Weld REE / Lynas,Central Lanthanide (CLD),CLD,Mine,Openpit,Operating,Rare Earths,Speciality Metal,Goldfields-Esperance,Shire Of Laverton,122.547575,-28.863966,Y
 S0001723,J00775,Yangibana / Hastings,Bald Hill South - Yangibana,Bald Hill South,Mine,Openpit,Proposed,Rare Earths,Speciality Metal,Gascoyne,Shire Of Upper Gascoyne,116.295932,-23.906067,Y
 S0001726,J00776,Worsley,Boddington Bauxite,Boddington Bauxite,Mine,Openpit,Operating,Bauxite - Alumina,Alumina,Peel,Shire Of Boddington,116.455913,-32.931547,Y
@@ -76,17 +76,17 @@ S0001918,J00919,Munglinup Graphite / MRC,Halberts Main Zone,Halberts Main,Deposi
 S0001994,J00960,Kwinana Bulk Terminal,Kwinana Bulk Terminal KBB1,KBB1,Infrastructure,Port,Operating,Unassigned,Other (Minedex Non-Minerals),,,115.765317,-32.208755,Y
 S0002094,J00984,Kwinana Chemical Complex / CSBP,Kwinana Sodium Cyanide Plant / AGR,Kwinana NaCyanide/AGR,Infrastructure,Processing Plant,Operating,Chemicals,Other (Minedex Non-Minerals),Metro,City Of Kwinana,115.773302,-32.241918,Y
 S0002166,J00720,Wodgina Mining Assets / Mineral Resources,Cassiterite,Cassiterite,Mine,Openpit,Operating,Tin - Tantalum - Lithium,Speciality Metal,Pilbara,Town Of Port Hedland,118.674102,-21.190319,Y
-S0002167,J01005,Mt Cattlin Spodumene,Mt Cattlin - Dowling Openpit,Dowling Pit,Mine,Openpit,Care And Maintenance,Tin - Tantalum - Lithium,Speciality Metal,Goldfields-Esperance,Shire Of Ravensthorpe,120.033992,-33.562492,Y
+S0002167,J01005,Mt Cattlin Spodumene,Mt Cattlin - Dowling Openpit,Dowling Pit,Mine,Openpit,Care and Maintenance,Tin - Tantalum - Lithium,Speciality Metal,Goldfields-Esperance,Shire Of Ravensthorpe,120.033992,-33.562492,Y
 S0002383,J00330,Gwalia - Leonora,Sons of Gwalia Underground,Sons of Gwalia UG,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Leonora,121.333484,-28.918407,Y
-S0002384,J01073,Tampia,Gault,Gault,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Wheatbelt,Shire Of Narembeen,118.451708,-32.162337,Y
+S0002384,J01073,Tampia,Gault,Gault,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Wheatbelt,Shire Of Narembeen,118.451708,-32.162337,Y
 S0002432,J01324,Lake Cowan Gypsum / Whitfield,Lake Cowan South Gypsum - M63/148,Lake Cowan South,Mine,Openpit,Operating,Gypsum,Industrial Mineral,Goldfields-Esperance,Shire Of Dundas,121.741166,-32.233405,Y
 S0002501,J04342,Mt Ida South,Tims Find,Tims Find,Mine,Openpit,Proposed,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,120.530612,-29.168561,Y
-S0002635,J00514,Eneabba / Iluka,Eneabba South Tails,South Tails,Mine,Openpit,Care And Maintenance,Heavy Mineral Sands,Speciality Metal,Mid-West,Shire Of Carnamah,115.295144,-29.904478,Y
+S0002635,J00514,Eneabba / Iluka,Eneabba South Tails,South Tails,Mine,Openpit,Care and Maintenance,Heavy Mineral Sands,Speciality Metal,Mid-West,Shire Of Carnamah,115.295144,-29.904478,Y
 S0002638,J01208,Kemerton TiO2 Pigment Plant,Kemerton TiO2 Pigment Plant / Tronox,Kemerton TiO2 Pigment / Tronox,Infrastructure,Processing Plant,Operating,Heavy Mineral Sands,Speciality Metal,South West,Shire Of Harvey,115.756511,-33.217638,Y
 S0002815,J00251,Randalls - Mt Monger,Daisy - Milano,Daisy-Milano,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.921372,-31.013124,Y
 S0002984,J00732,Yandicoogina / HI-Yandi,Billiard - Billiard South,Billiard,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of East Pilbara,119.299578,-22.809561,Y
 S0003023,J00571,Marillana Creek - Yandi / BHPB,Marillana Creek Eastern Mesa 2,Marillana Ck E2,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of East Pilbara,119.113612,-22.741426,Y
-S0003046,J00626,Nifty,Nifty Sulphide Portal,Nifty Portal,Mine,Decline,Care And Maintenance,Copper - Lead - Zinc,Base Metal,Pilbara,Shire Of East Pilbara,121.567408,-21.656745,Y
+S0003046,J00626,Nifty,Nifty Sulphide Portal,Nifty Portal,Mine,Decline,Care and Maintenance,Copper - Lead - Zinc,Base Metal,Pilbara,Shire Of East Pilbara,121.567408,-21.656745,Y
 S0003101,J00181,Kanowna - Golden Valley,Kanowna Belle,Kanowna Belle,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.578017,-30.608980,Y
 S0003143,J03305,Sulphur Springs,Sulphur Springs Mine Portal,Sulphur Springs Portal,Mine,Decline,Operating,Copper - Lead - Zinc,Base Metal,Pilbara,Shire Of East Pilbara,119.211963,-21.146496,Y
 S0003180,J00245,Mt Gibson Gold,Hornet Underground,Hornet UG,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Mid-West,Shire Of Yalgoo,117.181672,-29.720641,Y
@@ -99,12 +99,12 @@ S0003946,J01307,Gordon - Sirdar,Gordon-Sirdar Openpit,Gordon-Sirdar,Mine,Openpit
 S0003983,J01849,Mt Regal / Boral,Mt Regal / Boral,Mt Regal/Boral,Mine,Openpit,Operating,Construction Materials,Construction Material,Pilbara,City Of Karratha,116.727330,-20.824582,Y
 S0003994,J02818,North Monger - Kal East Gold Project,Fingals,Fingals,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.896962,-30.969450,Y
 S0004113,J06760,Bruno-Lewis,Lewis - Cardinia,Lewis,Mine,Openpit,Proposed,Gold,Precious Metal,Goldfields-Esperance,Shire Of Leonora,121.598050,-28.797447,Y
-S0004178,J00757,Forrestania Nickel / Western Areas,Cosmic Boy Plant,Cosmic Boy Plant,Infrastructure,Processing Plant,Care And Maintenance,Nickel,Steel Alloy Metal,Wheatbelt,Shire Of Kondinin,119.742808,-32.580907,Y
+S0004178,J00757,Forrestania Nickel / Western Areas,Cosmic Boy Plant,Cosmic Boy Plant,Infrastructure,Processing Plant,Care and Maintenance,Nickel,Steel Alloy Metal,Wheatbelt,Shire Of Kondinin,119.742808,-32.580907,Y
 S0004231,J01642,Bidaminna - North Perth Basin,Bidaminna,Bidaminna,Mine,Openpit,Proposed,Heavy Mineral Sands,Speciality Metal,Wheatbelt,Shire Of Gingin,115.600144,-31.096806,Y
 S0004238,J01644,Lucky Bay Garnet,Menari,Menari,Mine,Openpit,Operating,Heavy Mineral Sands,Industrial Mineral,Mid-West,Shire Of Northampton,114.183066,-28.029367,Y
 S0004316,J01658,Mindijup / TT Sand,Mindijup / TT Sand,Mindijup/TT Sand,Mine,Openpit,Operating,Silica - Silica Sand,Industrial Mineral,Great Southern,City Of Albany,118.076797,-34.768851,Y
 S0004356,J00009,Duketon / Regis Resources,Ben Hur Central,Ben Hur Central,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Laverton,122.367212,-28.167236,Y
-S0004360,J00240,Mt Celia - Kangaroo Bore,Blue Peter,Blue Peter Pit 3,Mine,Unspecified,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,122.498168,-29.459810,Y
+S0004360,J00240,Mt Celia - Kangaroo Bore,Blue Peter,Blue Peter Pit 3,Mine,Unspecified,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,122.498168,-29.459810,Y
 S0004394,J01675,Esperance Port Authority,Esperance Port Authority,Esperance Port,Infrastructure,Port,Operating,Unassigned,Other (Minedex Non-Minerals),Goldfields-Esperance,Shire Of Esperance,121.899813,-33.874536,Y
 S0004457,J02010,Ulysses Gold,Admiral - Admiral South and West Open Pit,Admiral,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,121.366721,-29.198572,Y
 S0004517,J00484,Robe River - Deepdale,Cape Lambert Power Plant,Cape Lambert Power,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,City Of Karratha,117.171312,-20.596207,Y
@@ -115,26 +115,26 @@ S0004995,J01288,Rockingham Fused Zirconia-Alumina,Rockingham Fused Zirconia Plan
 S0005019,J03356,South Three - Kal East,Jones Find North,Jones Find North,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.950554,-30.894652,Y
 S0005024,J00896,Cockburn Sound Limesand,West Success Bank Stage 2,West Success Bank 2,Mine,Dredging Area,Operating,Limestone - Limesand,Construction Material,Metro,City Of Cockburn,115.661703,-32.076090,Y
 S0005040,J00480,Murrin Murrin / Minara,Murrin North (PAN Production),Murrin North,Mine,Openpit,Operating,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Laverton,121.895510,-28.747155,Y
-S0005047,J01894,Paroo Station,Magellan - Wiluna,Magellan,Mine,Openpit,Care And Maintenance,Copper - Lead - Zinc,Base Metal,Mid-West,Shire Of Wiluna,119.943308,-26.519216,Y
+S0005047,J01894,Paroo Station,Magellan - Wiluna,Magellan,Mine,Openpit,Care and Maintenance,Copper - Lead - Zinc,Base Metal,Mid-West,Shire Of Wiluna,119.943308,-26.519216,Y
 S0005068,J06689,Lady Ida / Lamerton Geoda,Iguana,Iguana,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,120.662244,-30.494737,Y
 S0005219,J01915,Ridges Iron Ore,Sam North - Ridges,Sam North,Mine,Openpit,Operating,Iron Ore,Iron,Kimberley,Shire Of Wyndham-East Kimberley,128.260095,-16.618586,Y
 S0005227,J01916,Wuudagu Bauxite / VBX,Wuudagu B,Kalumburu B,Deposit,Unspecified,Undeveloped,Bauxite - Alumina,Alumina,Kimberley,Shire Of Wyndham-East Kimberley,126.472247,-14.279496,Y
 S0005304,J02251,Pilbara Gold - Western Mining Centre,Toweranna,Toweranna,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Pilbara,City Of Karratha,117.879107,-20.977525,Y
 S0005315,J02013,Dalgaranga - Gilbeys,Gilbeys - Dalgaranga,Gilbeys,Mine,Openpit,Under Development,Gold,Precious Metal,Mid-West,Shire Of Mount Magnet,117.265236,-27.846227,Y
-S0005573,J01011,Menzies,Selkirk,Selkirk,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,121.015109,-29.683577,Y
+S0005573,J01011,Menzies,Selkirk,Selkirk,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,121.015109,-29.683577,Y
 S0005625,J02127,Rowes Find - Kal East Gold Project,Rowe's Find,Rowe's Find,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,122.838490,-30.840877,Y
 S0005673,J00152,Higginsville,Pioneer - Higginsville,Pioneer,Mine,Unspecified,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,121.680308,-31.847276,Y
 S0005724,J01096,Collie / Lanco,Ewington 2,Ewington 2,Mine,Openpit,Operating,Coal,Energy,South West,Shire Of Collie,116.259853,-33.354590,Y
 S0005867,J02187,Oakajee Deepwater Port and Rail,Oakajee Deepwater Port,Oakajee Port,Infrastructure,Port,Proposed,Iron Ore,Iron,Mid-West,Shire Of Chapman Valley,114.597110,-28.615727,Y
-S0005907,J02197,East Menzies Gold,Granny Venn,Granny Venn,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,121.091807,-29.664048,Y
+S0005907,J02197,East Menzies Gold,Granny Venn,Granny Venn,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,121.091807,-29.664048,Y
 S0005925,J02369,Beharra Springs,Beharra Springs Plant,Beharra Springs Plant,Infrastructure,Processing Plant,Operating,Petroleum,Energy,Mid-West,Shire Of Irwin,115.140711,-29.463087,Y
 S0006416,J00292,Paddington - Mt Pleasant,Federal,Federal,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.413310,-30.412607,Y
-S0006490,J04046,Derby Port,Derby Port,Derby Port,Infrastructure,Port,Care And Maintenance,Copper - Lead - Zinc,Base Metal,Kimberley,Shire Of Derby/West Kimberley,123.606706,-17.292027,Y
+S0006490,J04046,Derby Port,Derby Port,Derby Port,Infrastructure,Port,Care and Maintenance,Copper - Lead - Zinc,Base Metal,Kimberley,Shire Of Derby/West Kimberley,123.606706,-17.292027,Y
 S0006503,J05290,Central Sandstone / Aurumin,Eureka - Sandstone,Eureka,Mine,Openpit,Proposed,Gold,Precious Metal,Mid-West,Shire Of Sandstone,119.248976,-28.095717,Y
 S0006553,J02267,Warrawoona Gold / Calidus,Klondyke,Klondyke,Mine,Openpit,Operating,Gold,Precious Metal,Pilbara,Shire Of East Pilbara,119.892312,-21.338096,Y
 S0006621,J01703,Sunrise Dam,Sunrise Dam Underground,Sunrise Dam Underground,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Laverton,122.419363,-29.079391,Y
 S0006651,J00417,Plutonic Gold,Plutonic Zone 124,Zone 124,Mine,Decline,Operating,Gold,Precious Metal,Mid-West,Shire Of Meekatharra,119.442309,-25.301946,Y
-S0006685,J02145,Ravensthorpe - First Quantum,Shoemaker - Levy,Shoemaker-Levy,Mine,Openpit,Care And Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Ravensthorpe,120.325462,-33.576402,Y
+S0006685,J02145,Ravensthorpe - First Quantum,Shoemaker - Levy,Shoemaker-Levy,Mine,Openpit,Care and Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Ravensthorpe,120.325462,-33.576402,Y
 S0006746,J00109,Fortnum,Starlight Underground,Starlight UG,Mine,Decline,Operating,Gold,Precious Metal,Mid-West,Shire Of Meekatharra,118.358508,-25.321886,Y
 S0016648,J00638,Lennard Shelf / Northwest,Kapok West / Meridian,Kapok W Merdn,Deposit,Unspecified,Undeveloped,Copper - Lead - Zinc,Base Metal,Kimberley,Shire Of Derby/West Kimberley,125.992788,-18.730470,Y
 S0016701,J02232,NiWest / GME,Mt Kilkenny,Mt Kilkenny,Deposit,Unspecified,Undeveloped,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Leonora,121.807306,-29.043097,Y
@@ -163,13 +163,13 @@ S0019503,J02618,Kwinana Power / Western Power,Kwinana Power Plant,Kwinana Power,
 S0019504,J02619,Kwinana LPG-LNG,Kwinana LPG Plant,Kwinana LPG,Infrastructure,Processing Plant,Operating,Petroleum,Energy,Metro,City Of Kwinana,115.777940,-32.218199,Y
 S0019506,J02621,Kwinana Chlor Alkali Plant / Coogee Chemicals,Kwinana Chlor Alkali Plant / Coogee Chemicals,Kwinana Chlor Alkali/Coogee Chemicals,Infrastructure,Processing Plant,Operating,Chemicals,Other (Minedex Non-Minerals),Metro,City Of Kwinana,115.775211,-32.231336,Y
 S0019514,J01726,Jundee - Nimary,Barton Main - Westside,Barton Main Westside,Mine,Decline,Operating,Gold,Precious Metal,Mid-West,Shire Of Wiluna,120.604113,-26.372535,Y
-S0019517,J00444,Bald Hill,Bald Hill Central (South),Bald Hill Central (South),Mine,Openpit,Care And Maintenance,Tin - Tantalum - Lithium,Speciality Metal,Goldfields-Esperance,Shire Of Coolgardie,122.177346,-31.522761,Y
+S0019517,J00444,Bald Hill,Bald Hill Central (South),Bald Hill Central (South),Mine,Openpit,Care and Maintenance,Tin - Tantalum - Lithium,Speciality Metal,Goldfields-Esperance,Shire Of Coolgardie,122.177346,-31.522761,Y
 S0019642,J00186,Tarmoola - King of the Hills,Tarmoola North,Tarmoola N,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Leonora,121.166076,-28.663843,Y
 S0019710,J01718,Kundana East,Raleigh Underground,Raleigh-Golden Hind U/G,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,121.243609,-30.727556,Y
 S0019793,J00338,Telfer / Greatland Resources,Telfer Primary Power Plant and Pipeline,Telfer Primary Power,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,Shire Of East Pilbara,122.182513,-21.741817,Y
-S0019821,J00656,Savannah Nickel,Savannah Decline Portal,Decline Portal,Mine,Decline,Care And Maintenance,Nickel,Steel Alloy Metal,Kimberley,Shire Of Halls Creek,128.025651,-17.353475,Y
+S0019821,J00656,Savannah Nickel,Savannah Decline Portal,Decline Portal,Mine,Decline,Care and Maintenance,Nickel,Steel Alloy Metal,Kimberley,Shire Of Halls Creek,128.025651,-17.353475,Y
 S0020155,J02718,Esperance Power,Esperance Gas-Fired Power Station,Esperance Power,Infrastructure,Power Plant,Operating,Other,Energy,Goldfields-Esperance,Shire Of Esperance,121.899813,-33.876245,Y
-S0020172,J00478,Cataby / Iluka,Cataby Pit 2,Cataby Pit 2,Mine,Openpit,Care And Maintenance,Heavy Mineral Sands,Speciality Metal,Wheatbelt,Shire Of Dandaragan,115.567310,-30.798576,Y
+S0020172,J00478,Cataby / Iluka,Cataby Pit 2,Cataby Pit 2,Mine,Openpit,Care and Maintenance,Heavy Mineral Sands,Speciality Metal,Wheatbelt,Shire Of Dandaragan,115.567310,-30.798576,Y
 S0020197,J02723,Tropicana,Tropicana,Tropicana,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Menzies,124.553911,-29.246066,Y
 S0020250,J02733,Gorgon LNG Processing,Gorgon LNG Processing Facility,Gorgon LNG,Infrastructure,Processing Plant,Operating,Petroleum,Energy,Pilbara,Shire Of Ashburton,115.458308,-20.783456,Y
 S0020259,J00779,Wagerup-Pinjarra / Alcoa,Pinjarra Co-Generation Power Plant,Cogen-Power,Infrastructure,Power Plant,Operating,Other,Energy,Peel,Shire Of Murray,115.946896,-32.647208,Y
@@ -192,9 +192,9 @@ S0021518,J02972,Karratha Ammonia-Urea / Perdaman,Burrup West Ammonia-Urea / Perd
 S0021523,J03930,Paraburdoo / Rio Tinto,Paraburdoo Power Plant,Power Plant,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,Shire Of Ashburton,117.613224,-23.223218,Y
 S0021532,J02624,Matilda,Golden Age Underground,Golden Age UG,Mine,Decline,Operating,Gold,Precious Metal,Mid-West,Shire Of Wiluna,120.246706,-26.620317,Y
 S0021542,J00102,Golden Mile / KCGM,Fimiston Superpit,Fimiston Superpit,Mine,Openpit,Operating,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.503530,-30.777958,Y
-S0021890,J02789,Widgiemooltha Nickel / Mincor,Cassini,Cassini,Mine,Decline,Care And Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Coolgardie,121.621111,-31.700925,Y
+S0021890,J02789,Widgiemooltha Nickel / Mincor,Cassini,Cassini,Mine,Decline,Care and Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Coolgardie,121.621111,-31.700925,Y
 S0022045,J00596,Mt Gibson Iron,Extension Hill South,Extension Hill South,Mine,Openpit,Operating,Iron Ore,Iron,Mid-West,Shire Of Yalgoo,117.166209,-29.588477,Y
-S0022195,J03040,Jack Hills,Jack Hills - Saddle,Jack Hills,Mine,Openpit,Care And Maintenance,Iron Ore,Iron,Mid-West,Shire Of Meekatharra,117.241010,-26.054556,Y
+S0022195,J03040,Jack Hills,Jack Hills - Saddle,Jack Hills,Mine,Openpit,Care and Maintenance,Iron Ore,Iron,Mid-West,Shire Of Meekatharra,117.241010,-26.054556,Y
 S0022206,J02618,Kwinana Power / Western Power,Cockburn 1,Cockburn 1,Infrastructure,Power Plant,Operating,Other,Energy,Metro,City Of Kwinana,115.775814,-32.200247,Y
 S0022237,J03935,Pannawonica CID,Redgate CID Pits,Redgate CID,Mine,Openpit,Proposed,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.147560,-21.781662,Y
 S0022265,J03673,Sanjiv Ridge,Split Rock,Split Rock,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of East Pilbara,119.666145,-21.473677,Y
@@ -207,7 +207,7 @@ S0022686,J03041,Wiluna West Iron,C4 - Wiluna West,C4,Mine,Openpit,Operating,Iron
 S0022716,J00748,Atlas - North Perth Basin,Atlas / Image,Atlas,Mine,Openpit,Operating,Heavy Mineral Sands,Speciality Metal,Wheatbelt,Shire Of Dandaragan,115.248907,-30.538151,Y
 S0022741,J02802,Leonora - Crawford and Gambier Lass,Crawford - Gambier Lass,Crawford,Mine,Openpit,Proposed,Gold,Precious Metal,Goldfields-Esperance,Shire Of Leonora,121.584910,-28.878056,Y
 S0022801,J03309,Kumpupintil Lake,Lake Disappointment Pilot Ponds Potash,Lake Disappointment Pilot Ponds,Mine,Pond,Under Development,Potash,Industrial Mineral,Pilbara,Shire Of East Pilbara,122.814737,-23.281754,Y
-S0022812,J03312,Paulsens East Iron,Paulsens East Main Pit,Paulsens East Main Pit,Mine,Openpit,Care And Maintenance,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.336970,-22.562834,Y
+S0022812,J03312,Paulsens East Iron,Paulsens East Main Pit,Paulsens East Main Pit,Mine,Openpit,Care and Maintenance,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.336970,-22.562834,Y
 S0022821,J03313,Wonmunna Iron,North Marra Mamba East Pits 1-4,North MM East Pits,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of East Pilbara,119.074187,-23.127001,Y
 S0022843,J00753,West Pilbara - Red Hill / API,Kens Bore,Kens Bore,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.195804,-22.055675,Y
 S0022914,J03340,Lake Giles Magnetite and Ularring Hematite,Snark – Lake Giles,Snark,Mine,Openpit,Proposed,Iron Ore,Iron,Goldfields-Esperance,Shire Of Menzies,119.921925,-29.811568,Y
@@ -239,7 +239,7 @@ S0025511,J02940,Yandanooka HMS / Image,Yandanooka / Image,Yandanooka / Image,Dep
 S0031074,J00485,Cooljarloo / Tronox,Cooljarloo 20500,Cooljarloo 20500,Mine,Openpit,Operating,Heavy Mineral Sands,Speciality Metal,Wheatbelt,Shire Of Dandaragan,115.360692,-30.593292,Y
 S0223001,J00534,Hamersley Iron Miscellaneous / Rio Tinto,Seven Mile - Yurralyi Maya Power Plant,Seven Mile New Power,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,City Of Karratha,116.742372,-20.762427,Y
 S0223270,J00484,Robe River - Deepdale,Cape Lambert Jetty A,Cape Lambert Jetty A,Infrastructure,Port,Operating,Iron Ore,Iron,Pilbara,City Of Karratha,117.203580,-20.575444,Y
-S0223460,J01287,Teutonic Bore - Jaguar,Bentley,Bentley,Mine,Decline,Care And Maintenance,Copper - Lead - Zinc,Base Metal,Goldfields-Esperance,Shire Of Leonora,121.158923,-28.478179,Y
+S0223460,J01287,Teutonic Bore - Jaguar,Bentley,Bentley,Mine,Decline,Care and Maintenance,Copper - Lead - Zinc,Base Metal,Goldfields-Esperance,Shire Of Leonora,121.158923,-28.478179,Y
 S0223554,J03660,Wheatstone LNG,Wheatstone LNG Plants 1-3,Wheatstone LNG,Infrastructure,Processing Plant,Operating,Petroleum,Energy,Pilbara,Shire Of Ashburton,114.992355,-21.697155,Y
 S0223555,J03661,Macedon Domestic Gas,Macedon Domestic Gas Plant,Macedon Gas Plant,Infrastructure,Processing Plant,Operating,Petroleum,Energy,Pilbara,Shire Of Ashburton,114.980473,-21.731537,Y
 S0223575,J03665,Ashburton North Strategic Industrial Area,Ashburton North Multi-user Port and Handling Facility,Ashburton North Port,Infrastructure,Port,Operating,Unassigned,Energy,Pilbara,Shire Of Ashburton,115.003549,-21.684295,Y
@@ -255,8 +255,8 @@ S0224451,J03840,Badgingarra Wind and Solar Farm,Badgingarra Wind Farm,Badgingarr
 S0224488,J03848,Mackay Potash / Agrimin,Lake Mackay Potash,Lake Mackay,Mine,Pond,Proposed,Potash,Industrial Mineral,Pilbara,Shire Of East Pilbara,128.433013,-22.550226,Y
 S0224496,J03830,Buckland - Bungaroo South,Bungaroo South Eastern Area 1,Buckland,Mine,Openpit,Proposed,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.523841,-22.010628,Y
 S0224538,J03229,West Pilbara - Mt Stuart /API,Catho Well South Pits,Catho Well South,Mine,Openpit,Proposed,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.285766,-22.433621,Y
-S0224540,J00347,Murchison / Westgold,Genesis - Tuckabianna,Genesis,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Mid-West,Shire Of Cue,118.138951,-27.461057,Y
-S0224582,J00757,Forrestania Nickel / Western Areas,Spotted Quoll Main and North Underground,Spotted Quoll UG,Mine,Decline,Care And Maintenance,Nickel,Steel Alloy Metal,Wheatbelt,Shire Of Kondinin,119.677784,-32.478137,Y
+S0224540,J00347,Murchison / Westgold,Genesis - Tuckabianna,Genesis,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Mid-West,Shire Of Cue,118.138951,-27.461057,Y
+S0224582,J00757,Forrestania Nickel / Western Areas,Spotted Quoll Main and North Underground,Spotted Quoll UG,Mine,Decline,Care and Maintenance,Nickel,Steel Alloy Metal,Wheatbelt,Shire Of Kondinin,119.677784,-32.478137,Y
 S0224624,J03872,Collgar Wind Farm,Collgar Wind Farm,Collgar Wind Farm,Infrastructure,Power Plant,Operating,Other,Energy,Wheatbelt,Shire Of Merredin,118.481001,-31.573614,Y
 S0224710,J00559,Koolyanobbing Iron,Deception / Cliffs,Deception,Mine,Openpit,Operating,Iron Ore,Iron,Goldfields-Esperance,Shire Of Menzies,119.280926,-29.850385,Y
 S0224947,J03956,Karratha Power Station,Karratha Power Station,Power,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,City Of Karratha,116.837587,-20.762471,Y
@@ -272,18 +272,18 @@ S0226111,J04147,Greenough River Solar Farm,Greenough River Solar Farm,Greenough 
 S0226212,J01320,Tom Price Aggregate,Tom Price Aggregate 1970,Tom Price Aggregate 1970,Mine,Openpit,Operating,Construction Materials,Construction Material,Pilbara,Shire Of Ashburton,117.749634,-22.639156,Y
 S0229274,J02146,Cue Gold,Break of Day,Break of Day,Mine,Openpit,Operating,Gold,Precious Metal,Mid-West,Shire Of Cue,117.831788,-27.697294,Y
 S0229358,J00706,West Angelas,West Angelas Power Plant,Power Plant,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,Shire Of East Pilbara,118.723776,-23.154290,Y
-S0229604,J04253,Jaurdi - Cammi's Creek,Cammi's Creek,Cammi's Creek,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,120.939397,-30.730686,Y
+S0229604,J04253,Jaurdi - Cammi's Creek,Cammi's Creek,Cammi's Creek,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,Shire Of Coolgardie,120.939397,-30.730686,Y
 S0229634,J04167,Nova-Bollinger,Nova - Bollinger Underground,Nova,Mine,Decline,Operating,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Dundas,123.192423,-31.819872,Y
 S0229694,J04276,Rebecca,Rebecca,Rebecca,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,122.863141,-30.358612,Y
 S0229720,J02723,Tropicana,Tropicana Process Water Supply Area Power Station,Power,Infrastructure,Power Plant,Operating,Other,Energy,Goldfields-Esperance,Shire Of Laverton,124.384684,-28.916766,Y
 S0229735,J04280,Thunderbird - Kimberley Mineral Sands,Thunderbird,Thunderbird,Mine,Openpit,Operating,Heavy Mineral Sands,Speciality Metal,Kimberley,Shire Of Broome,122.967888,-17.431701,Y
-S0229741,J02247,Cosmos,Odysseus South,Odysseus South,Mine,Decline,Care And Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Leonora,120.575885,-27.596959,Y
-S0229818,J04481,Browns Range Rare Earths,Wolverine,Wolverine,Mine,Openpit,Care And Maintenance,Rare Earths,Speciality Metal,Kimberley,Shire Of Halls Creek,128.939821,-18.859462,Y
+S0229741,J02247,Cosmos,Odysseus South,Odysseus South,Mine,Decline,Care and Maintenance,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Leonora,120.575885,-27.596959,Y
+S0229818,J04481,Browns Range Rare Earths,Wolverine,Wolverine,Mine,Openpit,Care and Maintenance,Rare Earths,Speciality Metal,Kimberley,Shire Of Halls Creek,128.939821,-18.859462,Y
 S0229822,J01095,Collie / Premier,Premier Coal Pit 1 Deep,Premier Pit 1 Deep,Mine,Openpit,Operating,Coal,Energy,South West,Shire Of Collie,116.300011,-33.386265,Y
 S0229860,J00623,Newman / BHPB,Yarnima Gas-Fired Power Station,Yarnima Power,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,Shire Of East Pilbara,119.710194,-23.343145,Y
 S0229916,J03830,Buckland - Bungaroo South,Cape Preston East Barging Facility,Cape Preston East,Infrastructure,Port,Proposed,Iron Ore,Iron,Pilbara,City Of Karratha,116.223544,-20.845292,Y
 S0229922,J02291,Mt Zephyr Calcrete,Murrin Murrin East Calcrete,Murrin Murrin East Calcrete,Mine,Openpit,Operating,Limestone - Limesand,Industrial Mineral,Goldfields-Esperance,Shire Of Laverton,122.139405,-28.487998,Y
-S0230134,J04343,Twin Peaks,Woolbung Peak,Woolbung Peak,Mine,Openpit,Care And Maintenance,Iron Ore,Iron,Mid-West,Shire Of Murchison,116.025219,-27.309032,Y
+S0230134,J04343,Twin Peaks,Woolbung Peak,Woolbung Peak,Mine,Openpit,Care and Maintenance,Iron Ore,Iron,Mid-West,Shire Of Murchison,116.025219,-27.309032,Y
 S0230325,J00791,Medcalf - Bremer Range,Egmont - Medcalf,Egmont,Mine,Openpit,Proposed,Vanadium - Titanium,Speciality Metal,Goldfields-Esperance,Shire Of Dundas,120.782617,-32.538871,Y
 S0230520,J03193,Yarraloola / CZR,Robe Mesa,Robe Mesa,Mine,Openpit,Proposed,Iron Ore,Iron,Pilbara,Shire Of Ashburton,116.011578,-21.761843,Y
 S0230566,J00725,Woodie Woodie (Mining Corridor) / ConsMin,Topvar,Topvar,Mine,Openpit,Operating,Manganese Ore,Steel Alloy Metal,Pilbara,Shire Of East Pilbara,121.232375,-21.601475,Y
@@ -326,8 +326,8 @@ S0236157,J05298,Warradarge Wind Farm,Warradarge Wind Farm,Warradarge Wind,Infras
 S0236158,J03221,Albany and Grasmere Wind Farms,Grasmere Wind Farm,Grasmere Wind,Infrastructure,Power Plant,Operating,Other,Energy,Great Southern,City Of Albany,117.759897,-35.044479,Y
 S0236179,J05301,Yandin Wind Farm,Yandin Wind Farm,Yandin Wind Farm,Infrastructure,Power Plant,Operating,Other,Energy,Wheatbelt,Shire Of Dandaragan,115.613492,-30.757824,Y
 S0236189,J02419,Thunderbox Gold,Thunderbox Underground,Thunderbox UG,Mine,Decline,Operating,Gold,Precious Metal,Goldfields-Esperance,Shire Of Leonora,121.007295,-28.195991,Y
-S0236200,J04090,Greenbushes Lithium,Kemerton Lithium Hydroxide Plant / Albemarle,Lithium Plant/Albemarle,Infrastructure,Processing Plant,Care And Maintenance,Tin - Tantalum - Lithium,Speciality Metal,South West,Shire Of Harvey,115.762011,-33.203986,Y
-S0236255,J05002,Beyondie Potash / Kalium Lakes,Beyondie Trial Evaporation Ponds,Beyondie Trial Evaporation Ponds,Infrastructure,Pond,Care And Maintenance,Potash,Industrial Mineral,Mid-West,Shire Of Wiluna,120.353831,-24.752342,Y
+S0236200,J04090,Greenbushes Lithium,Kemerton Lithium Hydroxide Plant / Albemarle,Lithium Plant/Albemarle,Infrastructure,Processing Plant,Care and Maintenance,Tin - Tantalum - Lithium,Speciality Metal,South West,Shire Of Harvey,115.762011,-33.203986,Y
+S0236255,J05002,Beyondie Potash / Kalium Lakes,Beyondie Trial Evaporation Ponds,Beyondie Trial Evaporation Ponds,Infrastructure,Pond,Care and Maintenance,Potash,Industrial Mineral,Mid-West,Shire Of Wiluna,120.353831,-24.752342,Y
 S0236281,J02285,Mt Marion Lithium,Mt Marion North Pit,MMN,Mine,Openpit,Operating,Tin - Tantalum - Lithium,Speciality Metal,Goldfields-Esperance,Shire Of Coolgardie,121.460085,-31.077395,Y
 S0236298,J05329,Tubridgi Underground Gas Storage Facility,Tubridgi Gas Storage Facility,Tubridgi Gas Storage,Infrastructure,Processing Plant,Operating,Petroleum,Energy,Pilbara,Shire Of Ashburton,114.866710,-21.783932,Y
 S0236299,J05330,Mondarra Underground Gas Storage Facility,Mondarra Storage Facility and Load-out Facilities,Mondarra Gas Storage,Infrastructure,Processing Plant,Operating,Petroleum,Energy,Mid-West,Shire Of Irwin,115.117841,-29.309984,Y
@@ -346,7 +346,7 @@ S0237036,J00156,Mt Magnet,Eridanus,Eridanus,Mine,Openpit,Operating,Gold,Precious
 S0237055,J01376,Pennys Find,Pennys Find Underground,Pennys Find UG,Mine,Decline,Proposed,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.873865,-30.530850,Y
 S0237193,J05480,Cadoux Kaolin / Cadoux Limited,Cadoux Kaolin / CCM,Cadoux Kaolin / CCM,Mine,Openpit,Proposed,Clays,Industrial Mineral,Wheatbelt,Shire Of Wongan-Ballidu,117.195783,-30.677547,Y
 S0237251,J05495,Graphite Plant / First Graphene,Henderson Graphite Plant / First Graphene,Henderson Graphite Plant / First Graphene,Infrastructure,Processing Plant,Operating,Graphite,Industrial Mineral,Metro,City Of Cockburn,115.780308,-32.151106,Y
-S0237291,J01837,New Bulong - Boundary - Kal East Gold Project,Myhree / Black Cat,Myhree,Mine,Openpit,Care And Maintenance,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.775318,-30.729082,Y
+S0237291,J01837,New Bulong - Boundary - Kal East Gold Project,Myhree / Black Cat,Myhree,Mine,Openpit,Care and Maintenance,Gold,Precious Metal,Goldfields-Esperance,City Of Kalgoorlie-Boulder,121.775318,-30.729082,Y
 S0237397,J04792,Minyari Dome,Minyari,Minyari,Deposit,Unspecified,Undeveloped,Gold,Precious Metal,Pilbara,Shire Of East Pilbara,122.257694,-21.381333,Y
 S0237402,J05516,Chichester Power,Chichester Solar Farm,Chichester Solar Farm,Infrastructure,Other,Operating,Other,Energy,Pilbara,Shire Of East Pilbara,119.748401,-22.419358,Y
 S0237403,J02889,Roy Hill Iron Ore,Roy Hill Power Substation,Power Substation,Infrastructure,Power Plant,Operating,Other,Energy,Pilbara,Shire Of East Pilbara,119.950167,-22.481549,Y
@@ -371,7 +371,7 @@ S0239822,J05955,Haber,Haber,Haber,Infrastructure,Processing Plant,Proposed,Other
 S0239823,J01407,East Pilbara Iron Ore / FMG,Bigge - Cloudbreak,Bigge,Mine,Openpit,Operating,Iron Ore,Iron,Pilbara,Shire Of Ashburton,119.205939,-22.286145,Y
 S0239831,J04621,Kambalda Nickel,Baker,Baker,Mine,Decline,Proposed,Nickel,Steel Alloy Metal,Goldfields-Esperance,Shire Of Coolgardie,121.798840,-31.343558,Y
 S0239942,J05641,Lady Julie,Lady Julie North 4 (LJN4),LJN4,Mine,Openpit,Proposed,Gold,Precious Metal,Goldfields-Esperance,Shire Of Laverton,122.307224,-28.687753,Y
-S0240062,J02467,Coburn Zircon,Amy South,Amy South,Mine,Openpit,Care And Maintenance,Heavy Mineral Sands,Speciality Metal,Gascoyne,Shire Of Shark Bay,114.119050,-26.695937,Y
+S0240062,J02467,Coburn Zircon,Amy South,Amy South,Mine,Openpit,Care and Maintenance,Heavy Mineral Sands,Speciality Metal,Gascoyne,Shire Of Shark Bay,114.119050,-26.695937,Y
 S0240111,J06003,Western Green Energy Hub (WGEH),Western Green Energy Hub,Western Green Energy Hub,Infrastructure,Unspecified,Proposed,Other,Energy,Goldfields-Esperance,Shire Of Dundas,128.955111,-31.649304,Y
 S0240113,J06004,HyEnergy - Green Hydrogen,HyEnergy,HyEnergy,Other,Unspecified,Proposed,Other,Energy,Gascoyne,Shire Of Carnarvon,113.768684,-25.091906,Y
 S0240281,J04902,Kathleen Valley Lithium,Kathleen Valley Solar Farm,Solar Farm,Infrastructure,Power Plant,Operating,Other,Energy,Goldfields-Esperance,Shire Of Leonora,120.547895,-27.460086,Y

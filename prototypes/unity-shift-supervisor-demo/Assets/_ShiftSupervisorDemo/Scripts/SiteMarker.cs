@@ -48,7 +48,7 @@ namespace WAMining.ShiftSupervisorDemo
             Color color = siteInfo.stage switch
             {
                 "Operating" => OperatingColor,
-                "Care And Maintenance" => CareAndMaintenanceColor,
+                "Care and Maintenance" => CareAndMaintenanceColor,
                 _ => OtherStageColor,
             };
 

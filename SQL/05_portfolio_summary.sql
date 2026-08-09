@@ -4,7 +4,7 @@ SELECT
     COUNT(DISTINCT project_code) AS total_projects,
     COUNT(CASE WHEN stage = 'Operating' THEN 1 END) AS operating_sites,
     COUNT(CASE WHEN stage = 'Proposed' THEN 1 END) AS proposed_sites,
-    COUNT(CASE WHEN stage = 'Care And Maintenance' THEN 1 END) AS care_maintenance_sites,
+    COUNT(CASE WHEN stage = 'Care and Maintenance' THEN 1 END) AS care_maintenance_sites,
     COUNT(CASE WHEN stage = 'Under Development' THEN 1 END) AS under_development_sites,
     COUNT(CASE WHEN site_type = 'Mine' THEN 1 END) AS mines,
     COUNT(CASE WHEN site_type = 'Infrastructure' THEN 1 END) AS infrastructure,

@@ -10,7 +10,7 @@ namespace WAMining.ShiftSupervisorDemo.Tests
     /// exactly like the backend's pytest suite runs against SQLite. The
     /// fixture mirrors the shipped sample data's shape: several Operating
     /// sites, one Proposed (not-yet-operating, NOT troubled), and one
-    /// Care And Maintenance entry that is the round's win condition.
+    /// Care and Maintenance entry that is the round's win condition.
     /// </summary>
     public static class InspectionRoundTests
     {

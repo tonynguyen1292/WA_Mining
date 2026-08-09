@@ -11,7 +11,7 @@ const WA_DEFAULT_ZOOM = 5;
 const STAGE_COLORS: Record<string, string> = {
   Operating: "#2f8f52",
   Proposed: "#c6631e",
-  "Care And Maintenance": "#d9a441",
+  "Care and Maintenance": "#d9a441",
   Undeveloped: "#7a7f85",
   "Under Development": "#3b6e8f",
   Shut: "#b3261e",

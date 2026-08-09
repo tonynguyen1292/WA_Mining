@@ -24,7 +24,14 @@ SELECT
     NULLIF(TRIM(shorttitle), '') AS short_title,
     TRIM(INITCAP(sitetype)) AS site_type,
     TRIM(INITCAP(subtype)) AS subtype,
-    TRIM(INITCAP(stage)) AS stage,  -- Standardize to Title Case
+    -- Standardize to Title Case, but keep conjunctions lowercase. INITCAP
+    -- capitalizes every word, which turned the export's correct
+    -- 'Care and Maintenance' into 'Care And Maintenance' -- a value that then
+    -- propagated into the cleaned CSV, both databases, the map's colour keys
+    -- and the Unity prototype's scenario constant. Only ' And ' occurs in this
+    -- column today; the REPLACE is written generally so a future value like
+    -- 'Rehabilitation and Closure' is handled without another fix here.
+    TRIM(REPLACE(INITCAP(stage), ' And ', ' and ')) AS stage,
     TRIM(INITCAP(targetgroupname)) AS target_group_name,
     TRIM(INITCAP(commoditygroupname)) AS commodity_group_name,
     TRIM(INITCAP(REPLACE(developmentregion, ', Development Region', ''))) AS development_region,

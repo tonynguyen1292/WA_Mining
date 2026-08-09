@@ -19,10 +19,17 @@ namespace WAMining.ShiftSupervisorDemo
         /// <summary>
         /// The stage value that marks a site as genuinely troubled -- the
         /// round's win condition is flagging every site carrying it. Matches
-        /// the seeded data's "Care And Maintenance" entry (spec F5); Proposed
+        /// the seeded data's "Care and Maintenance" entry (spec F5); Proposed
         /// sites are not-yet-operating, not troubled, and stay excluded.
+        ///
+        /// The conjunction is lowercase deliberately (WMDP2-77). This constant
+        /// previously read "Care And Maintenance" to match a value that SQL/03's
+        /// INITCAP had mangled; both sides were wrong in the same way, so the
+        /// comparison happened to succeed. Changing one without the other makes
+        /// the round fail silently -- no site matches, every shift reports clean,
+        /// and the win condition becomes vacuous.
         /// </summary>
-        public const string TroubledStage = "Care And Maintenance";
+        public const string TroubledStage = "Care and Maintenance";
 
         private readonly IReadOnlyList<SiteInfo> _sites;
         private readonly List<SiteDecision> _decisions = new List<SiteDecision>();
