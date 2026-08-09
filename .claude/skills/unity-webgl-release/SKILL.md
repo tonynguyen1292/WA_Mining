@@ -27,14 +27,25 @@ fail on the missing WebGL module, so always pass the 6000.x path.
 Unity holds an exclusive lock on the project. If the user has it open,
 every headless command aborts with "another Unity instance is running".
 
-Check before starting, and if it is locked, **ask the user to close it and
-wait** — never kill their Editor process, since they may have unsaved
-scene work. A watcher loop that polls until the lock clears is the polite
-version of waiting.
+Check before starting, and if it is genuinely locked, **ask the user to
+close it and wait** — never kill their Editor process, since they may have
+unsaved scene work. A watcher loop that polls until the lock clears is the
+polite version of waiting.
+
+**The lockfile alone does not prove the Editor is open.** An unclean
+shutdown leaves it behind, and the stale file then blocks every headless
+run while the user is correctly telling you they closed Unity. Confirm
+against the process list before refusing to run, and check the file's age —
+a lockfile dated days ago is the giveaway:
 
 ```bash
-ls "<project>/Temp/UnityLockfile" 2>/dev/null && echo "LOCKED - ask user to close Unity"
+ls -l "<project>/Temp/UnityLockfile" 2>/dev/null
+tasklist //FI "IMAGENAME eq Unity.exe" //NH 2>/dev/null | grep -i "^Unity.exe"
 ```
+
+No matching process plus an old lockfile means stale: delete it and carry
+on. `Temp/` is gitignored, so removing it has no repo impact.
+`scripts/unity-chain.sh` now performs this check automatically.
 
 ## The chain
 

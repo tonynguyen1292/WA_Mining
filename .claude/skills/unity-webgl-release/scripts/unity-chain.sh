@@ -22,9 +22,28 @@ RESULTS="$OUT/editmode-results.xml"
 # The Editor holds an exclusive lock. Bail with a clear message rather than
 # letting Unity fail with its own less obvious wording -- and never kill the
 # user's Editor, which may hold unsaved scene work.
+#
+# The lockfile alone is NOT proof the Editor is open: an unclean shutdown
+# leaves it behind, and a stale one then blocks every headless run while the
+# user is (correctly) insisting they closed Unity. Confirm against the actual
+# process list before refusing to run.
 if [ -f "$PROJ/Temp/UnityLockfile" ]; then
-  echo "Unity has the project locked. Ask the user to close the Editor, then re-run." >&2
-  exit 1
+  unity_running=0
+  if command -v tasklist >/dev/null 2>&1; then
+    tasklist //FI "IMAGENAME eq Unity.exe" //NH 2>/dev/null | grep -qi "^Unity.exe" && unity_running=1
+  elif command -v pgrep >/dev/null 2>&1; then
+    pgrep -x Unity >/dev/null 2>&1 && unity_running=1
+  else
+    unity_running=1  # Can't tell -- assume the lock is real and stay safe.
+  fi
+
+  if [ "$unity_running" -eq 1 ]; then
+    echo "Unity has the project locked. Ask the user to close the Editor, then re-run." >&2
+    exit 1
+  fi
+
+  echo "Stale UnityLockfile (no Unity process running) -- removing and continuing." >&2
+  rm -f "$PROJ/Temp/UnityLockfile"
 fi
 
 run_ui() {
