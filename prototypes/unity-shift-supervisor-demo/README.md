@@ -43,10 +43,10 @@ on the web app.
 **What this is:**
 - One scene (`ShiftSupervisorDemo.unity`), five clickable 3D markers representing sample mining sites
 - **A playable inspection round** (v2 increment I2): briefing → a status call at every site (Log OK / Flag issue with a reason) → an end-of-shift report with your decisions, time, and whether the troubled site was caught → restart. The scenario rules live in a pure-C# core covered by EditMode tests
-- Marker color reflects `stage` (Operating / `Care And Maintenance` / other) — the capital "And" is not a typo here or below: it is the literal `SiteMarker.cs` and `InspectionRound.TroubledStage` compare against, produced by the SQL pipeline's `INITCAP` (the raw DMIRS value is "Care and Maintenance"). See the root README's Future Improvements.
+- Marker color reflects `stage` (Operating / `Care and Maintenance` / other) — the literal `SiteMarker.cs` and `InspectionRound.TroubledStage` compare against. Both used to read `Care And Maintenance`, matching a value the SQL pipeline's `INITCAP` had mangled; WMDP2-77 fixed the cleaning rule and moved the constants with it, since correcting either side alone would have made the round match nothing and report every shift clean.
 - Click a marker → see its details (name, type, stage, commodity, region) in a UI panel
 - Simple mouse-drag orbit + scroll zoom camera
-- Site data is a small bundled static JSON snapshot (`Assets/_ShiftSupervisorDemo/Data/sites_sample.json`) — four real site names/attributes from the public MINEDEX dataset already in this repo, plus one clearly-labeled demo entry for the `Care And Maintenance` color
+- Site data is a small bundled static JSON snapshot (`Assets/_ShiftSupervisorDemo/Data/sites_sample.json`) — four real site names/attributes from the public MINEDEX dataset already in this repo, plus one clearly-labeled demo entry for the `Care and Maintenance` color
 
 **What this deliberately is not** (per project scope — ask before assuming any of this should be added):
 - No backend, API calls, or networking of any kind

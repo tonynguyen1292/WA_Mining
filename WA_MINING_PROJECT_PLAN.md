@@ -213,6 +213,21 @@ Logged here so they don't live only in a review transcript (the 1.15 precedent).
 
 **Verification:** both suites re-run after the sweep (60 backend, 47 frontend, green — no source files were touched); `tsc --noEmit` clean; the BOM guard clean; every path and filename in the two rebuilt trees checked against `git ls-files` and `find` output rather than written from memory; and every "already fixed" claim re-read in the file it refers to before being marked stale.
 
+### 1.22 `INITCAP` conjunction fix (WMDP2-77) — ✅ Done (2026-08-09)
+
+**Why:** 1.20 found it and 1.21 documented it at every surface, but the defect itself stayed open because it is a data change, not a prose one. `SQL/03`'s bare `INITCAP` title-cased every word, degrading the export's correct `Care and Maintenance` into `Care And Maintenance` — the cleaning step making a value worse than the source. Sequenced ahead of Inspection Round I3 deliberately: I3 touches the same scenario constants, so fixing this afterwards would mean rebasing an increment onto a changed value mid-flight.
+
+- [x] `SQL/03` lowercases the conjunction: `TRIM(REPLACE(INITCAP(stage), ' And ', ' and '))`. Written generally rather than as a one-value special case, so a future `Rehabilitation and Closure` needs no second fix.
+- [x] `SQL/05`'s `portfolio_summary` rollup filtered on the corrupted literal and would have silently counted zero C&M sites after the fix.
+- [x] Cleaned CSV regenerated — 40 of 421 rows, stage column only, byte length unchanged.
+- [x] **A new forward Netlify migration**, not an edit to the applied `20260720135732` seed. Rewriting an already-applied migration would leave the deployed database wrong while fresh environments got the fix — precisely the silent divergence WMDP2-76 exists to catch. The `UPDATE` is idempotent and no-ops on a correctly seeded database.
+- [x] `SitesMap.tsx`'s colour key, which would otherwise have fallen through to the default grey for 40 sites.
+- [x] Unity moved in the same commit series: `InspectionRound.TroubledStage`, `SiteMarker.cs`'s colour switch, and `sites_sample.json`. The tests needed no change — they reference the constant rather than a literal, which is why the coupling was safe to move at all.
+
+**The failure mode this avoided** is worth recording: both sides of the comparison were wrong in the same way, so the match succeeded by coincidence. Correcting either alone would have left no site matching the troubled stage — every shift reporting clean, the win condition vacuous, and the tests still green. A silent-wrong, not a loud-broken.
+
+**Verification:** the new rule simulated against all six raw `STAGE` values before touching generated data — only `Care and Maintenance` changes; cleaned CSV re-parsed at 421 rows with the stage distribution matching raw exactly (261/74/40/33/10/3); backend 60/60 and frontend 47/47 green.
+
 ---
 
 ## 2. Next up — Sprint 4 shaping
@@ -237,7 +252,7 @@ Carried over from the README's Future Improvements, organized here as actionable
 
 - 💡 **Execute the AWS deployment** — `DEPLOYMENT.md` is ready; blocked only on credentials. Since 1.19 the live demo runs on Netlify instead; AWS remains the documented path for running the canonical FastAPI/Postgres/nginx stack in production.
 - 💡 **Contract-test the Netlify Functions** — the TS functions under `netlify/functions/` re-implement the API the backend suite pins (sort allowlist, wildcard escaping, tie ordering, export shape). Run the same HTTP expectations against `netlify dev` in CI so the two implementations can't silently drift (see 1.19's architecture stance: Python stays canonical).
-- 💡 **Fix `INITCAP`'s conjunction handling** — `SQL/03` turns the raw export's correct `Care and Maintenance` into `Care And Maintenance`, so the cleaning step degrades a value the source already had right, and that degraded label is what the API returns, the UI displays, and the Unity scenario's `TroubledStage` constant matches on. The fix is a title-case rule with a conjunction exception, plus a pipeline re-run, a regenerated cleaned CSV, a re-seed of both databases (including the Netlify migration), and the Unity constants and tests moved in lockstep — a small change with a wide blast radius, which is why it is sequenced rather than done in passing. Found in the 2026-08-04 review; documented at every surface in 1.21.
+- ~~💡 **Fix `INITCAP`'s conjunction handling**~~ — **done 2026-08-09, see section 1.22 (WMDP2-77).**
 - 💡 **Expand test coverage** — the suite has grown with every feature (60 backend + 47 frontend tests as of 2026-08-04) but is focused, not exhaustive. Remaining gaps, per the sprint review: `/api/meta/filters` (content — it now has an incidental cache-header check), `MultiSelect`, the URL-sync effects in `SitesPage`/`MapPage`, `App.tsx`'s shortcut wiring (Ctrl/Cmd+K toggle, window-level Escape), and `FilterBar`'s project-chip dismissal. (`/api/kpis`, once on this list, gained direct coverage in 1.13; `app.db.seed` gained its first coverage in 1.16.)
 - 💡 **TLS + custom domain** — e.g. Let's Encrypt via certbot in the nginx container.
 - 💡 **Automated CD** — deploy to EC2 on push to `main`, instead of the current manual runbook.

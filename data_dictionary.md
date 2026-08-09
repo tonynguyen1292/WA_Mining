@@ -21,10 +21,12 @@ as a reference for data analysts, BI developers, and stakeholders reviewing the 
 **These are the *raw* source values, as downloaded** — before `SQL/02`/`03`'s cleaning.
 Several differ from what the app displays, which is the point of the pipeline: the
 suffix-laden `DEVELOPMENT_REGION` and `LGA_NAME` values below become clean names,
-and the uppercase `TARGET_GROUP_NAME` values become title case. One of those
-transforms is a known defect rather than an improvement: `INITCAP` also title-cases
-the conjunction in `STAGE`, so the raw `Care and Maintenance` below reaches the app
-as `Care And Maintenance` (see the root README's Future Improvements).
+and the uppercase `TARGET_GROUP_NAME` values become title case. `STAGE` gets the
+same title-casing with one exception: conjunctions stay lowercase, so the raw
+`Care and Maintenance` reaches the app unchanged. Until WMDP2-77 it did not —
+bare `INITCAP` title-cased the conjunction too, and the degraded
+`Care And Maintenance` propagated into the cleaned CSV, both databases, the map's
+colour keys and the Unity prototype's scenario constant.
 
 | Field | Description | Example |
 |-------|-------------|---------|

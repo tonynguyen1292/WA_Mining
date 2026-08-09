@@ -70,7 +70,7 @@ For the inspection round, a complete pass exercises every state the
 scenario machine can reach: briefing, a flagged decision including the
 two-step reason row, several plain decisions, the end-of-shift summary,
 and the restart returning to briefing. Confirm the summary's verdict line
-matches the decisions made — a run where the troubled `Care And Maintenance`
+matches the decisions made — a run where the troubled `Care and Maintenance`
 site was waved through must produce the "waved through" verdict, not the
 congratulatory one. That check is what proves the pure-C# core is actually
 wired to the view, rather than the view showing plausible placeholder text.
