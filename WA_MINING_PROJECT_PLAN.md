@@ -244,6 +244,43 @@ Partially overtaken since: the cheap half of WMDP2-76 shipped on 2026-08-04 (see
 
 **The Unity track now runs beside the sprints, not inside them**: epic **WMDP2-72 Unity Simulation Showcase** (created 2026-07-22) tracks the C#/Unity work on `feature/unity-shift-supervisor-v2` at 2–3 h/week — discovery and the approved Inspection Round spec live on that branch. Shipped so far: the live WebGL demo at **wa-mining-unity.netlify.app** (WMDP2-73), the About page's referral card (WMDP2-75), and — I1 on 2026-07-23, I2 on 2026-07-24 — the complete **Inspection Round** (WMDP2-74 Done): the pure-C# scenario core with 23 green EditMode tests behind the project's first assembly definitions, now driven by a playable loop (briefing → per-site decisions with flag reasons → end-of-shift report → restart) live at the same URL. The spec's I2 milestone merge landed on main (`e8dfe95`, owner-approved at the gate), so the demo's source and docs now sit on the default branch reviewers see first. Next: increments I3/I4 on the still-open feature branch — which, as of the 2026-08-04 review, holds **nothing `main` does not** (`git rev-list --left-right --count origin/main...origin/feature/unity-shift-supervisor-v2` returns `12 0`: fully merged, twelve commits behind). It must be brought forward from `main` *before* the next Unity commit, not after: everything added on 2026-07-25 to make Unity work safe — `CLAUDE.md`, the staged-codepoint pre-commit hook, the `.gitattributes` LF pin, and the `unity-webgl-release` skill — landed after the branch's tip, so I3 started on the branch as-is would be built without all four.
 
+### 2.1 Operational readiness — new epic (specced 2026-09-26)
+
+**The diagnosis, stated plainly.** The last commit before this section was written landed 2026-08-29. The app then ran live and completely unattended for four weeks, and was still serving 200s when checked on 2026-09-26 — but nobody knew that until someone checked by hand. Had it failed on day three, the discovery path was "a user mentions it", or never.
+
+That is the real gap, and it is not where a portfolio project usually has one. The front of this lifecycle is unusually strong: elicited requirements (`DISCOVERY.md`), a decisions log that records a mistake as a mistake, a troubleshooting log, a board with honest sprint history including a descope it refused to fake, 107 tests and four CI jobs. What is missing is the layer that turns a deployment into something *operated*:
+
+| Question | Answer on 2026-09-26 |
+|---|---|
+| Would I know if it broke? | No — no uptime check, no error tracking |
+| Can a user tell me something is wrong? | No — no reported-issue path exists |
+| Do I know whether anyone used it? | No — no analytics |
+| Can I ship a fix confidently? | Partly — two API implementations, a typecheck between them |
+| Can everyone use it? | Unknown — 4 `role=` attributes total, no a11y tooling |
+
+**The bar this epic is held to**, written down because the failure mode here is copying an enterprise checklist onto a one-person project:
+
+> Automated detection, a recovery path tested at least once, a way for users to reach me, and enough usage data to prioritise. Best-effort response time, stated honestly.
+
+**Deliberately excluded**: multi-region, autoscaling, Kubernetes, a formal SLO with error budgets, blue-green deploys, an on-call rotation. For 421 rows of public data at portfolio traffic, each is cost and complexity with no user benefit — and a reviewer who knows the difference will notice they were added anyway. Saying no to them on the record is the point.
+
+**Sizing.** Roughly 12–13 h of new work, plus WMDP2-76's remaining ~3 h. At the measured capacity of 2–3 h/week that is **6–8 weeks**, not a weekend.
+
+Stories, in dependency order:
+
+- 📋 **Watch three people use the app** (~1 h) — *do this first.* Three non-developers, unprompted, while the owner says nothing and takes notes. Every item in the current backlog is self-generated; a product never observed in use is a set of assumptions. **Done when** the session notes are committed and any item they invalidate or promote is reflected in the stories below. This story can legitimately reorder the rest of the epic — that is its purpose, not a side effect.
+- 📋 **Detect failures without being told** (~1.5 h) — uptime monitoring against the `/health` endpoints that already exist on both the FastAPI app and the Netlify Functions (`netlify/functions/health.mts`), plus frontend error tracking. Free tiers only. **Done when** a deliberately induced failure produces an alert in the owner's inbox without anyone looking at the site.
+- 📋 **Harden the HTTP response headers** (~1 h) — `netlify.toml` currently sets no `[[headers]]` at all. Add CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`. **The trap: a naive CSP breaks the map.** Leaflet fetches tiles from OpenStreetMap, so `img-src` must allow the tile hosts, and a Vite SPA will likely need `style-src 'unsafe-inline'` — write the policy against the real app, not a template. **Done when** securityheaders.com grades the live site and the map, filters and export all still work.
+- 📋 **Measure real usage** (~0.5 h) — a cookieless analytics endpoint, which also avoids needing a consent banner. **Done when** a week of data exists and the README's traffic claims are sourced from it rather than guessed.
+- 📋 **Give users a way to report problems** (~1 h) — a GitHub issue template plus a visible entry point from the About page. This is the half of "people can test it" that does not exist: a user who hits a bug today has nowhere to put it. **Done when** a test report filed by someone else arrives as a well-formed issue.
+- 📋 **Prove recovery works** (~2 h) — Netlify supports instant rollback to a previous deploy; prove it once and write down the steps. Separately, verify that the managed Postgres can actually be restored. **An untested backup is not a backup. Done when** both have been executed for real, with timings, and recorded in a runbook.
+- 📋 **Make the app keyboard- and screen-reader-usable** (~4 h) — the frontend has 4 `role=` attributes and a handful of `aria-*` across a table, filter bar, map, command palette and modal, and no a11y test tooling. Focus management on the modal and keyboard reachability of the filters are the likely failures. **Done when** `axe` runs in CI with zero critical violations and the primary flow is completable using only a keyboard.
+- 📋 **Publish the operational bar** (~1.5 h) — an incident runbook distinct from `DEPLOYMENT.md` (which is a deploy runbook, not a "it is broken now" runbook), the stated response bar above, and the excluded-on-purpose list. **Done when** a reader can tell what happens when the site breaks and what this project deliberately does not promise.
+
+**WMDP2-76 belongs to this epic conceptually** — two implementations of one API with only a typecheck between them is the largest genuine shipping risk here. It stays parented to WMDP2-5 rather than being moved, because re-parenting an open story into a new epic while its current parent is Done risks the same auto-completion behaviour that closed WMDP2-5 in the first place. Recorded here instead of re-wired there.
+
+**The chapter that cannot be written yet.** `TROUBLESHOOTING_LOG.md` documents build failures well; the missing entry is a *production* incident detected, diagnosed and written up. That cannot be manufactured — but "Detect failures without being told" is what makes the owner the first to know, so that when one happens it gets captured instead of missed. That single write-up would be worth more than the rest of this epic.
+
 ---
 
 ## 3. Platform / infrastructure roadmap

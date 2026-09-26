@@ -89,6 +89,33 @@ The C#/Unity track (Viewport XR-aligned simulation showcase + freelance portfoli
 - ~~Story: Ship the link: WebGL build published at a shareable URL (WMDP2-73)~~ — **Done, on the board** (2026-07-22). Unity 6 headless WebGL build (32 MB, 0 errors, built by the committed `WebGLBuildScript.cs`) live at **https://wa-mining-unity.netlify.app** on its own dedicated Netlify site; verified in production with Playwright (scene render + marker click → correct MINEDEX record); cross-linked from the prototype README (with the build/deploy runbook) and the root README's Related Experiments. The editor-pin reversal (2022.3 → Unity 6) and the four-failure module-install saga are documented in the prototype's DECISIONS.md and TROUBLESHOOTING_LOG.md #3.
 - ~~Story: Inspection Round scenario — increments I1+I2 (WMDP2-74)~~ — **Done, on the board** (2026-07-24; spec approved 2026-07-22). I1 (`dc09417`): pure-C# `InspectionRound` core, 23 EditMode tests green headless. I2 (`612e2bd`, `d7a1c93`, `973fce6`): the playable loop — briefing, two-step flag decisions with reasons, progress HUD, end-of-shift report with the caught/missed verdict, restart — generated and wired by the committed idempotent `ScenarioUiBuilder`, with the orbit-camera click-through bug fixed via an EventSystem pointer guard. Verified with a full-loop Playwright click-through of the built WebGL output, then redeployed to **wa-mining-unity.netlify.app** (production spot-check green). The spec's I2 milestone merge landed the same sitting: owner approved at the gate, merged to main as `e8dfe95` (no-ff), CI green.
 
+## Board sync spec (2026-09-26) — PENDING, not yet executed
+
+Same situation as the 2026-08-04 spec, and written the same way for the same reason: this sitting had no reachable Jira session, so nothing was mutated. The plan section is the source of truth (`WA_MINING_PROJECT_PLAN.md` §2.1, which carries the full reasoning, sizing and acceptance criteria); this is the executable version. Until it runs, the board does not know this epic exists — deliberately and visibly, rather than silently.
+
+To execute:
+
+- **Create epic "Operational Readiness"**, assigned, **To Do** (not In Progress — no story has started). Description: run the live app like a product rather than a deployment. Detection, recovery, a feedback path, and usage data — at a one-person bar, with the enterprise checklist explicitly declined. Point at plan §2.1.
+- **Create eight Stories under it**, in this order — the order is the dependency chain, not a preference:
+  1. *Watch three people use the app* (~1 h) — **must be first**; it is allowed to reorder everything after it.
+  2. *Detect failures without being told* (~1.5 h)
+  3. *Harden the HTTP response headers* (~1 h)
+  4. *Measure real usage* (~0.5 h)
+  5. *Give users a way to report problems* (~1 h)
+  6. *Prove recovery works* (~2 h)
+  7. *Make the app keyboard- and screen-reader-usable* (~4 h)
+  8. *Publish the operational bar* (~1.5 h)
+- Acceptance criteria for each are in plan §2.1 and should be copied into the story descriptions rather than re-invented — several are deliberately phrased as "prove it by doing it" (induce a failure, file a real issue, actually restore the database) rather than "configure the thing".
+- **Do not re-parent WMDP2-76.** It belongs to this epic conceptually and stays under WMDP2-5 in practice; moving an open story into a new epic while its current parent is Done risks the auto-completion behaviour that closed WMDP2-5 originally. Add a comment on WMDP2-76 noting the relationship instead.
+- **Create-dialog trap, as always**: the work-type selector retains its last-used value, and the epic's inline child row defaults to **Task**. Verify the type on every item after creation.
+
+Repo-side facts this sync should carry, verified 2026-09-26 (and re-verify at execution time — the 2026-08-04 spec went stale in five days):
+
+- Last commit `221e83a`, dated 2026-08-29. Both sites returned HTTP 200 after four weeks unattended.
+- No observability of any kind: no uptime monitor, no error tracking, no analytics. `netlify.toml` sets no `[[headers]]`.
+- Frontend a11y surface: 4 `role=` attributes and one each of `aria-selected`, `aria-modal`, `aria-label`, `aria-expanded`, `aria-disabled`. No a11y test tooling.
+- `/health` endpoints exist on both the FastAPI app and `netlify/functions/health.mts` — the hook uptime monitoring needs is already there.
+
 ## Board sync log (2026-08-16b) — AWS direction change
 
 The AWS work is being restarted around **showing architecture rather than showing presence**, using the SAA-C03 material. `DEPLOYMENT.md`'s single-EC2 + docker-compose runbook is complete and still valid, and it stays in the repo — but one instance running containers exercises none of the exam's four domains, so it is the wrong vehicle for this particular goal.
