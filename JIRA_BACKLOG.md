@@ -109,6 +109,23 @@ To execute:
 - **Do not re-parent WMDP2-76.** It belongs to this epic conceptually and stays under WMDP2-5 in practice; moving an open story into a new epic while its current parent is Done risks the auto-completion behaviour that closed WMDP2-5 originally. Add a comment on WMDP2-76 noting the relationship instead.
 - **Create-dialog trap, as always**: the work-type selector retains its last-used value, and the epic's inline child row defaults to **Task**. Verify the type on every item after creation.
 
+**Extended 2026-09-27 — a second epic to create in the same pass.**
+
+- **Create epic "User Workspace"**, assigned, **To Do**. Description: give the platform state that exists because a user created it — sign-in, then named collections of hand-picked sites with the user's own notes, shareable read-only. Point at plan §2.2, which carries the reasoning, the sizing and the two decisions owed before coding.
+- **Create seven Stories under it**, in this order:
+  1. *Choose and wire the auth provider* (~3 h) — **blocks everything else in the epic**
+  2. *Schema and API for collections* (~3 h)
+  3. *Create and manage collections in the UI* (~3 h)
+  4. *Per-site notes inside a collection* (~2 h)
+  5. *Share a collection read-only* (~2 h)
+  6. *Account deletion and data export* (~2 h)
+  7. *Publish the privacy and data-handling note* (~1 h)
+- **Do not let stories 6 and 7 be dropped or deferred to a later epic.** They are the obligations that come with storing accounts, and they are the part most portfolio projects skip. Their presence is the point.
+- Story 2's acceptance criterion is a *test* proving a second user cannot read or modify someone else's collection — not a manual check. Copy it verbatim from plan §2.2.
+- **Add a comment to WMDP2-76** noting that write endpoints force a decision on the two-implementation architecture: build writes twice and double the drift risk that story exists to catch, or build them once and make `backend/` and `netlify/functions/` divergent by design. Either is defensible; drifting into one unrecorded is not.
+
+Note for whoever runs this: the change-detection direction was investigated on 2026-09-26 and **abandoned on evidence** — no API, the catalogue's only resource is a portal link with `last_modified: null`, and DASC's download IDs are opaque with no published mapping. Do not create stories for it. The change-rate question (diff a fresh export against the July 2026 snapshot) stays open and belongs to the archive idea, not to this epic.
+
 Repo-side facts this sync should carry, verified 2026-09-26 (and re-verify at execution time — the 2026-08-04 spec went stale in five days):
 
 - Last commit `221e83a`, dated 2026-08-29. Both sites returned HTTP 200 after four weeks unattended.

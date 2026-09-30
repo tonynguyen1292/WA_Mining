@@ -281,6 +281,39 @@ Stories, in dependency order:
 
 **The chapter that cannot be written yet.** `TROUBLESHOOTING_LOG.md` documents build failures well; the missing entry is a *production* incident detected, diagnosed and written up. That cannot be manufactured — but "Detect failures without being told" is what makes the owner the first to know, so that when one happens it gets captured instead of missed. That single write-up would be worth more than the rest of this epic.
 
+### 2.2 From viewer to workspace — new epic (specced 2026-09-27)
+
+**The problem this fixes.** Every one of the API's six endpoints is a `GET`. There is no auth, nothing scheduled, and no write path anywhere in the application. The platform is a read-only projection of a file that was exported once: dashboard, table, map and detail are four lenses on the same 421 rows, and the database is mostly a place the CSV was put. That is why it reads as a dashboard rather than a product.
+
+**Why not the obvious alternative.** The first instinct was change detection — diff each MINEDEX refresh, alert on a site flipping from Operating to Care and Maintenance. It fits the domain far better than anything below. It was abandoned on evidence, on 2026-09-26:
+
+- The dataset publishes **no API** (stated outright in the data.wa.gov.au catalogue).
+- Its only catalogue "resource" is a **link to the DASC portal**, not a file — `last_modified: null`, record created 2018-08-27.
+- DASC is a server-rendered ASP.NET/Kendo app whose product selection happens client-side; downloads are opaque `/Download/File/{id}` numeric IDs with no published mapping to this dataset, and its one reachable data endpoint returns HTTP 500 without undocumented parameters.
+
+A scheduled refresh would therefore mean scraping a government portal with browser automation — which breaks silently the next time DMIRS touches their front end. Impressive-looking fragility is worse than no feature. **The change-rate question is still open and still worth answering** (download the current CSV by hand, diff against `DATABASES/raw/Major_Resource_Projects.csv` from July 2026); it decides whether a manually-refreshed historical archive is worth starting, but it no longer gates this epic.
+
+**What this epic adds instead: state that exists because a user created it.** Sign-in, then *collections* — a named, hand-picked set of sites with the user's own notes, shareable read-only.
+
+**The distinction that justifies it**, and the one to keep checking the work against: a URL already encodes a *filter*, and `/sites?commodity=Gold` is already shareable. A collection encodes an **arbitrary, non-contiguous, hand-curated set plus the user's own reasoning**. If a story could be satisfied by a URL, it does not belong in this epic.
+
+**Two consequences to decide before writing code, not after:**
+
+- **Writes fork the two-implementation architecture.** `backend/` (FastAPI, canonical) and `netlify/functions/` (the live surface) both implement the read API today, and WMDP2-76 exists because only a typecheck stops them drifting. Write endpoints must either be built twice — doubling exactly the drift risk that story was created for — or exist in only one, making the two implementations divergent *by design* rather than by accident. That is an architectural decision with a documented rationale owed to it, not an implementation detail.
+- **Storing user accounts is a step up in obligation, not just in scope.** Today the worst case is someone scraping public data. With accounts it becomes session handling, IDOR (reading another user's collection), and personal data with deletion and privacy duties attached. Use a managed provider — never hand-rolled auth — and treat the obligations as epic scope rather than as a later tidy-up.
+
+Stories, in dependency order:
+
+- 📋 **Choose and wire the auth provider** (~3 h) — a managed provider (Clerk, Auth0 and Supabase Auth are the realistic free-tier candidates; Netlify Identity is deprecated and out). **Done when** a user can sign in and out, the API can identify the caller, and no secret is in the repo.
+- 📋 **Schema and API for collections** (~3 h) — the project's first non-`GET` endpoints, and its first migration that is not seed data. **Done when** a collection survives a restart, is scoped to its owner, and *a test proves a second user cannot read or modify it*. That test is the story, not a nicety.
+- 📋 **Create and manage collections in the UI** (~3 h) — add and remove sites from the sites table, map and detail pages.
+- 📋 **Per-site notes inside a collection** (~2 h) — the user's reasoning, which is the part no URL can carry.
+- 📋 **Share a collection read-only** (~2 h) — a public link that needs no account to open.
+- 📋 **Account deletion and data export** (~2 h) — **not optional and not deferred.** A user can remove everything held about them and take a copy first. Most portfolio projects add auth and never build this; building it is the part that demonstrates understanding rather than integration.
+- 📋 **Publish the privacy and data-handling note** (~1 h) — what is stored, where, for how long, and how to get rid of it.
+
+**Sizing: ~16 h, so 6–8 weeks at the measured 2–3 h/week.** It competes directly with §2.1's Operational Readiness epic for the same hours. Recommended split rather than doing either in full first: take §2.1's ~1.5 h detection story so an outage is noticed, then work here. Shipping user accounts onto a platform where an outage would go unnoticed is the wrong order; completing all eight operational stories before writing another feature is also the wrong order.
+
 ---
 
 ## 3. Platform / infrastructure roadmap
