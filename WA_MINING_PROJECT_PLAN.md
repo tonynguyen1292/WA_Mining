@@ -297,15 +297,24 @@ A scheduled refresh would therefore mean scraping a government portal with brows
 
 **The distinction that justifies it**, and the one to keep checking the work against: a URL already encodes a *filter*, and `/sites?commodity=Gold` is already shareable. A collection encodes an **arbitrary, non-contiguous, hand-curated set plus the user's own reasoning**. If a story could be satisfied by a URL, it does not belong in this epic.
 
-**Two consequences to decide before writing code, not after:**
+**Two decisions taken 2026-09-30, before any code:**
 
-- **Writes fork the two-implementation architecture.** `backend/` (FastAPI, canonical) and `netlify/functions/` (the live surface) both implement the read API today, and WMDP2-76 exists because only a typecheck stops them drifting. Write endpoints must either be built twice — doubling exactly the drift risk that story was created for — or exist in only one, making the two implementations divergent *by design* rather than by accident. That is an architectural decision with a documented rationale owed to it, not an implementation detail.
-- **Storing user accounts is a step up in obligation, not just in scope.** Today the worst case is someone scraping public data. With accounts it becomes session handling, IDOR (reading another user's collection), and personal data with deletion and privacy duties attached. Use a managed provider — never hand-rolled auth — and treat the obligations as epic scope rather than as a later tidy-up.
+**1. Write endpoints live only in `netlify/functions/`.** `backend/` (FastAPI) and the Functions both implement the read API today, and WMDP2-76 exists because only a typecheck stops them drifting. Building writes twice would double exactly that risk for zero user benefit, since the Functions are the only surface users actually reach. So the two implementations become divergent **by design**: FastAPI remains the canonical *read* reference, not a full mirror.
+
+The consequence that must not be lost: **WMDP2-76's contract test is scoped to reads.** Writes being absent from FastAPI is the documented design, not drift. Without that written down, a later reviewer sees `POST` in one implementation and not the other and correctly files it as a defect.
+
+**2. Auth provider is Clerk.** Auth here is plumbing; collections are the product. Clerk reaches a working sign-in fastest, which matters more than any other factor at 2–3 h/week — a provider that costs an extra session of dashboard configuration is a provider that stalls the epic.
+
+Lock-in was assessed and accepted as low, on a specific argument: **the provider holds identity only** (a user id and an email), while collections live in this project's own database. Swapping providers later means re-mapping ids across a handful of rows, not re-modelling domain data. Lock-in bites when the vendor holds what matters, and here it does not. Supabase Auth was the considered alternative — Postgres-native, so Row Level Security could enforce cross-user isolation in the database rather than in endpoint code, which is architecturally nicer — and was declined only because it drags in a second platform alongside Netlify's managed Postgres.
+
+**Storing user accounts is a step up in obligation, not just in scope.** Today the worst case is someone scraping public data; with accounts it becomes session handling, IDOR, and personal data carrying deletion and privacy duties. Those are epic scope below, not a later tidy-up.
+
+**Implementation trap to carry into story 1:** in the Functions, verify the JWT properly — signature against Clerk's JWKS, plus issuer and audience. Decoding a token without verifying it is the classic serverless auth mistake, and it is indistinguishable from working code until someone presents a forged one.
 
 Stories, in dependency order:
 
-- 📋 **Choose and wire the auth provider** (~3 h) — a managed provider (Clerk, Auth0 and Supabase Auth are the realistic free-tier candidates; Netlify Identity is deprecated and out). **Done when** a user can sign in and out, the API can identify the caller, and no secret is in the repo.
-- 📋 **Schema and API for collections** (~3 h) — the project's first non-`GET` endpoints, and its first migration that is not seed data. **Done when** a collection survives a restart, is scoped to its owner, and *a test proves a second user cannot read or modify it*. That test is the story, not a nicety.
+- 📋 **Wire Clerk into the frontend and the Functions** (~3 h) — provider decided above, so this is integration rather than evaluation. **Done when** a user can sign in and out, a Function can identify the caller from a **verified** token (JWKS signature, issuer and audience — not a bare decode), and no secret is in the repo.
+- 📋 **Schema and API for collections** (~3 h) — the project's first non-`GET` endpoints, in `netlify/functions/` only per the decision above, and its first migration that is not seed data. **Done when** a collection survives a restart, is scoped to its owner, and *a test proves a second user cannot read or modify it*. That test is the story, not a nicety.
 - 📋 **Create and manage collections in the UI** (~3 h) — add and remove sites from the sites table, map and detail pages.
 - 📋 **Per-site notes inside a collection** (~2 h) — the user's reasoning, which is the part no URL can carry.
 - 📋 **Share a collection read-only** (~2 h) — a public link that needs no account to open.
