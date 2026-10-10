@@ -56,7 +56,11 @@ namespace WAMining.ShiftSupervisorDemo
         private void OnStartShift()
         {
             _round.Begin();
-            view.ShowInspecting(_round.CurrentSite, _round.DecidedCount, _round.SitesTotal);
+            view.ShowInspecting(
+                    _round.CurrentSite,
+                    _round.Conditions.For(_round.CurrentSite.siteCode),
+                    _round.DecidedCount,
+                    _round.SitesTotal);
         }
 
         private void OnLogOk()
@@ -75,11 +79,15 @@ namespace WAMining.ShiftSupervisorDemo
         {
             if (_round.Phase == RoundPhase.Summary)
             {
-                view.ShowSummary(_round.BuildSummary());
+                view.ShowSummary(_round.BuildSummary(), _round.Conditions);
             }
             else
             {
-                view.ShowInspecting(_round.CurrentSite, _round.DecidedCount, _round.SitesTotal);
+                view.ShowInspecting(
+                    _round.CurrentSite,
+                    _round.Conditions.For(_round.CurrentSite.siteCode),
+                    _round.DecidedCount,
+                    _round.SitesTotal);
             }
         }
 

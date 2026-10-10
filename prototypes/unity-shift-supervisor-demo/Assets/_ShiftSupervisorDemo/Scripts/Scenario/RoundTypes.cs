@@ -50,6 +50,62 @@ namespace WAMining.ShiftSupervisorDemo
         public double AtSeconds { get; }
     }
 
+    /// <summary>How a single call turned out, once the shift is over.</summary>
+    public enum CallOutcome
+    {
+        /// <summary>Flagged a site that really had breached a rule.</summary>
+        CorrectFlag,
+
+        /// <summary>Logged a clean site OK. Also correct, and worth saying so.</summary>
+        CorrectlyCleared,
+
+        /// <summary>Flagged a site that was within every threshold.</summary>
+        FalseAlarm,
+
+        /// <summary>Waved a breaching site through. The expensive one.</summary>
+        Missed,
+    }
+
+    /// <summary>
+    /// Judges a call against what was actually observable at that site.
+    ///
+    /// Lives in the core rather than the summary screen because it is the
+    /// assessment rule, not a rendering choice -- the view decides how to word
+    /// a miss, not what counts as one. Keeping it here also keeps it testable
+    /// without a scene.
+    /// </summary>
+    public static class ShiftAssessment
+    {
+        public static CallOutcome Classify(DecisionKind call, SiteCondition condition)
+        {
+            if (condition == null) throw new ArgumentNullException(nameof(condition));
+
+            bool flagged = call == DecisionKind.FlagIssue;
+            if (condition.IsTroubled)
+                return flagged ? CallOutcome.CorrectFlag : CallOutcome.Missed;
+            return flagged ? CallOutcome.FalseAlarm : CallOutcome.CorrectlyCleared;
+        }
+
+        /// <summary>
+        /// Plain-language reasons a site breached, for the debrief. Returns an
+        /// empty list for a clean site. Phrased here rather than in the view so
+        /// the wording of a breach stays with the rule that defines it.
+        /// </summary>
+        public static IReadOnlyList<string> ExplainBreaches(SiteCondition condition)
+        {
+            if (condition == null) throw new ArgumentNullException(nameof(condition));
+
+            var reasons = new List<string>();
+            if ((condition.Breaches & BreachKind.InspectionOverdue) != 0)
+                reasons.Add($"inspection {condition.DaysSinceInspection} days old, over the {ShiftConditions.InspectionOverdueDays} day limit");
+            if ((condition.Breaches & BreachKind.TooManyOpenActions) != 0)
+                reasons.Add($"{condition.OpenSafetyActions} open safety actions, limit is {ShiftConditions.OpenActionLimit}");
+            if ((condition.Breaches & BreachKind.EquipmentFault) != 0)
+                reasons.Add("equipment reported a fault");
+            return reasons;
+        }
+    }
+
     /// <summary>The end-of-shift report the summary screen renders.</summary>
     public sealed class RoundSummary
     {

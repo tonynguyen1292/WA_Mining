@@ -6,8 +6,8 @@ using UnityEngine.UI;
 namespace WAMining.ShiftSupervisorDemo.EditorTools
 {
     /// <summary>
-    /// Builds the Inspection Round UI (spec F2–F6) into the demo scene and
-    /// wires the scenario controllers — the same executable-steps-not-mouse-
+    /// Builds the Inspection Round UI (spec F2-F6) into the demo scene and
+    /// wires the scenario controllers -- the same executable-steps-not-mouse-
     /// clicks philosophy as the original SceneBuilder (see DECISIONS.md).
     /// Unlike that one-shot script, this one is committed and idempotent
     /// (it replaces its own previous output), because v2's increments keep
@@ -69,13 +69,19 @@ namespace WAMining.ShiftSupervisorDemo.EditorTools
 
             // --- Briefing card (F2): center -----------------------------
             var briefing = CreatePanel("BriefingPanel", root, bgSprite, new Color(0.13f, 0.15f, 0.14f, 0.96f));
-            Anchor(briefing, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(560, 260));
+            // 300 tall, not 260: the briefing now states the rule the player
+            // is judging against, which is five lines. At 260 the body's last
+            // line met the top of the Start button.
+            Anchor(briefing, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(560, 300));
             var bTitle = CreateText("Title", briefing.transform, font, 22, TextAnchor.MiddleCenter, Color.white);
             bTitle.fontStyle = FontStyle.Bold;
             bTitle.text = "Shift briefing";
             Anchor((RectTransform)bTitle.transform, new Vector2(0.5f, 1f), new Vector2(0, -34), new Vector2(480, 34));
             var bBody = CreateText("Body", briefing.transform, font, 15, TextAnchor.UpperCenter, new Color(0.9f, 0.92f, 0.9f));
-            bBody.text = "Visit every site in order and log its status.\nFlag anything that is not operating cleanly —\nthe shift report will show what you caught.";
+            // ASCII only. The em-dash that used to sit at the end of line two
+            // has no glyph in LegacyRuntime.ttf and has been rendering as a
+            // blank gap in the shipped build since I2.
+            bBody.text = "Visit every site in order and judge it from the readings.\nFlag any site past the inspection limit, carrying too many open\nsafety actions, or reporting an equipment fault.\n\nThe shift changes every run. The report shows what you missed.";
             Anchor((RectTransform)bBody.transform, new Vector2(0.5f, 0.5f), new Vector2(0, 14), new Vector2(490, 100));
             var startBtn = CreateButton("StartButton", briefing.transform, uiSprite, font, "Start shift",
                 new Color(0.17f, 0.45f, 0.75f), Color.white);
@@ -83,9 +89,12 @@ namespace WAMining.ShiftSupervisorDemo.EditorTools
 
             // --- Decision panel (F3): bottom-center ---------------------
             var decision = CreatePanel("DecisionPanel", root, bgSprite, new Color(0.13f, 0.15f, 0.14f, 0.96f));
-            Anchor(decision, new Vector2(0.5f, 0f), new Vector2(0, 110), new Vector2(760, 140));
-            var prompt = CreateText("Prompt", decision.transform, font, 15, TextAnchor.MiddleCenter, Color.white);
-            Anchor((RectTransform)prompt.transform, new Vector2(0.5f, 1f), new Vector2(0, -24), new Vector2(720, 30));
+            // 210 tall, not 140: the prompt now carries the shift readings and
+            // the rule they are judged against, which is four or five lines
+            // rather than one. The old 30px prompt clipped them.
+            Anchor(decision, new Vector2(0.5f, 0f), new Vector2(0, 110), new Vector2(760, 210));
+            var prompt = CreateText("Prompt", decision.transform, font, 15, TextAnchor.UpperCenter, Color.white);
+            Anchor((RectTransform)prompt.transform, new Vector2(0.5f, 1f), new Vector2(0, -14), new Vector2(720, 104));
 
             var choiceRow = CreateRect("ChoiceRow", decision.transform);
             Stretch(choiceRow);

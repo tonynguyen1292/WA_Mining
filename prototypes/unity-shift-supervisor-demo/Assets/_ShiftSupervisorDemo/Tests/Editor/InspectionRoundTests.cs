@@ -506,5 +506,61 @@ namespace WAMining.ShiftSupervisorDemo.Tests
 
             Assert.That(round.BuildSummary().Seed, Is.EqualTo(99));
         }
+
+        // --- assessment: what the debrief says ---------------------------
+
+        private static readonly SiteCondition Overdue =
+            new SiteCondition(ShiftConditions.InspectionOverdueDays + 52, 0, false);
+
+        [Test]
+        public static void Classify_FlagOnBreachingSite_IsCorrectFlag() =>
+            Assert.That(ShiftAssessment.Classify(DecisionKind.FlagIssue, Overdue),
+                Is.EqualTo(CallOutcome.CorrectFlag));
+
+        [Test]
+        public static void Classify_LogOkOnBreachingSite_IsMissed() =>
+            Assert.That(ShiftAssessment.Classify(DecisionKind.LogOk, Overdue),
+                Is.EqualTo(CallOutcome.Missed));
+
+        [Test]
+        public static void Classify_FlagOnCleanSite_IsFalseAlarm() =>
+            Assert.That(ShiftAssessment.Classify(DecisionKind.FlagIssue, Clean),
+                Is.EqualTo(CallOutcome.FalseAlarm));
+
+        [Test]
+        public static void Classify_LogOkOnCleanSite_IsCorrectlyCleared() =>
+            Assert.That(ShiftAssessment.Classify(DecisionKind.LogOk, Clean),
+                Is.EqualTo(CallOutcome.CorrectlyCleared));
+
+        [Test]
+        public static void Classify_NullCondition_Throws() =>
+            Assert.Throws<ArgumentNullException>(() =>
+                ShiftAssessment.Classify(DecisionKind.LogOk, null));
+
+        [Test]
+        public static void ExplainBreaches_CleanSite_IsEmpty() =>
+            Assert.That(ShiftAssessment.ExplainBreaches(Clean), Is.Empty);
+
+        [Test]
+        public static void ExplainBreaches_Overdue_NamesTheReadingAndTheLimit()
+        {
+            // The debrief has to say what was missed, not just that something
+            // was: "142 days, over the 90 day limit" is actionable where
+            // "you missed one" is not.
+            var reasons = ShiftAssessment.ExplainBreaches(Overdue);
+
+            Assert.That(reasons.Count, Is.EqualTo(1));
+            Assert.That(reasons[0], Does.Contain("142"));
+            Assert.That(reasons[0], Does.Contain(ShiftConditions.InspectionOverdueDays.ToString()));
+        }
+
+        [Test]
+        public static void ExplainBreaches_EveryBreach_IsListedSeparately()
+        {
+            var all = new SiteCondition(ShiftConditions.InspectionOverdueDays + 1,
+                                        ShiftConditions.OpenActionLimit, true);
+
+            Assert.That(ShiftAssessment.ExplainBreaches(all).Count, Is.EqualTo(3));
+        }
     }
 }
