@@ -57,12 +57,14 @@ namespace WAMining.ShiftSupervisorDemo
             IReadOnlyList<SiteDecision> decisions,
             double durationSeconds,
             IReadOnlyList<string> troubledSiteCodes,
-            bool caughtEveryTroubledSite)
+            bool caughtEveryTroubledSite,
+            int seed)
         {
             Decisions = decisions ?? throw new ArgumentNullException(nameof(decisions));
             DurationSeconds = durationSeconds;
             TroubledSiteCodes = troubledSiteCodes ?? throw new ArgumentNullException(nameof(troubledSiteCodes));
             CaughtEveryTroubledSite = caughtEveryTroubledSite;
+            Seed = seed;
         }
 
         /// <summary>Every call made this round, in the order it was made.</summary>
@@ -70,13 +72,25 @@ namespace WAMining.ShiftSupervisorDemo
 
         public double DurationSeconds { get; }
 
-        /// <summary>Site codes whose stage marks them genuinely troubled.</summary>
+        /// <summary>
+        /// Site codes whose observed condition breached a rule this shift.
+        /// Varies per run: this is a property of the shift, not of the site.
+        /// </summary>
         public IReadOnlyList<string> TroubledSiteCodes { get; }
 
         /// <summary>
         /// The round's win condition: every troubled site received a
-        /// FlagIssue call. Vacuously true when no site is troubled.
+        /// FlagIssue call. Vacuously true when no site is troubled -- which
+        /// ShiftConditions.Generate prevents, but an authored scenario could
+        /// still produce.
         /// </summary>
         public bool CaughtEveryTroubledSite { get; }
+
+        /// <summary>
+        /// The seed this shift was generated from. Carried so a specific run
+        /// can be replayed -- "I failed shift 4718" is reproducible, which
+        /// matters for a training tool and for bug reports alike.
+        /// </summary>
+        public int Seed { get; }
     }
 }

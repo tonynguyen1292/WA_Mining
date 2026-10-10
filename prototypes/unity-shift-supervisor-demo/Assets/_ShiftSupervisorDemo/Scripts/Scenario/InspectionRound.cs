@@ -16,37 +16,50 @@ namespace WAMining.ShiftSupervisorDemo
     /// </summary>
     public sealed class InspectionRound
     {
-        /// <summary>
-        /// The stage value that marks a site as genuinely troubled -- the
-        /// round's win condition is flagging every site carrying it. Matches
-        /// the seeded data's "Care and Maintenance" entry (spec F5); Proposed
-        /// sites are not-yet-operating, not troubled, and stay excluded.
-        ///
-        /// The conjunction is lowercase deliberately (WMDP2-77). This constant
-        /// previously read "Care And Maintenance" to match a value that SQL/03's
-        /// INITCAP had mangled; both sides were wrong in the same way, so the
-        /// comparison happened to succeed. Changing one without the other makes
-        /// the round fail silently -- no site matches, every shift reports clean,
-        /// and the win condition becomes vacuous.
-        /// </summary>
-        public const string TroubledStage = "Care and Maintenance";
-
         private readonly IReadOnlyList<SiteInfo> _sites;
+        private readonly ShiftConditions _conditions;
         private readonly List<SiteDecision> _decisions = new List<SiteDecision>();
         private readonly HashSet<int> _decidedIndexes = new HashSet<int>();
 
         private double _elapsedSeconds;
         private int _currentIndex = -1;
 
-        public InspectionRound(IReadOnlyList<SiteInfo> sites)
+        /// <summary>
+        /// A round is a site list plus the conditions observed on this shift.
+        /// The conditions decide which sites are troubled.
+        ///
+        /// Until 2026-10-10 that was a stage comparison against a
+        /// TroubledStage constant -- flag whichever site reads "Care and
+        /// Maintenance". The constant is gone because the rule was not a rule:
+        /// the sample data carries exactly one such site, always last, and the
+        /// stage is printed in the decision prompt, so the scenario was
+        /// memorisable in one playthrough and the answer was on screen before
+        /// then. Stage is still site data; it is no longer the win condition.
+        /// </summary>
+        public InspectionRound(IReadOnlyList<SiteInfo> sites, ShiftConditions conditions)
         {
             if (sites == null) throw new ArgumentNullException(nameof(sites));
             if (sites.Count == 0)
                 throw new ArgumentException("An inspection round needs at least one site.", nameof(sites));
             if (sites.Any(s => s == null))
                 throw new ArgumentException("Site list contains a null entry.", nameof(sites));
+            if (conditions == null) throw new ArgumentNullException(nameof(conditions));
+
+            // Fail here rather than at BuildSummary. A site with no condition
+            // would otherwise look clean all round and surface as a wrong
+            // verdict at the end, which is the hardest kind of bug to trace
+            // back to its cause.
+            var missing = sites.Where(s => !conditions.Has(s.siteCode)).Select(s => s.siteCode).ToList();
+            if (missing.Count > 0)
+                throw new ArgumentException(
+                    $"No shift condition for site(s): {string.Join(", ", missing)}.", nameof(conditions));
+
             _sites = sites;
+            _conditions = conditions;
         }
+
+        /// <summary>This shift's observed conditions; the view reads the cues from here.</summary>
+        public ShiftConditions Conditions => _conditions;
 
         public RoundPhase Phase { get; private set; } = RoundPhase.Briefing;
 
@@ -133,8 +146,10 @@ namespace WAMining.ShiftSupervisorDemo
             if (Phase != RoundPhase.Summary)
                 throw new InvalidOperationException($"BuildSummary() is only valid in Summary (phase: {Phase}).");
 
+            // Only sites in this round -- the conditions object may legitimately
+            // cover more than the round visits.
             var troubled = _sites
-                .Where(s => string.Equals(s.stage, TroubledStage, StringComparison.Ordinal))
+                .Where(s => _conditions.For(s.siteCode).IsTroubled)
                 .Select(s => s.siteCode)
                 .ToList();
 
@@ -145,7 +160,8 @@ namespace WAMining.ShiftSupervisorDemo
                 _decisions.ToList(),
                 _elapsedSeconds,
                 troubled,
-                caught);
+                caught,
+                _conditions.Seed);
         }
 
         /// <summary>Back to the briefing with a clean slate (F6's restart).</summary>

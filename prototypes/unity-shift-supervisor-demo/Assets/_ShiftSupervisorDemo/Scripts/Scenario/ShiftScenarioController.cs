@@ -3,7 +3,7 @@ using UnityEngine;
 namespace WAMining.ShiftSupervisorDemo
 {
     /// <summary>
-    /// The bridge between the pure scenario core and the scene (spec §5):
+    /// The bridge between the pure scenario core and the scene (spec section 5):
     /// owns the InspectionRound, feeds it time and button-driven decisions,
     /// and tells the view what to render on every phase change. Button
     /// listeners are wired here at runtime rather than as persistent
@@ -32,7 +32,7 @@ namespace WAMining.ShiftSupervisorDemo
                 return;
             }
 
-            _round = new InspectionRound(siteDatabase.Sites);
+            _round = NewRound();
 
             view.StartButton.onClick.AddListener(OnStartShift);
             view.LogOkButton.onClick.AddListener(OnLogOk);
@@ -85,8 +85,25 @@ namespace WAMining.ShiftSupervisorDemo
 
         private void OnRestart()
         {
-            _round.Reset();
+            // A new round, not _round.Reset(). Reset replays the same shift,
+            // and replaying the same shift is what made the old scenario a
+            // memory test -- the second attempt already knew the answer.
+            // Restart deals a fresh hand.
+            _round = NewRound();
             view.ShowBriefing();
+        }
+
+        /// <summary>
+        /// A round over the loaded sites with a freshly seeded shift. The seed
+        /// is drawn here rather than inside the core so the core stays
+        /// deterministic and testable: given a seed, the shift is fixed.
+        /// </summary>
+        private InspectionRound NewRound()
+        {
+            int seed = Random.Range(int.MinValue, int.MaxValue);
+            return new InspectionRound(
+                siteDatabase.Sites,
+                ShiftConditions.Generate(siteDatabase.Sites, seed));
         }
     }
 }

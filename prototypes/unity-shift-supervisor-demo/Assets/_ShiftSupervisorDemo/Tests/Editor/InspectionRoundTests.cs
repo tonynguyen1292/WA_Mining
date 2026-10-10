@@ -29,13 +29,39 @@ namespace WAMining.ShiftSupervisorDemo.Tests
             Site("S001"),
             Site("S002"),
             Site("S003", stage: "Proposed"),
-            Site("S004", stage: InspectionRound.TroubledStage),
+            Site("S004", stage: "Care and Maintenance"),
             Site("S005"),
         };
 
+        private static readonly SiteCondition Clean = new SiteCondition(10, 0, false);
+        private static readonly SiteCondition Breached = new SiteCondition(200, 0, false);
+
+        /// <summary>
+        /// Conditions where exactly S004 is troubled, so the assertions below
+        /// read the same as they did when "troubled" meant the Care and
+        /// Maintenance stage. The difference is that it is now stated by the
+        /// fixture rather than inferred from site data -- which is the whole
+        /// point of the change: the shift decides, not the site.
+        /// </summary>
+        private static ShiftConditions ConditionsFor(
+            IEnumerable<SiteInfo> sites, params string[] troubledCodes)
+        {
+            var map = new Dictionary<string, SiteCondition>();
+            foreach (var site in sites)
+                map[site.siteCode] = Array.IndexOf(troubledCodes, site.siteCode) >= 0 ? Breached : Clean;
+            return ShiftConditions.FromMap(seed: 1234, byCode: map);
+        }
+
+        private static InspectionRound Round(List<SiteInfo> sites = null, params string[] troubled)
+        {
+            var list = sites ?? SampleSites();
+            if (troubled.Length == 0) troubled = new[] { "S004" };
+            return new InspectionRound(list, ConditionsFor(list, troubled));
+        }
+
         private static InspectionRound BegunRound(List<SiteInfo> sites = null)
         {
-            var round = new InspectionRound(sites ?? SampleSites());
+            var round = Round(sites);
             round.Begin();
             return round;
         }
@@ -44,23 +70,25 @@ namespace WAMining.ShiftSupervisorDemo.Tests
 
         [Test]
         public static void Constructor_NullSites_Throws() =>
-            Assert.Throws<ArgumentNullException>(() => new InspectionRound(null));
+            Assert.Throws<ArgumentNullException>(() =>
+                new InspectionRound(null, ConditionsFor(SampleSites())));
 
         [Test]
         public static void Constructor_EmptySites_Throws() =>
-            Assert.Throws<ArgumentException>(() => new InspectionRound(new List<SiteInfo>()));
+            Assert.Throws<ArgumentException>(() =>
+                new InspectionRound(new List<SiteInfo>(), ConditionsFor(SampleSites())));
 
         [Test]
         public static void Constructor_NullEntry_Throws() =>
             Assert.Throws<ArgumentException>(() =>
-                new InspectionRound(new List<SiteInfo> { Site("S001"), null }));
+                new InspectionRound(new List<SiteInfo> { Site("S001"), null }, ConditionsFor(SampleSites())));
 
         // --- phase machine ------------------------------------------------
 
         [Test]
         public static void NewRound_StartsInBriefing_WithNoCurrentSite()
         {
-            var round = new InspectionRound(SampleSites());
+            var round = Round();
             Assert.That(round.Phase, Is.EqualTo(RoundPhase.Briefing));
             Assert.That(round.CurrentSite, Is.Null);
             Assert.That(round.CurrentIndex, Is.EqualTo(-1));
@@ -86,7 +114,7 @@ namespace WAMining.ShiftSupervisorDemo.Tests
         [Test]
         public static void Decide_BeforeBegin_Throws()
         {
-            var round = new InspectionRound(SampleSites());
+            var round = Round();
             Assert.Throws<InvalidOperationException>(() => round.Decide(DecisionKind.LogOk));
         }
 
@@ -131,7 +159,7 @@ namespace WAMining.ShiftSupervisorDemo.Tests
         [Test]
         public static void Tick_AccumulatesOnlyWhileInspecting()
         {
-            var round = new InspectionRound(SampleSites());
+            var round = Round();
             round.Tick(5);                       // briefing: ignored
             Assert.That(round.ElapsedSeconds, Is.Zero);
 
@@ -290,6 +318,193 @@ namespace WAMining.ShiftSupervisorDemo.Tests
 
             round.Begin();                                               // and it runs again
             Assert.That(round.CurrentSite.siteCode, Is.EqualTo("S001"));
+        }
+
+        // --- shift conditions: the rule ----------------------------------
+
+        [Test]
+        public static void Condition_WithinEveryThreshold_IsClean()
+        {
+            var condition = new SiteCondition(
+                daysSinceInspection: ShiftConditions.InspectionOverdueDays,
+                openSafetyActions: ShiftConditions.OpenActionLimit - 1,
+                equipmentFault: false);
+
+            Assert.That(condition.IsTroubled, Is.False);
+            Assert.That(condition.Breaches, Is.EqualTo(BreachKind.None));
+        }
+
+        [Test]
+        public static void Condition_InspectionOneDayOverdue_Breaches()
+        {
+            // Boundary matters: the rule is "older than", so exactly the
+            // threshold is still fine and one day past it is not.
+            var condition = new SiteCondition(ShiftConditions.InspectionOverdueDays + 1, 0, false);
+
+            Assert.That(condition.IsTroubled, Is.True);
+            Assert.That(condition.Breaches, Is.EqualTo(BreachKind.InspectionOverdue));
+        }
+
+        [Test]
+        public static void Condition_OpenActionsAtLimit_Breaches()
+        {
+            // "At or above" here, unlike the inspection rule. The asymmetry is
+            // deliberate and this pins it.
+            var condition = new SiteCondition(0, ShiftConditions.OpenActionLimit, false);
+
+            Assert.That(condition.Breaches, Is.EqualTo(BreachKind.TooManyOpenActions));
+        }
+
+        [Test]
+        public static void Condition_EquipmentFault_Breaches() =>
+            Assert.That(new SiteCondition(0, 0, true).Breaches,
+                Is.EqualTo(BreachKind.EquipmentFault));
+
+        [Test]
+        public static void Condition_MultipleBreaches_AreAllReported()
+        {
+            var condition = new SiteCondition(
+                ShiftConditions.InspectionOverdueDays + 1, ShiftConditions.OpenActionLimit, true);
+
+            Assert.That(condition.Breaches, Is.EqualTo(
+                BreachKind.InspectionOverdue | BreachKind.TooManyOpenActions | BreachKind.EquipmentFault));
+        }
+
+        [Test]
+        public static void Condition_NegativeReadings_Throw()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => new SiteCondition(-1, 0, false));
+            Assert.Throws<ArgumentOutOfRangeException>(() => new SiteCondition(0, -1, false));
+        }
+
+        // --- shift conditions: generation --------------------------------
+
+        [Test]
+        public static void Generate_SameSeed_ProducesIdenticalShift()
+        {
+            // The property the whole feature rests on. Without it a run cannot
+            // be replayed and none of the tests below mean anything.
+            var first = ShiftConditions.Generate(SampleSites(), 42);
+            var second = ShiftConditions.Generate(SampleSites(), 42);
+
+            Assert.That(second.TroubledSiteCodes, Is.EqualTo(first.TroubledSiteCodes));
+            foreach (var site in SampleSites())
+            {
+                Assert.That(second.For(site.siteCode).DaysSinceInspection,
+                    Is.EqualTo(first.For(site.siteCode).DaysSinceInspection), site.siteCode);
+                Assert.That(second.For(site.siteCode).OpenSafetyActions,
+                    Is.EqualTo(first.For(site.siteCode).OpenSafetyActions), site.siteCode);
+                Assert.That(second.For(site.siteCode).EquipmentFault,
+                    Is.EqualTo(first.For(site.siteCode).EquipmentFault), site.siteCode);
+            }
+        }
+
+        [Test]
+        public static void Generate_AcrossSeeds_DoesNotAlwaysTroubleTheSameSites()
+        {
+            // The defect this feature exists to fix: the old scenario always
+            // had the same answer. Asserted over a range rather than against a
+            // single other seed, which could collide by chance.
+            var seen = new HashSet<string>();
+            for (int seed = 0; seed < 40; seed++)
+                seen.Add(string.Join(",", ShiftConditions.Generate(SampleSites(), seed).TroubledSiteCodes));
+
+            Assert.That(seen.Count, Is.GreaterThan(1),
+                "every seed produced the same troubled set -- the shift is not varying");
+        }
+
+        [Test]
+        public static void Generate_AlwaysTroublesBetweenOneAndTwoSites()
+        {
+            // A shift with none is vacuous: log everything OK and win. A shift
+            // where everything is broken teaches nothing either.
+            for (int seed = -20; seed < 60; seed++)
+            {
+                int troubled = ShiftConditions.Generate(SampleSites(), seed).TroubledSiteCodes.Count;
+                Assert.That(troubled, Is.InRange(1, 2), "seed " + seed + " troubled " + troubled + " sites");
+            }
+        }
+
+        [Test]
+        public static void Generate_IsIndependentOfSiteOrder()
+        {
+            // Generation ranks by hash rather than sampling the list, so the
+            // visiting order must not change who ends up troubled.
+            var forward = SampleSites();
+            var reversed = SampleSites();
+            reversed.Reverse();
+
+            Assert.That(ShiftConditions.Generate(reversed, 7).TroubledSiteCodes,
+                Is.EqualTo(ShiftConditions.Generate(forward, 7).TroubledSiteCodes));
+        }
+
+        [Test]
+        public static void Generate_CoversEverySite()
+        {
+            var conditions = ShiftConditions.Generate(SampleSites(), 3);
+            foreach (var site in SampleSites())
+                Assert.That(conditions.Has(site.siteCode), Is.True, site.siteCode);
+        }
+
+        [Test]
+        public static void Generate_Guards()
+        {
+            Assert.Throws<ArgumentNullException>(() => ShiftConditions.Generate(null, 1));
+            Assert.Throws<ArgumentException>(() => ShiftConditions.Generate(new List<SiteInfo>(), 1));
+            Assert.Throws<ArgumentException>(() =>
+                ShiftConditions.Generate(new List<SiteInfo> { Site("") }, 1));
+        }
+
+        [Test]
+        public static void For_UnknownSite_Throws() =>
+            Assert.Throws<KeyNotFoundException>(() =>
+                ShiftConditions.Generate(SampleSites(), 1).For("NOPE"));
+
+        // --- round integration -------------------------------------------
+
+        [Test]
+        public static void Constructor_SiteWithoutCondition_Throws()
+        {
+            // Fails at construction rather than silently treating the site as
+            // clean and producing a wrong verdict at the end of the shift.
+            var sites = SampleSites();
+            var partial = ConditionsFor(new List<SiteInfo> { sites[0] });
+
+            var ex = Assert.Throws<ArgumentException>(() => new InspectionRound(sites, partial));
+            Assert.That(ex.Message, Does.Contain("S002"));
+        }
+
+        [Test]
+        public static void Constructor_NullConditions_Throws() =>
+            Assert.Throws<ArgumentNullException>(() => new InspectionRound(SampleSites(), null));
+
+        [Test]
+        public static void Summary_TroubledSites_ComeFromConditionsNotStage()
+        {
+            // S003 is Proposed and S004 is Care and Maintenance in the fixture;
+            // neither matters any more. This shift says S001 is the troubled one.
+            var sites = SampleSites();
+            var round = new InspectionRound(sites, ConditionsFor(sites, "S001"));
+            round.Begin();
+            round.Decide(DecisionKind.FlagIssue, FlagReason.Safety);     // S001
+            for (int i = 1; i < sites.Count; i++)
+                round.Decide(DecisionKind.LogOk);
+
+            var summary = round.BuildSummary();
+
+            Assert.That(summary.TroubledSiteCodes, Is.EqualTo(new[] { "S001" }));
+            Assert.That(summary.CaughtEveryTroubledSite, Is.True);
+        }
+
+        [Test]
+        public static void Summary_CarriesTheSeedForReplay()
+        {
+            var sites = SampleSites();
+            var round = new InspectionRound(sites, ShiftConditions.Generate(sites, 99));
+            round.Begin();
+            for (int i = 0; i < sites.Count; i++) round.Decide(DecisionKind.LogOk);
+
+            Assert.That(round.BuildSummary().Seed, Is.EqualTo(99));
         }
     }
 }
