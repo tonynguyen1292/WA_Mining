@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python .claude/hooks/check-staged-codepoints.py",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-staged-codepoints.py\"",
             "if": "Bash(git commit*)",
             "timeout": 20,
             "statusMessage": "Checking staged codepoints"
